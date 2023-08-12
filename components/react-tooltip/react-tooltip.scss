@@ -1,0 +1,11 @@
+.react-tooltip {
+  margin-left: .4rem;
+  margin-right: .4rem;
+
+  &__container {
+    display: flex;
+    max-width: 20rem;
+    line-height: 1.5;
+    padding: .5rem;
+  }
+}

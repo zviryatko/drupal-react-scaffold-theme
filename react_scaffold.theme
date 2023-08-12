@@ -1,0 +1,30 @@
+<?php
+
+use Drupal\Core\Access\CsrfRequestHeaderAccessCheck;
+use Drupal\Core\Asset\AttachedAssetsInterface;
+
+/**
+ * Implements hook_js_settings_alter().
+ */
+function wfpspa_js_settings_alter(array &$settings, AttachedAssetsInterface $assets) {
+  /** @var \Drupal\Core\Access\CsrfTokenGenerator $tokenGenerator */
+  $tokenGenerator = \Drupal::service('csrf_token');
+  $token = $tokenGenerator->get(CsrfRequestHeaderAccessCheck::TOKEN_KEY);
+  // Support some ad-hoc with providing csrf token within the page.
+  $settings['csrfToken'] = $token;
+}
+
+/**
+ * Implements hook_preprocess_HOOK().
+ */
+function react_scaffold_preprocess_page_title(&$variables) {
+  $title = $variables['title'];
+  $variables['title'] = [
+    '#type' => 'pattern',
+    '#id' => 'react_tooltip',
+    '#fields' => [
+      'text' => 'Tooltip text',
+      'content' => $title,
+    ],
+  ];
+}

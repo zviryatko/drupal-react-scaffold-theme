@@ -1,0 +1,24 @@
+react_tooltip:
+  label: "React tooltip"
+  description: "A react tooltip."
+  fields:
+    text:
+      type: "string"
+      label: "Text"
+      description: "Tooltip text"
+      preview: "This is the tooltip text"
+    content:
+      type: "string"
+      label: "Content"
+      description: "Tooltip content"
+      preview: "Hover me to see the tooltip"
+
+  libraries:
+    - react_tooltip:
+        js:
+          ../../assets/react-tooltip.js: { }
+        css:
+          theme:
+            ../../assets/react-tooltip.css: { }
+        dependencies:
+          - react_scaffold/react

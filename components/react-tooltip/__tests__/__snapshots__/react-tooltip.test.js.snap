@@ -1,0 +1,23 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Component <TextWithTooltip />:  should match snapshot 1`] = `
+<div
+  aria-describedby="tippy-tooltip-1"
+  class="react-tooltip__container"
+  data-tooltipped=""
+  style="display: inline;"
+>
+  Test content
+</div>
+`;
+
+exports[`Component <TextWithTooltip />:  should match snapshot 2`] = `
+<div
+  aria-describedby="tippy-tooltip-1"
+  class="react-tooltip__container"
+  data-tooltipped=""
+  style="display: inline;"
+>
+  Test content
+</div>
+`;

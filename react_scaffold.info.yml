@@ -1,0 +1,10 @@
+name: 'React Scaffold'
+description: 'A React Scaffold theme.'
+type: theme
+base theme: stark
+core_version_requirement: ^8 || ^9 || ^10
+package: Scaffold
+
+libraries:
+  - "react_scaffold/global-styling"
+  - "react_scaffold/global-libraries"

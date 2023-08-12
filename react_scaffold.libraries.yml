@@ -1,0 +1,19 @@
+global-styling:
+  css:
+    theme:
+      assets/globalBundle.css: {}
+
+global-libraries:
+  js:
+    assets/globalBundle.js: { weight: -4 }
+  dependencies:
+    - core/jquery
+    - core/drupal
+    - core/once
+    - core/drupalSettings
+
+react:
+  js:
+    assets/react/react.js: { minified: true, weight: -4 }
+    assets/react/react-dom.js: { minified: true, weight: -4 }
+    assets/helpers.js: { weight: -3 }
