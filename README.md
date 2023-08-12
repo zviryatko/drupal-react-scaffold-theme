@@ -2,6 +2,16 @@
 
 Hello, this is a Drupal theme that uses React and Webpack to build the front-end.
 
+Benefits over other solutions:
+
+* it uses ui_patterns for components
+* react connected statically (on single library for any components)
+* you can mix up together React component and Drupal ajax framework 😎
+* ☝️ and it is working even for hidden elements that appears after some event, like tab open
+* fetch library wrapper with provided csrf token
+* jest tests included
+* contains example of one component
+
 ## Installation
 
 Just copy structure to your custom Drupal theme, replace `react_scaffold` with your theme name.
@@ -48,6 +58,7 @@ or in twig:
 ## Build
 
 Install the dependencies:
+
 ```bash
 docker run --rm -it -v $(pwd):/src -w /src node npm install
 ```
@@ -73,7 +84,10 @@ docker run --rm -it -v $(pwd):/src -w /src node npm run test
 ```
 
 # Components
-As per component-driven philosophy, components are standardized, interchangeable building blocks of UIs. They encapsulate the appearance and function of UI pieces.
+
+As per component-driven philosophy, components are standardized, interchangeable building blocks of UIs. They
+encapsulate the appearance and function of UI pieces.
+
 ```
 react_scalfold
     |__ components
@@ -81,9 +95,12 @@ react_scalfold
           |__ component-2
           |__ component-3
 ```
-WFPSPA components are developed following [BEM](http://getbem.com/) rules and [Atomic Design](https://bradfrost.com/blog/post/atomic-web-design/) paradigm as base.
+
+WFPSPA components are developed following [BEM](http://getbem.com/) rules
+and [Atomic Design](https://bradfrost.com/blog/post/atomic-web-design/) paradigm as base.
 
 Each component folder must contain all assets needed for the component itself, for example:
+
 ```
 component-1
     |__ images
@@ -94,12 +111,17 @@ component-1
     |__ component-1.ui_patterns.yml
     |__ pattern-component-1.html.twig
 ```
-A component could be an **ui_pattern** (from [ui_patterns](https://www.drupal.org/project/ui_patterns) Drupal module) like the example above, but not necessarily. Take the pager as example for a very simple component:
+
+A component could be an **ui_pattern** (from [ui_patterns](https://www.drupal.org/project/ui_patterns) Drupal module)
+like the example above, but not necessarily. Take the pager as example for a very simple component:
+
 ```
 pager
     |__ _pager.scss
 ```
+
 Here's also an example of a React component:
+
 ```
 react-tooltip
     |__ __tests__
@@ -114,6 +136,7 @@ react-tooltip
 ```
 
 # Credits
+
 - Scaffolded by [zviryatko](https://github.com/zviryatko)
 - Developed by [Nuvole.org](https://nuvole.org)
 - The initial theme scaffolding was inspired by project of [Massimo Altafini](massimo@nuvole.org)
