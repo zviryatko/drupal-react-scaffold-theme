@@ -12,6 +12,10 @@ Benefits over other solutions:
 * jest tests included
 * contains example of one component
 
+## Demo
+
+https://github.com/zviryatko/drupal-react-scaffold-theme/assets/1087411/aa084ad1-d22e-48be-99ce-7f555445db58
+
 ## Installation
 
 Just copy structure to your custom Drupal theme, replace `react_scaffold` with your theme name.
