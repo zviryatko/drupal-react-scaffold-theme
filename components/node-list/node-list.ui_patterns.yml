@@ -1,0 +1,26 @@
+node_list:
+  label: 'Node list'
+  description: 'Table with list of nodes.'
+  fields:
+    endpoint:
+      type: string
+      label: 'Endpoint'
+      description: 'Endpoint for the node list.'
+      preview: '/api/node'
+  variants:
+    light:
+      label: "Light"
+    dark:
+      label: "Dark"
+
+  libraries:
+    - node_list:
+        js:
+          ../../assets/node-list.js: { }
+        css:
+          theme:
+            ../../assets/node-list.css: { }
+        dependencies:
+          - react_scaffold/react
+          - core/drupal.ajax
+          - core/drupal.dropbutton

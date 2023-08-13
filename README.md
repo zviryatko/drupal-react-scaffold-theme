@@ -135,6 +135,32 @@ react-tooltip
     |__ TextWithTooltip.jsx
 ```
 
+## Examples
+
+### Simple example
+
+See `react_scaffold/components/react-tooltip` for example.
+
+When enable the them you will see that page title has a tooltip.
+
+### Very complex example
+
+See `react_scaffold/components/node-list` for example.
+
+To enable download the theme and enable it. Run next command after:
+
+```php
+composer require drupal/views_better_rest
+drush en node rest serialization user views_better_rest config
+drush cim --partial --source=themes/custom/react_scaffold/config/optional/
+```
+
+Create few node types and add some nodes.
+
+Then open `/patterns/node_list` page. You will see a list of nodes. You can filter it by type and sort by updated date.
+
+Awesome thing is edit button. It is a React component that uses Drupal ajax framework to open node edit form in modal.
+
 # Credits
 
 - Scaffolded by [zviryatko](https://github.com/zviryatko)

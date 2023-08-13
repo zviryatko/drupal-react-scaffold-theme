@@ -1,5 +1,9 @@
 import axios from "axios";
 
+const drupalSettings = window.drupalSettings || {};
+const Drupal = window.Drupal || {};
+
+
 // Execute callback when element become visible.
 // Algorithm is simple: run callback if element is visible
 // Get first hidden parent and attach mutation observer
@@ -33,7 +37,7 @@ export const executeWhenVisible = (element, callback, id) => {
 export const attachBehaviors = (element) => {
   // Remove once() from document.body to force attaching ajax links again.
   // See ajax.es6.js and `Drupal.ajax.bindAjaxLinks(document.body);`
-  document.body.removeAttribute('data-once');
+  once.remove('ajax', 'body');
   Drupal.attachBehaviors(element);
 }
 
@@ -59,6 +63,30 @@ export const detachBehaviors = (element) => {
 export const reattachBehaviors = (element) => {
   detachBehaviors(element);
   attachBehaviors(element);
+}
+
+/**
+ * Attach drupal behaviors to react component.
+ *
+ * @param WrappedComponent
+ */
+export const withDrupalBehaviors = (WrappedComponent) => {
+  return class extends React.Component {
+    constructor(props) {
+      super(props);
+      this.refToElemWithBehaviors = React.createRef();
+    }
+    componentDidMount() {
+      const el = this.refToElemWithBehaviors.current;
+      // Using a timeout because of a race with drupal's ajax.js
+      setTimeout(function() {
+        attachBehaviors(el, drupalSettings)
+      }, 1);
+    }
+    render() {
+      return <WrappedComponent ref={this.refToElemWithBehaviors} {...this.props} />;
+    }
+  }
 }
 
 /**

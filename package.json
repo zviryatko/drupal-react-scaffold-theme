@@ -13,7 +13,9 @@
     "react-query": "^3.34.14",
     "react-tippy": "^1.4.0",
     "uuid": "^8.3.2",
-    "whatwg-fetch": "^3.6.2"
+    "whatwg-fetch": "^3.6.2",
+    "rsuite": "^5.37.4",
+    "rsuite-table": "^5.11.0"
   },
   "devDependencies": {
     "@babel/core": "^7.17.2",
