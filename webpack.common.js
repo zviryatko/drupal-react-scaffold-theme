@@ -10,10 +10,11 @@ const buildDir = "assets";
 
 const config = {
   entry: {
-    // All assets needed on all pages are compiled in a globalBundle:
-    globalBundle: "./components/global.js",
+    // All assets needed on all pages are compiled in a common:
+    common: "./components/common.js",
     // All assets loaded only in some pages will have their own bundle:
-    helpers: "./components/Helpers.js",
+    helpers: "./components/helpers.js",
+    apiClient: "./components/apiClient.js",
     // Iterate over each directory in "components" and create a bundle for each:
     ...Object.fromEntries(
       fs

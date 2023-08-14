@@ -22,5 +22,6 @@ node_list:
             ../../assets/node-list.css: { }
         dependencies:
           - react_scaffold/react
+          - react_scaffold/react-api-client
           - core/drupal.ajax
           - core/drupal.dropbutton

@@ -1,5 +1,4 @@
 import {TextWithTooltip} from './TextWithTooltip';
-import {executeWhenVisible} from "Components/Helpers";
 import './react-tooltip.scss'
 
 // Values for this component (e.g. 'text') come from the pattern field.

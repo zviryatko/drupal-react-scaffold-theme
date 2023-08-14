@@ -1,11 +1,11 @@
 global-styling:
   css:
     theme:
-      assets/globalBundle.css: {}
+      assets/common.css: {}
 
 global-libraries:
   js:
-    assets/globalBundle.js: { weight: -4 }
+    assets/common.js: { minified: true, weight: -4 }
   dependencies:
     - core/jquery
     - core/drupal
@@ -16,4 +16,8 @@ react:
   js:
     assets/react/react.js: { minified: true, weight: -4 }
     assets/react/react-dom.js: { minified: true, weight: -4 }
-    assets/helpers.js: { weight: -3 }
+    assets/helpers.js: { minified: true, weight: -3 }
+
+react-api-client:
+  js:
+    assets/apiClient.js: { minified: true, weight: -2 }

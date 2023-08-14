@@ -1,5 +1,4 @@
 import {useState, useEffect} from "react";
-import {apiClient, withDrupalBehaviors} from "Components/Helpers"
 import {Table, Column, HeaderCell, Cell} from 'rsuite-table';
 import {Form, SelectPicker} from 'rsuite';
 
@@ -18,7 +17,7 @@ export const NodeList = ({endpoint, theme}) => {
     if (sortType) {
       params.sort_order = sortType.toUpperCase()
     }
-    apiClient.get(endpoint, {params})
+    apiClient(endpoint, params)
       .then((response) => {
         setResponse(response)
         setLoading(false)
@@ -35,34 +34,15 @@ export const NodeList = ({endpoint, theme}) => {
       setFilters({...filters, [key]: value})
     }
   }
+  const clearFilter = (key) => {
+    return () => {
+      setFilters({...filters, [key]: null})
+    }
+  }
   const isSortable = (col) => {
     return response?.exposed_sorts?.filter(sort => sort?.field_identifier === col).length > 0
   }
   const ucfirst = (word) => word.charAt(0).toUpperCase() + word.slice(1)
-  const isHtml = (str) => {
-    var a = document.createElement('div');
-    a.innerHTML = str;
-
-    for (var c = a.childNodes, i = c.length; i--;) {
-      if (c[i].nodeType === 1) {
-        return true;
-      }
-    }
-
-    return false;
-  }
-  const showHtml = (col) => {
-    return (row) => {
-      if (!isHtml(row[col])) {
-        return row[col]
-      }
-      const CustomRef = React.forwardRef((props, ref) => (
-        <div ref={ref} dangerouslySetInnerHTML={{__html: props.html}}/>
-      ))
-      const Custom = withDrupalBehaviors(CustomRef)
-      return <Custom html={row[col]}/>
-    }
-  }
   const getOptions = (options) => {
     const entries = Object.entries(options)
     return entries.map((data) => {
@@ -79,14 +59,27 @@ export const NodeList = ({endpoint, theme}) => {
     <>
       {response?.exposed_filters?.length && (
         <Form>
-            {response.exposed_filters.map((filter) =>
-              <Form.Group key={filter.identifier}>
-                <Form.ControlLabel>{filter.label}</Form.ControlLabel>
-                {!filter?.options && (<Form.Control onChange={applyFilters(filter.identifier)} name={filter.identifier} />)}
-                {filter?.options && (<SelectPicker onSelect={applyFilters(filter.identifier)} name={filter.identifier} data={getOptions(filter.options)} />)}
-                {filter?.description && (<Form.HelpText>{filter?.description}</Form.HelpText>)}
-              </Form.Group>
-            )}
+          {response.exposed_filters.map((filter) =>
+            <Form.Group key={filter.identifier}>
+              <Form.ControlLabel>{filter.label}</Form.ControlLabel>
+              {!filter?.options && (
+                <Form.Control
+                  onChange={applyFilters(filter.identifier)}
+                  onReset={applyFilters(filter.identifier)}
+                  name={filter.identifier}/>
+              )}
+              {filter?.options && (
+                <SelectPicker
+                  onClean={clearFilter(filter.identifier)}
+                  onSelect={applyFilters(filter.identifier)}
+                  name={filter.identifier}
+                  data={getOptions(filter.options)}/>
+              )}
+              {filter?.description && (
+                <Form.HelpText>{filter?.description}</Form.HelpText>
+              )}
+            </Form.Group>
+          )}
         </Form>
       )}
       <Table data={response.rows}
@@ -104,7 +97,7 @@ export const NodeList = ({endpoint, theme}) => {
             sortable={isSortable(col)}
           >
             <HeaderCell>{ucfirst(col)}</HeaderCell>
-            <Cell rowKey={'nid'} dataKey={col}>{showHtml(col)}</Cell>
+            <Cell rowKey={'nid'} dataKey={col}>{(row) => rawHtml(row[col])}</Cell>
           </Column>
         })}
       </Table>

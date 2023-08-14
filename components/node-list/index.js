@@ -1,5 +1,4 @@
 import {NodeList} from './NodeList';
-import {executeWhenVisible} from "Components/Helpers";
 import './node-list.scss'
 
 (function (Drupal, $, once) {
