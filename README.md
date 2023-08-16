@@ -100,7 +100,7 @@ react_scalfold
           |__ component-3
 ```
 
-WFPSPA components are developed following [BEM](http://getbem.com/) rules
+Components are developed following [BEM](http://getbem.com/) rules
 and [Atomic Design](https://bradfrost.com/blog/post/atomic-web-design/) paradigm as base.
 
 Each component folder must contain all assets needed for the component itself, for example:
