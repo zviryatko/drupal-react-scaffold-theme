@@ -1,7 +1,7 @@
 name: 'React Scaffold'
 description: 'A React Scaffold theme.'
 type: theme
-base theme: stark
+base theme: demo_umami
 core_version_requirement: ^8 || ^9 || ^10
 package: Scaffold
 
