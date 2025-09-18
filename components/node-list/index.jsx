@@ -1,11 +1,11 @@
 import {NodeList} from './NodeList';
 import './node-list.scss'
+import { createRoot } from 'react-dom/client';
 
 (function (Drupal, $, once) {
   const attachNodeList = (element) => {
-    ReactDOM.render(
-      <NodeList endpoint={element.dataset.endpoint} theme={element.dataset.theme}/>,
-      element
+    createRoot(element).render(
+      <NodeList endpoint={element.dataset.endpoint} theme={element.dataset.theme}/>
     );
   };
 
