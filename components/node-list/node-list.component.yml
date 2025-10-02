@@ -1,0 +1,43 @@
+$schema: https://git.drupalcode.org/project/drupal/-/raw/HEAD/core/assets/schemas/v1/metadata.schema.json
+name: Node List
+status: stable
+description: 'A React-based component that displays a list of nodes with theme variants.'
+group: Content
+props:
+  type: object
+  properties:
+    endpoint:
+      type: string
+      title: Endpoint
+      description: 'API endpoint for fetching node data'
+      default: '/api/node'
+      examples:
+        - '/api/node'
+    variant:
+      type: string
+      title: Theme Variant
+      description: 'Visual theme for the component'
+      default: 'light'
+      enum:
+        - 'light'
+        - 'dark'
+      meta:enum:
+        light: Light
+        dark: Dark
+      x-translation-context: Theme variants
+      examples:
+        - 'light'
+        - 'dark'
+  required:
+    - endpoint
+libraryOverrides:
+  js:
+    ../../assets/node-list.js: { }
+  css:
+    theme:
+      ../../assets/node-list.css: { }
+  dependencies:
+    - react_scaffold/react
+    - react_scaffold/react-api-client
+    - core/drupal.ajax
+    - core/drupal.dropbutton

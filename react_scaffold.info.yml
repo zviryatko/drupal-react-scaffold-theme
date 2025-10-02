@@ -1,10 +1,31 @@
 name: 'React Scaffold'
-description: 'A React Scaffold theme.'
+description: 'A React Scaffold theme with Single Directory Components.'
 type: theme
-base theme: demo_umami
-core_version_requirement: ^8 || ^9 || ^10
+base theme: umami
+core_version_requirement: ^10 || ^11
 package: Scaffold
 
 libraries:
   - "react_scaffold/global-styling"
   - "react_scaffold/global-libraries"
+
+# Enable component discovery in the components directory
+components:
+  namespaces:
+    react_scaffold: components
+
+regions:
+  pre_header: Pre-header
+  header: Header
+  highlighted: Highlighted
+  tabs: Tabs
+  banner_top: 'Banner Top'
+  breadcrumbs: Breadcrumbs
+  page_title: 'Page Title'
+  content: Content
+  sidebar: Sidebar
+  content_bottom: 'Content Bottom'
+  footer: Footer
+  bottom: Bottom
+  page_top: 'Page top' # Needed by Drupal Core
+  page_bottom: 'Page bottom' # Needed by Drupal Core
