@@ -1,0 +1,33 @@
+$schema: https://git.drupalcode.org/project/drupal/-/raw/HEAD/core/assets/schemas/v1/metadata.schema.json
+name: React Tooltip
+status: stable
+description: 'A React-based tooltip component that displays helpful text on hover.'
+group: Interactive
+props:
+  type: object
+  properties:
+    text:
+      type: string
+      title: Tooltip Text
+      description: 'The text to display in the tooltip'
+      default: 'Tooltip text'
+      examples:
+        - 'This is the tooltip text'
+    content:
+      type: string
+      title: Content
+      description: 'The content that triggers the tooltip when hovered'
+      default: 'Hover me'
+      examples:
+        - 'Hover me to see the tooltip'
+  required:
+    - text
+    - content
+libraryOverrides:
+  js:
+    ../../assets/react-tooltip.js: { }
+  css:
+    theme:
+      ../../assets/react-tooltip.css: { }
+  dependencies:
+    - react_scaffold/react
