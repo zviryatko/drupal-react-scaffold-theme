@@ -3,6 +3,7 @@ import react from '@vitejs/plugin-react';
 import { resolve } from 'path';
 import { readdir, lstat } from 'fs/promises';
 import { vitePluginCopyReact } from './vite-plugin-copy-react.js';
+import vitePluginExternal from 'vite-plugin-external';
 
 // Helper function to get dynamic entries from components directory
 async function getDynamicEntries() {
@@ -108,6 +109,13 @@ export default defineConfig(async ({ mode }) => {
     plugins: [
       react({
         jsxRuntime: 'classic',
+      }),
+      vitePluginExternal({
+        externals: {
+          'react': 'React',
+          'react-dom': 'ReactDOM',
+          'react-dom/client': 'ReactDOM',
+        }
       }),
       vitePluginCopyReact(mode),
     ],
