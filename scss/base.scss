@@ -1,0 +1,40 @@
+// Neutral layout skeleton of the base theme. No colors or fonts: subthemes bring the look.
+.page {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+
+  &__main {
+    flex: 1 0 auto;
+    width: 100%;
+    max-width: var(--page-max-width, 75rem);
+    margin: 0 auto;
+    padding: 0 var(--page-gutter, 1.25rem);
+    box-sizing: border-box;
+  }
+
+  &__columns {
+    display: grid;
+    gap: var(--page-gutter, 1.25rem);
+
+    &--with-sidebar {
+      grid-template-columns: minmax(0, 3fr) minmax(0, 1fr);
+    }
+  }
+
+  &__header,
+  &__pre-header,
+  &__footer {
+    width: 100%;
+    max-width: var(--page-max-width, 75rem);
+    margin: 0 auto;
+    padding: 0 var(--page-gutter, 1.25rem);
+    box-sizing: border-box;
+  }
+}
+
+@media (max-width: 48rem) {
+  .page__columns--with-sidebar {
+    grid-template-columns: 1fr;
+  }
+}

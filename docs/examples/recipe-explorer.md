@@ -1,6 +1,6 @@
 # Recipe explorer: filters from a Views REST export
 
-A complete example of the scaffold: a React recipe browser on the Umami demo where **everything the UI shows comes from one View**.
+A complete example, from the `react_scaffold_demo` subtheme (all paths below are inside `examples/react_scaffold_demo/`): a React recipe browser on the Umami demo where **everything the UI shows comes from one View**.
 Add a filter to the view and a new control appears, no React change.
 
 <Video src="/media/recipe-explorer-demo.mp4" poster="/media/screenshots/09-recipe-explorer-devtools.png" />
@@ -196,7 +196,7 @@ useEffect(() => {
 with the REST URL of the sibling display:
 
 ```twig
-{% include 'react_scaffold:recipe-explorer' with {
+{% include 'react_scaffold_demo:recipe-explorer' with {
   endpoint: path('view.recipe_explorer.better_rest_export_1'),
   heading: 'Recipes'|t,
 } only %}
@@ -208,15 +208,15 @@ The files below are imported from the repository, so they are always the real co
 
 ::: code-group
 
-<<< ../../components/recipe-explorer/recipe-explorer.component.yml{yaml} [recipe-explorer.component.yml]
+<<< ../../examples/react_scaffold_demo/components/recipe-explorer/recipe-explorer.component.yml{yaml} [recipe-explorer.component.yml]
 
-<<< ../../components/recipe-explorer/recipe-explorer.twig{twig} [recipe-explorer.twig]
+<<< ../../examples/react_scaffold_demo/components/recipe-explorer/recipe-explorer.twig{twig} [recipe-explorer.twig]
 
-<<< ../../components/recipe-explorer/index.jsx{jsx} [index.jsx]
+<<< ../../examples/react_scaffold_demo/components/recipe-explorer/index.jsx{jsx} [index.jsx]
 
-<<< ../../components/recipe-explorer/RecipeExplorer.jsx{jsx} [RecipeExplorer.jsx]
+<<< ../../examples/react_scaffold_demo/components/recipe-explorer/RecipeExplorer.jsx{jsx} [RecipeExplorer.jsx]
 
-<<< ../../components/recipe-explorer/recipe-explorer.scss{scss} [recipe-explorer.scss]
+<<< ../../examples/react_scaffold_demo/components/recipe-explorer/recipe-explorer.scss{scss} [recipe-explorer.scss]
 
 :::
 

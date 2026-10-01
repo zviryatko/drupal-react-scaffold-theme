@@ -1,0 +1,30 @@
+$schema: https://git.drupalcode.org/project/drupal/-/raw/HEAD/core/assets/schemas/v1/metadata.schema.json
+name: Hello React
+status: experimental
+description: 'Starter React component: a greeting and a counter button.'
+group: Starter
+props:
+  type: object
+  properties:
+    greeting:
+      type: string
+      title: Greeting
+      default: 'Hello'
+      examples:
+        - 'Hello'
+    start:
+      type: integer
+      title: Start value
+      default: 0
+slots:
+  name:
+    title: Name
+    description: 'Who to greet. Markup is allowed, it is read as text.'
+libraryOverrides:
+  js:
+    ../../assets/hello-react.js: { attributes: { type: module } }
+  css:
+    theme:
+      ../../assets/hello-react.css: { }
+  dependencies:
+    - react_scaffold/react

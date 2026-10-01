@@ -1,6 +1,6 @@
 # Node list: React table with Drupal ajax inside
 
-`components/node-list`, page `/node-list`. Shows how React and Drupal's own ajax/dialog system live together.
+`components/node-list` in the `react_scaffold_demo` subtheme (`examples/react_scaffold_demo/`), page `/node-list`. Shows how React and Drupal's own ajax/dialog system live together.
 
 <Video src="/media/node-list-modal-demo.mp4" poster="/media/screenshots/10-node-list-modal-devtools.png" />
 
@@ -32,15 +32,15 @@ libraryOverrides:
 
 ::: code-group
 
-<<< ../../components/node-list/node-list.component.yml{yaml} [node-list.component.yml]
+<<< ../../examples/react_scaffold_demo/components/node-list/node-list.component.yml{yaml} [node-list.component.yml]
 
-<<< ../../components/node-list/node-list.twig{twig} [node-list.twig]
+<<< ../../examples/react_scaffold_demo/components/node-list/node-list.twig{twig} [node-list.twig]
 
-<<< ../../components/node-list/index.jsx{jsx} [index.jsx]
+<<< ../../examples/react_scaffold_demo/components/node-list/index.jsx{jsx} [index.jsx]
 
-<<< ../../components/node-list/NodeList.jsx{jsx} [NodeList.jsx]
+<<< ../../examples/react_scaffold_demo/components/node-list/NodeList.jsx{jsx} [NodeList.jsx]
 
-<<< ../../components/node-list/node-list.scss{scss} [node-list.scss]
+<<< ../../examples/react_scaffold_demo/components/node-list/node-list.scss{scss} [node-list.scss]
 
 :::
 

@@ -15,7 +15,7 @@ react:
   js:
     assets/react/react.js: { minified: true, weight: -4 }
     assets/react/react-dom.js: { minified: true, weight: -4 }
-    assets/helpers.js: { minified: true, weight: -3, attributes: { type: module } }
+    assets/helpers.js: { minified: true, weight: -3 }
   dependencies:
     - react_scaffold/global-libraries
 

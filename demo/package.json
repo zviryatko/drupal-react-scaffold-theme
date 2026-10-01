@@ -1,0 +1,11 @@
+{
+  "name": "react-scaffold-demo-recorder",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "capture": "node capture.mjs"
+  },
+  "devDependencies": {
+    "playwright": "^1.63.0"
+  }
+}

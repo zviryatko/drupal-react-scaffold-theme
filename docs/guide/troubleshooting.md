@@ -9,6 +9,13 @@ Problems hit while building this scaffold, with the fix.
 | Old CSS/JS after a rebuild | Drupal keeps the `?query` token of asset URLs until a cache rebuild: `drush cr`. Turn aggregation off in development |
 | `Unable to render component ... A render array or a scalar is expected for the slot` | The slot value was a markup object (e.g. `TranslatableMarkup` page title). Wrap: `['#markup' => $title]` |
 | `/user/login` returns 500 after adding the page title component | Same as above: titles can be objects |
+| Blocks placed in `page_title`, `breadcrumbs`, `pre_header`... are disabled or sit in `sidebar_first` after installing the subtheme | Drupal does not inherit `regions:` from a base theme, the subtheme got core's default regions. Copy the `regions:` block of `react_scaffold.info.yml` into your `info.yml`, uninstall and install the theme again (or move the blocks) |
+| `Cannot find module 'react-scaffold/vite'` (or `react-scaffold/jest`) | The `file:` link is missing: run `npm install` in the subtheme. Check the relative path in `package.json` points at the base theme folder |
+| Build or tests fail with `Cannot find module '@vitejs/plugin-react'` / `jest-environment-jsdom` | The base theme's own dependencies are not installed. `npm install` in the subtheme runs a `preinstall` that installs them, or run `npm install` in the base theme folder |
+| `f.attachBehaviors is not a function` / helpers fail after an update | The base theme `assets/helpers.js` is stale: run `npm run dist` in the base theme and commit `assets/`, or update to a base version with lazy `window.Drupal` access |
+| Jest: hooks error "Invalid hook call" or two Reacts | A dependency installed its own `react`. Use `require('react-scaffold/jest')`, it maps `react`/`react-dom` to the base theme copy |
+| Contextual links or other core UI appear unstyled/open in your theme | Your CSS matched core markup (`nav ul { display: flex }` also matches `.contextual-links`). Exclude them: `ul:not(.contextual-links)` |
+| stable9 markup has no classes (menus, blocks) | Style by structure (`.page__header nav ul`) or override the Twig templates in your subtheme |
 | Page display of a REST view: `Call to undefined method Page::getContentType()` | The page display inherits the REST *serializer* style. Override style and row on the page display (`defaults: { style: false, row: false }`) |
 | Page display shows an empty title | Override the title on that display (`defaults: { title: false }`) |
 | Each row appears twice in the API | A relationship (media) joins translations. Filter the related entity's language too |

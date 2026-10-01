@@ -73,7 +73,7 @@ const loginState = path.join(tmp, 'admin.json');
   const cards = page.locator('.recipe-explorer__card');
 
   await page.goto(`${BASE}/en`); await settle(page);
-  await shot('01-umami-home');
+  await shot('01-home');
 
   await page.goto(`${BASE}/recipe-explorer`); await cards.first().waitFor(); await settle(page);
   await shot('02-recipe-explorer');

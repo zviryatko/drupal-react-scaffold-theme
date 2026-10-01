@@ -1,0 +1,261 @@
+// Look of the demo subtheme: palette and shapes of the Umami demo, system font stacks.
+$green: #008068;
+$green-dark: #025c4b;
+$green-light: #e6eee0;
+$cream: #fcf4ed;
+$ink: #333;
+$grey: #767775;
+
+:root {
+  --page-max-width: 75rem;
+  --page-gutter: 1.25rem;
+  --font-body: "Source Sans Pro", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-display: "Scope One", Georgia, "Times New Roman", serif;
+}
+
+body {
+  margin: 0;
+  background: $cream;
+  color: $ink;
+  font: 1.0625rem/1.6 var(--font-body);
+}
+
+a {
+  color: $green;
+}
+
+a:hover {
+  color: $green-dark;
+}
+
+h1, h2, h3 {
+  font-family: var(--font-display);
+  font-weight: 400;
+  line-height: 1.2;
+}
+
+// Stable9 markup has no classes on blocks and menus, so the theme styles by structure.
+.page__pre-header,
+.page__header,
+.page__footer {
+  ul:not(.contextual-links) {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+}
+
+.page__pre-header {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1.5rem;
+  font-size: .95rem;
+  border-bottom: 1px solid #ecdfd2;
+  max-width: none;
+  padding-inline: max(var(--page-gutter), calc((100% - var(--page-max-width)) / 2 + var(--page-gutter)));
+
+  > div {
+    display: flex;
+    gap: 1.5rem;
+    margin: .25rem 0;
+  }
+
+  ul:not(.contextual-links) {
+    display: flex;
+    gap: 1rem;
+  }
+}
+
+// Header: logo left, main menu right.
+.page__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  min-height: 7rem;
+  background: #fff;
+  max-width: none;
+  padding-inline: max(var(--page-gutter), calc((100% - var(--page-max-width)) / 2 + var(--page-gutter)));
+
+  img {
+    display: block;
+    width: 4.4rem;
+    height: auto;
+  }
+
+  > div {
+    display: flex;
+    flex: 1;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+  }
+
+  nav ul:not(.contextual-links) {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.75rem;
+  }
+
+  nav a {
+    color: $ink;
+    font-family: var(--font-display);
+    font-size: 1.15rem;
+    text-decoration: none;
+    border-bottom: 2px solid transparent;
+  }
+
+  nav a:hover,
+  nav a.is-active {
+    border-bottom-color: $green;
+  }
+}
+
+// Breadcrumb (a <nav> with an <ol>) and page title (<h1>).
+.page__main nav ol {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0;
+  padding: 1rem 0 0;
+  list-style: none;
+  font-size: .95rem;
+
+  li + li::before {
+    content: "»";
+    padding: 0 .4rem;
+  }
+}
+
+.page__main h1 {
+  margin: 1.5rem 0;
+  text-align: center;
+  font-size: 2.25rem;
+}
+
+.tabs {
+  margin-bottom: 1rem;
+}
+
+.messages {
+  margin: 1rem 0;
+  padding: 1rem;
+  border-radius: .35rem;
+  background: $green-light;
+}
+
+.page__main {
+  padding-bottom: 3rem;
+}
+
+.page__footer {
+  max-width: none;
+  padding-block: 2rem;
+  background: #4d4d4d;
+  color: #fff;
+  text-align: center;
+
+  a {
+    color: #fff;
+  }
+
+  ul:not(.contextual-links) {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1.5rem;
+  }
+}
+
+@media (max-width: 48rem) {
+  .page__header {
+    flex-direction: column;
+    align-items: flex-start;
+    padding-block: 1rem;
+  }
+
+  .page__header nav ul:not(.contextual-links) {
+    gap: 1rem;
+  }
+}
+
+// Hide the footer band while it has no content.
+.page__footer:not(:has(a, p, li, img)) {
+  display: none;
+}
+
+// Drupal modal dialog (jQuery UI) and the forms inside it, shown by "Edit in Modal".
+.ui-dialog {
+  z-index: 1200;
+  border: 0;
+  border-radius: .5rem;
+  background: #fff;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, .3);
+  overflow: hidden;
+  font-family: var(--font-body);
+
+  .ui-dialog-titlebar {
+    padding: .75rem 1rem;
+    background: $green-light;
+    border: 0;
+    font-family: var(--font-display);
+  }
+
+  .ui-dialog-content {
+    padding: 1rem 1.25rem;
+  }
+
+  label,
+  .fieldset-legend {
+    display: block;
+    margin: .75rem 0 .25rem;
+    font-weight: 600;
+  }
+
+  input[type="text"],
+  input[type="number"],
+  select,
+  textarea {
+    box-sizing: border-box;
+    max-width: 100%;
+    padding: .45rem .6rem;
+    border: 1px solid #b8c4b0;
+    border-radius: .25rem;
+    font: inherit;
+  }
+
+  input[type="text"] {
+    width: 100%;
+  }
+
+  fieldset {
+    margin: 1rem 0;
+    border: 1px solid #d9e1d2;
+    border-radius: .35rem;
+  }
+
+  .ui-dialog-buttonpane {
+    margin: 0;
+    padding: .75rem 1.25rem;
+    border-top: 1px solid #ecdfd2;
+  }
+
+  .form-submit,
+  .button,
+  .ui-button {
+    margin-right: .5rem;
+    padding: .5rem 1.1rem;
+    border: 1px solid $green;
+    border-radius: .25rem;
+    background: #fff;
+    color: $green;
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .button--primary,
+  .form-submit:first-of-type {
+    background: $green;
+    color: #fff;
+  }
+}

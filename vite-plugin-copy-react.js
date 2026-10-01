@@ -1,47 +1,25 @@
-import { copyFile, mkdir } from 'fs/promises';
-import { resolve, dirname } from 'path';
-import { existsSync } from 'fs';
+import { copyFile, mkdir } from 'node:fs/promises';
+import { resolve } from 'node:path';
+import { createRequire } from 'node:module';
 
-export function vitePluginCopyReact(mode = 'development') {
+// Copies the React UMD builds into <root>/<outDir>/react. They are loaded once per page by the
+// `react_scaffold/react` library, every component bundle treats React as an external (window.React).
+export function vitePluginCopyReact({ root, outDir = 'assets', mode = 'development' }) {
+  const require = createRequire(import.meta.url);
+  const umd = (pkg, file) => resolve(require.resolve(`${pkg}/package.json`), '..', 'umd', file);
+  const dev = mode === 'development';
+
   return {
     name: 'copy-react',
     writeBundle: {
       sequential: true,
       async handler() {
-        const outDir = resolve(__dirname, 'assets');
-        const reactDir = resolve(outDir, 'react');
-
-        // Ensure react directory exists
-        if (!existsSync(reactDir)) {
-          await mkdir(reactDir, { recursive: true });
-        }
-
-        const isDev = mode === 'development';
-
-        const reactSource = isDev
-          ? 'node_modules/react/umd/react.development.js'
-          : 'node_modules/react/umd/react.production.min.js';
-
-        const reactDomSource = isDev
-          ? 'node_modules/react-dom/umd/react-dom.development.js'
-          : 'node_modules/react-dom/umd/react-dom.production.min.js';
-
-        try {
-          await copyFile(
-            resolve(__dirname, reactSource),
-            resolve(reactDir, 'react.js')
-          );
-
-          await copyFile(
-            resolve(__dirname, reactDomSource),
-            resolve(reactDir, 'react-dom.js')
-          );
-
-          console.log('React libraries copied successfully');
-        } catch (error) {
-          console.warn('Failed to copy React libraries:', error.message);
-        }
-      }
-    }
+        const target = resolve(root, outDir, 'react');
+        await mkdir(target, { recursive: true });
+        await copyFile(umd('react', dev ? 'react.development.js' : 'react.production.min.js'), resolve(target, 'react.js'));
+        await copyFile(umd('react-dom', dev ? 'react-dom.development.js' : 'react-dom.production.min.js'), resolve(target, 'react-dom.js'));
+        console.log('React libraries copied successfully');
+      },
+    },
   };
 }

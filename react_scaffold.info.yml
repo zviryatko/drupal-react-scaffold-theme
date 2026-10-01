@@ -1,13 +1,14 @@
 name: 'React Scaffold'
-description: 'A React Scaffold theme with Single Directory Components.'
+description: 'Base theme for React islands built as core Single Directory Components. Provides React, helpers, the API client, a page layout and a shared Vite/Jest config. Create a subtheme to use it.'
 type: theme
-base theme: umami
-core_version_requirement: ^10 || ^11
+base theme: stable9
+core_version_requirement: ^10.3 || ^11
 package: Scaffold
 
+# Inherited by every subtheme.
 libraries:
-  - "react_scaffold/global-styling"
-  - "react_scaffold/global-libraries"
+  - react_scaffold/global-styling
+  - react_scaffold/global-libraries
 
 regions:
   pre_header: Pre-header

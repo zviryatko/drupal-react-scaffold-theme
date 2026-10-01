@@ -1,0 +1,50 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  base:
+    name: Base theme
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - name: Built assets are up to date
+        run: |
+          npm run dist
+          git diff --exit-code -- assets || (echo "assets/ is stale: run npm run dist and commit" && exit 1)
+
+  example:
+    name: Example subtheme
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm install
+        working-directory: examples/react_scaffold_demo
+      - run: npm run dist
+        working-directory: examples/react_scaffold_demo
+      - run: npm test
+        working-directory: examples/react_scaffold_demo
+
+  generator:
+    name: Generated subtheme
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node scripts/create-subtheme.mjs ci_theme "CI Theme" "$RUNNER_TEMP/themes"
+      - run: npm install && npm run dist && npm test
+        working-directory: ${{ runner.temp }}/themes/ci_theme

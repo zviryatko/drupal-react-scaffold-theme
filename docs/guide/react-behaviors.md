@@ -64,14 +64,14 @@ once('react', '.my-widget', context)      // → array of elements, safe to forE
 ### 3. `executeWhenVisible(element, callback, id)`
 
 Widgets inside collapsed `<details>`, inactive tabs or closed modals have no size, and libraries that measure their container
-(tables, charts) render wrongly there. `helpers.jsx` waits until the element is visible: if it has layout boxes it calls
+(tables, charts) render wrongly there. `helpers.jsx` (base theme, `src/helpers.jsx`) waits until the element is visible: if it has layout boxes it calls
 `callback(element)` and re-attaches Drupal behaviors inside it, otherwise it observes the outermost hidden ancestor with a
 `MutationObserver` (attribute changes like `class`, `style`, `hidden`, `open`) and tries again. A `WeakMap` ensures one observer per
 ancestor and id. Use it for anything that is not trivially visible, it costs nothing when the element is visible.
 
 ## Why React is a global
 
-`react_scaffold/react` loads `assets/react/react.js` and `react-dom.js` (UMD builds) once. Components are built with React as an
+The base theme library `react_scaffold/react` loads `assets/react/react.js` and `react-dom.js` (UMD builds) once. Components are built with React as an
 **external**: `import React from 'react'` becomes `window.React`. Benefits:
 
 - N components on a page share one React (no duplicated 140 kB, no "two copies of React" hook errors),

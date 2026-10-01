@@ -1,0 +1,26 @@
+name: 'React Scaffold Demo'
+description: 'Example subtheme of React Scaffold: tooltip, node list and recipe explorer components, views and blocks for the demo_umami content.'
+type: theme
+base theme: react_scaffold
+core_version_requirement: ^10.3 || ^11
+package: Scaffold
+
+libraries:
+  - react_scaffold_demo/global-styling
+
+# Drupal does not inherit regions from a base theme, so they are declared again. The base theme's page.html.twig prints exactly these.
+regions:
+  pre_header: Pre-header
+  header: Header
+  highlighted: Highlighted
+  tabs: Tabs
+  banner_top: 'Banner Top'
+  breadcrumbs: Breadcrumbs
+  page_title: 'Page Title'
+  content: Content
+  sidebar: Sidebar
+  content_bottom: 'Content Bottom'
+  footer: Footer
+  bottom: Bottom
+  page_top: 'Page top' # Needed by Drupal Core
+  page_bottom: 'Page bottom' # Needed by Drupal Core
