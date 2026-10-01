@@ -1,169 +1,80 @@
 # Drupal React Scaffold theme
 
-Hello, this is a Drupal theme that uses React and Webpack to build the front-end.
+React components as **core Single Directory Components** (SDC) for Drupal 10.3+ / 11. No contrib modules for components, Vite build,
+data from Views through [`views_better_rest`](https://www.drupal.org/project/views_better_rest).
 
-Benefits over other solutions:
+📖 **Documentation: https://zviryatko.github.io/drupal-react-scaffold-theme/**
 
-* it uses ui_patterns for components
-* react connected statically (on single library for any components)
-* you can mix up together React component and Drupal ajax framework 😎
-* ☝️ and it is working even for hidden elements that appears after some event, like tab open
-* fetch library wrapper with provided csrf token
-* jest tests included
-* contains example of one component
+![Recipe explorer demo](docs/public/media/recipe-explorer-demo.gif)
 
-## Demo
+*Recipe explorer on the Umami demo. Filters, sorting and pager come from one Views REST export, DevTools (Network, Fetch/XHR)
+shows the ajax calls.* [Full video (mp4)](docs/public/media/recipe-explorer-demo.mp4)
 
-https://github.com/zviryatko/drupal-react-scaffold-theme/assets/1087411/aa084ad1-d22e-48be-99ce-7f555445db58
+## What it gives you
 
-## Installation
+- every React widget is an SDC (`*.component.yml` + twig): place it with `include`, `embed` or a render array,
+- one shared React (UMD, loaded once as a library), components are small Vite bundles attached through `libraryOverrides`,
+- components mount from `Drupal.behaviors` + `once()` + `executeWhenVisible()`: they work after ajax, in modals, in hidden tabs, with BigPipe,
+- `apiClient` (fetch with CSRF header) and helpers to render server HTML inside React and attach Drupal behaviors to it (`rawHtml`, `attachBehaviors`),
+- no jQuery in the theme code,
+- Jest tests, Playwright demo recorder.
 
-Just copy structure to your custom Drupal theme, replace `react_scaffold` with your theme name.
-
-## Usage
-
-See `react_scaffold.theme` for example.
-
-As render array:
-
-```php
-  [
-    '#type' => 'pattern',
-    '#id' => 'react_tooltip',
-    '#fields' => [
-      'text' => 'Tooltip text',
-      'content' => $title,
-    ],
-  ]
-```
-
-or in twig:
-
-```twig
-  {{ pattern('react_tooltip', {
-    text: 'Tooltip text',
-    content: 'Text',
-  }) }}
-```
-
-## Architecture
-
-* Drupal is used as main index point, so it is NOT fully decoupled.
-* React is loaded statically to allow components to be independent.
-* Components connected to Drupal via ui_patterns module.
-* NPM and Webpack is used to build the front-end.
-
-## Dependencies
-
-* `composer require drupal/ui_patterns`
-* npm
-* webpack
-
-## Build
-
-Install the dependencies:
+## Quick start
 
 ```bash
-docker run --rm -it -v $(pwd):/src -w /src node npm install
+cd web/themes/custom
+git clone -b v2 git@github.com:zviryatko/drupal-react-scaffold-theme.git
+cd drupal-react-scaffold-theme
+npm install && npm run dist        # builds ./assets (git-ignored)
+
+composer require drupal/views_better_rest
+drush en node rest serialization views_better_rest
+drush theme:install react_scaffold  # imports config/optional: views + Umami blocks
 ```
 
-Build the theme:
+Pages on the `demo_umami` profile: `/recipe-explorer` and `/node-list`.
 
-```bash
-docker run --rm -it -v $(pwd):/src -w /src node npm run dist
-```
-
-Or run watcher for development:
-
-```bash
-docker run --rm -it -v $(pwd):/src -w /src node npm run watch
-```
-
-## Testing
-
-React components can be tested with Jest framework.
-
-```bash
-docker run --rm -it -v $(pwd):/src -w /src node npm run test
-```
-
-# Components
-
-As per component-driven philosophy, components are standardized, interchangeable building blocks of UIs. They
-encapsulate the appearance and function of UI pieces.
-
-```
-react_scalfold
-    |__ components
-          |__ component-1
-          |__ component-2
-          |__ component-3
-```
-
-Components are developed following [BEM](http://getbem.com/) rules
-and [Atomic Design](https://bradfrost.com/blog/post/atomic-web-design/) paradigm as base.
-
-Each component folder must contain all assets needed for the component itself, for example:
-
-```
-component-1
-    |__ images
-          |__ img-1.png
-          |__ img-2.svg
-    |__ component-1.js
-    |__ component-1.scss
-    |__ component-1.ui_patterns.yml
-    |__ pattern-component-1.html.twig
-```
-
-A component could be an **ui_pattern** (from [ui_patterns](https://www.drupal.org/project/ui_patterns) Drupal module)
-like the example above, but not necessarily. Take the pager as example for a very simple component:
-
-```
-pager
-    |__ _pager.scss
-```
-
-Here's also an example of a React component:
-
-```
-react-tooltip
-    |__ __tests__
-          |__ __snapshots__
-                 |__ react-tooltip.test.js.snap
-          |__ react-tooltip.test.js
-    |__ index.js
-    |__ pattern-react-tooltip.html.twig
-    |__ react-tooltip.scss
-    |__ react-tooltip.ui_patterns.yml
-    |__ TextWithTooltip.jsx
-```
+> `views_better_rest` 1.2.0 / 1.x fatals on Drupal 11.4-dev (`UrlNormalizer` must extend `NormalizerBase`), see
+> [Getting started](https://zviryatko.github.io/drupal-react-scaffold-theme/guide/getting-started).
 
 ## Examples
 
-### Simple example
+| Component | What it shows | Docs |
+|---|---|---|
+| `recipe-explorer` | Filters, sorts and pager built from a Views *Better REST export*, state in the URL | [walkthrough](https://zviryatko.github.io/drupal-react-scaffold-theme/examples/recipe-explorer) |
+| `node-list` | React table (rsuite) with Drupal ajax "Edit in Modal" inside the cells | [walkthrough](https://zviryatko.github.io/drupal-react-scaffold-theme/examples/node-list) |
+| `react-tooltip` | The smallest component: prop, slot, behavior | [walkthrough](https://zviryatko.github.io/drupal-react-scaffold-theme/examples/tooltip) |
 
-See `react_scaffold/components/react-tooltip` for example.
+![Node list demo](docs/public/media/node-list-modal-demo.gif)
 
-When enable the them you will see that page title has a tooltip.
+[Full video (mp4)](docs/public/media/node-list-modal-demo.mp4)
 
-### Very complex example
+## Use it for your own theme
 
-See `react_scaffold/components/node-list` for example.
+Copy the scaffold and rename `react_scaffold`, then add components under `components/<name>/` (any folder with `index.jsx` is built
+automatically). Everything is explained in the docs:
 
-To enable download the theme and enable it. Run next command after:
+- [Create your own theme](https://zviryatko.github.io/drupal-react-scaffold-theme/guide/create-your-theme)
+- [Components (SDC)](https://zviryatko.github.io/drupal-react-scaffold-theme/guide/components) and [placing them in Twig](https://zviryatko.github.io/drupal-react-scaffold-theme/guide/twig)
+- [React + Drupal behaviors](https://zviryatko.github.io/drupal-react-scaffold-theme/guide/react-behaviors): why `once()` and `executeWhenVisible`
+- [Ajax calls and HTML responses](https://zviryatko.github.io/drupal-react-scaffold-theme/guide/ajax)
+- [Build: Vite and webpack](https://zviryatko.github.io/drupal-react-scaffold-theme/guide/build)
+- [Troubleshooting](https://zviryatko.github.io/drupal-react-scaffold-theme/guide/troubleshooting)
 
-```php
-composer require drupal/views_better_rest
-drush en node rest serialization user views_better_rest config
-drush cim --partial --source=themes/custom/react_scaffold/config/optional/
-```
+## Scripts
 
-Create few node types and add some nodes.
+| Command | Does |
+|---|---|
+| `npm run dist` | production build into `assets/` |
+| `npm run watch` | development build, rebuilds on change |
+| `npm test` | Jest |
+| `npm run docs:dev` / `docs:build` | the documentation site (VitePress, sources in `docs/`) |
+| `npm run demo` | records screenshots and videos into `docs/public/media` (Playwright, ffmpeg, a running demo_umami site) |
 
-Then open `/patterns/node_list` page. You will see a list of nodes. You can filter it by type and sort by updated date.
+## Documentation site
 
-Awesome thing is edit button. It is a React component that uses Drupal ajax framework to open node edit form in modal.
+Sources are in [`docs/`](docs) (VitePress). The workflow `.github/workflows/docs.yml` builds and publishes it to GitHub Pages. In the repository
+settings, set **Pages → Source: GitHub Actions**. By default the `github-pages` environment only allows deployments from the default branch.
 
 # Credits
 
