@@ -14,12 +14,11 @@ Whatever the tool, the output must satisfy the Drupal side:
 
 ## Vite (what the scaffold uses)
 
-The configuration lives once, in the base theme: `vite.base.js`, exported as `react-scaffold/vite`. Base theme and subthemes call it:
+The configuration lives once, in the base theme: `vite.base.js`. The base theme, the example subtheme and generated subthemes call it:
 
 ```js
-// subtheme vite.config.js
-import { defineConfig } from 'vite';
-import { createViteConfig } from 'react-scaffold/vite';
+// vite.config.js of a generated subtheme, see Base theme and subthemes for the whole file
+const { createViteConfig } = await import(pathToFileURL(resolve(baseTheme, 'vite.base.js')).href);
 
 export default defineConfig(({ mode }) => createViteConfig({
   root: import.meta.dirname,
@@ -60,10 +59,10 @@ Things worth knowing:
 - **Modes**: `npm run watch` = development (source maps), `npm run dist` = production.
 - **New component = no config change**: the entries are read from `components/`.
 - **CSS names**: the CSS imported by `index.jsx` is emitted as `assets/<entry>.css`.
-- **Dependencies**: the Vite plugins, Babel and Testing Library packages come from the base theme (`react-scaffold` is linked by the subtheme's `package.json`).
+- **Dependencies**: the Vite plugins, Babel and Testing Library packages come from the base theme's `node_modules` (run `npm install` in the base theme once).
   Your subtheme adds what its components import (`rsuite`, `react-tippy`...), plus `vite`, `sass` and `jest`.
-- **Base theme build**: only needed if you change `src/` in the base theme itself. Run `npm install && npm run dist` there and commit the updated `assets/`.
-  CI fails if `assets/` is out of date.
+- **Base theme build**: `npm run dist` in the base theme builds its runtime into `assets/` (React UMD, helpers, apiClient). The compiled files are not committed,
+  releases build and attach them, see [Releases](/guide/base-theme#releases-and-updating-the-base-theme).
 
 ## Webpack (equivalent sketch)
 

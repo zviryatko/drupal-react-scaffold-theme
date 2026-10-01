@@ -21,18 +21,18 @@ export. The step by step flow is in [React + Drupal behaviors](/guide/react-beha
 | Global React + helpers | base theme: `assets/react/react.js`, `react-dom.js`, `assets/helpers.js` (library `react_scaffold/react`) |
 | API client | base theme: `src/apiClient.js` (library `react_scaffold/react-api-client`) |
 | Components | your subtheme: `components/<name>/` |
-| Build | `vite.base.js` in the base theme (`react-scaffold/vite`), `vite.config.js` in each subtheme |
+| Build | `vite.base.js` in the base theme, a short `vite.config.js` in each subtheme that loads it |
 | Views, blocks, templates | your subtheme: `config/optional/`, `templates/` |
 
 ## Base theme and subthemes
 
 The scaffold is a **base theme**: it ships the runtime (React, helpers, API client, CSRF hook), a neutral page layout and the shared Vite/Jest
-configuration. You create a **subtheme** with `npm run create-subtheme` and put your components there. Updating the scaffold then means updating
+configuration. You create a **subtheme** with core's `generate-theme` and put your components there. Updating the scaffold then means updating
 one folder. Details: [Base theme and subthemes](/guide/base-theme).
 
 ## What you get out of the box
 
-- the **base theme** `react_scaffold` and a **generator** for subthemes (`starter/` with a working `hello-react` component),
+- the **base theme** `react_scaffold` and a **starterkit** for `generate-theme` (a working `hello-react` component, blocks, build and tests),
 - the example subtheme `react_scaffold_demo` with `react-tooltip` (smallest component), `node-list` (rsuite table with Drupal ajax modal links) and
   `recipe-explorer` (data-driven filter UI on a Views REST export, see [the walkthrough](/examples/recipe-explorer)).
 

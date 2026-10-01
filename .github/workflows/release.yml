@@ -1,0 +1,58 @@
+name: Release
+
+# Compiled files (assets/) are not kept in git. A release builds them and attaches the theme, ready to use without Node,
+# to the GitHub release: react_scaffold-<version>.zip and .tar.gz.
+#
+#   git tag v1.0.0 && git push origin v1.0.0
+on:
+  push:
+    tags: ['v*.*.*']
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version for a manual build, e.g. 1.0.0 (builds the archive, does not publish)'
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - id: version
+        run: |
+          if [ "${GITHUB_REF_TYPE}" = "tag" ]; then v="${GITHUB_REF_NAME#v}"; else v="${{ inputs.version }}"; fi
+          echo "version=$v" >> "$GITHUB_OUTPUT"
+      - run: npm ci
+      - run: npm test
+      - run: npm run dist
+      - name: Package
+        run: |
+          v='${{ steps.version.outputs.version }}'
+          mkdir -p dist
+          # Tracked files without export-ignore paths (docs, demo, .github) plus the compiled assets.
+          git archive --prefix=react_scaffold/ HEAD | tar -x -C dist
+          cp -r assets dist/react_scaffold/assets
+          # Release info for the Drupal UI and composer.
+          sed -i "s/^package: Scaffold$/package: Scaffold\nversion: $v/" dist/react_scaffold/react_scaffold.info.yml
+          cd dist
+          zip -qr "react_scaffold-$v.zip" react_scaffold
+          tar -czf "react_scaffold-$v.tar.gz" react_scaffold
+      - uses: actions/upload-artifact@v4
+        with:
+          name: react_scaffold-${{ steps.version.outputs.version }}
+          path: dist/react_scaffold-*
+      - name: Publish the GitHub release
+        if: github.ref_type == 'tag'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          v='${{ steps.version.outputs.version }}'
+          gh release create "$GITHUB_REF_NAME" "dist/react_scaffold-$v.zip" "dist/react_scaffold-$v.tar.gz" \
+            --title "$GITHUB_REF_NAME" --generate-notes

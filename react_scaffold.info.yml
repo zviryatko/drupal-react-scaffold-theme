@@ -1,7 +1,7 @@
 name: 'React Scaffold'
 description: 'Base theme for React islands built as core Single Directory Components. Provides React, helpers, the API client, a page layout and a shared Vite/Jest config. Create a subtheme to use it.'
 type: theme
-base theme: stable9
+base theme: false
 core_version_requirement: ^10.3 || ^11
 package: Scaffold
 

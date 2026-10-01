@@ -1,0 +1,11 @@
+# Used by `php core/scripts/drupal generate-theme my_theme --starterkit react_scaffold_starterkit`.
+# https://www.drupal.org/docs/core-modules-and-themes/core-themes/starterkit-theme
+ignore:
+  - node_modules
+  - /assets/
+  - package-lock.json
+  - '/*.starterkit.yml'
+no_edit: []
+no_rename: []
+info:
+  version: 1.0.0

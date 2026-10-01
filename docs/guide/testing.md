@@ -2,10 +2,12 @@
 
 React parts are tested with Jest and Testing Library, run `npm test`.
 
-The configuration is shared: every subtheme's `jest.config.cjs` is one line.
+The configuration is shared: a subtheme's `jest.config.cjs` is three lines.
 
 ```js
-module.exports = require('react-scaffold/jest')(__dirname);
+const path = require('node:path');
+const baseTheme = require('./base-theme.cjs');   // finds the base theme folder
+module.exports = require(path.join(baseTheme, 'jest.base.cjs'))(__dirname);
 ```
 
 | What the shared config does | |
@@ -18,7 +20,7 @@ module.exports = require('react-scaffold/jest')(__dirname);
 | `@testing-library/*` | importable from the base theme location |
 | setup file | jest-dom matchers, global `React`, stubs for `Drupal.t` and `drupalSettings`, `matchMedia` |
 
-Pass overrides as the second argument: `require('react-scaffold/jest')(__dirname, { testPathIgnorePatterns: [...] })`.
+Pass overrides as the second argument: `require(...)(__dirname, { testPathIgnorePatterns: [...] })`.
 The base theme's own tests (`src/__tests__`) cover `apiClient` and `executeWhenVisible`.
 
 ## Example

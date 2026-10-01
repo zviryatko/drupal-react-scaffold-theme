@@ -1,0 +1,31 @@
+name: 'React Scaffold Starterkit'
+description: 'Starterkit of React Scaffold: generate your own subtheme with `generate-theme --starterkit react_scaffold_starterkit`.'
+type: theme
+'base theme': react_scaffold
+core_version_requirement: ^10.3 || ^11
+package: Scaffold
+version: 1.0.0
+# Never shown in the UI, it is only a template for the generator.
+hidden: true
+
+# Added to every page, on top of the libraries inherited from React Scaffold.
+libraries:
+  - react_scaffold_starterkit/global-styling
+
+# Drupal does not inherit regions from a base theme, so they are declared here. Keep this list equal to react_scaffold.info.yml,
+# the base theme's page.html.twig prints exactly these regions (a test checks it).
+regions:
+  pre_header: Pre-header
+  header: Header
+  highlighted: Highlighted
+  tabs: Tabs
+  banner_top: 'Banner Top'
+  breadcrumbs: Breadcrumbs
+  page_title: 'Page Title'
+  content: Content
+  sidebar: Sidebar
+  content_bottom: 'Content Bottom'
+  footer: Footer
+  bottom: Bottom
+  page_top: 'Page top' # Needed by Drupal Core
+  page_bottom: 'Page bottom' # Needed by Drupal Core

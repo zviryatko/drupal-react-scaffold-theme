@@ -17,10 +17,7 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm test
-      - name: Built assets are up to date
-        run: |
-          npm run dist
-          git diff --exit-code -- assets || (echo "assets/ is stale: run npm run dist and commit" && exit 1)
+      - run: npm run dist
 
   example:
     name: Example subtheme
@@ -30,6 +27,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+      # The example imports the shared build and test config of the base theme.
+      - run: npm ci
       - run: npm install
         working-directory: examples/react_scaffold_demo
       - run: npm run dist
@@ -37,14 +36,28 @@ jobs:
       - run: npm test
         working-directory: examples/react_scaffold_demo
 
-  generator:
-    name: Generated subtheme
+  starterkit:
+    name: generate-theme with the starterkit
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - run: node scripts/create-subtheme.mjs ci_theme "CI Theme" "$RUNNER_TEMP/themes"
-      - run: npm install && npm run dist && npm test
-        working-directory: ${{ runner.temp }}/themes/ci_theme
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+      - name: Drupal site with the base theme
+        run: |
+          composer create-project drupal/recommended-project:^11 "$RUNNER_TEMP/site" --no-interaction --no-progress
+          mkdir -p "$RUNNER_TEMP/site/web/themes/contrib" "$RUNNER_TEMP/site/web/themes/custom"
+          git archive --prefix=react_scaffold/ HEAD | tar -x -C "$RUNNER_TEMP/site/web/themes/contrib"
+      - name: Build the base theme
+        run: npm ci && npm run dist
+        working-directory: ${{ runner.temp }}/site/web/themes/contrib/react_scaffold
+      - name: Generate a theme with core's generate-theme
+        run: php web/core/scripts/drupal generate-theme ci_theme --starterkit react_scaffold_starterkit --path themes/custom --name "CI Theme"
+        working-directory: ${{ runner.temp }}/site
+      - name: Build and test the generated theme
+        run: npm install && npm run dist && npm test
+        working-directory: ${{ runner.temp }}/site/web/themes/custom/ci_theme

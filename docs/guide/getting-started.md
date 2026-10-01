@@ -1,50 +1,84 @@
 # Getting started
 
-You install the **base theme** once and create a **subtheme** for your components. See [Base theme and subthemes](/guide/base-theme)
-for why.
+You install the **base theme** once and generate a **subtheme** for your components. See [Base theme and subthemes](/guide/base-theme) for why.
 
 ## 1. Install the base theme
 
+Compiled files (`assets/`) are not kept in git. Pick the way that fits you:
+
 ::: code-group
-```bash [composer]
-# not on Packagist yet: add the repository, then require it
-composer config repositories.react_scaffold vcs https://github.com/zviryatko/drupal-react-scaffold-theme
-composer require zviryatko/drupal-react-scaffold-theme
-# the package type is drupal-theme, it lands where your installer-paths put themes, e.g. web/themes/contrib/
+```bash [Release archive]
+# Compiled assets included, nothing to build to run the base theme.
+cd web/themes/contrib
+curl -L -o react_scaffold.zip https://github.com/zviryatko/drupal-react-scaffold-theme/releases/latest/download/react_scaffold-1.0.0.zip
+unzip react_scaffold.zip && rm react_scaffold.zip
+```
+```json [composer]
+// composer.json: a release archive as a package (pin the version, the archive has the compiled assets)
+"repositories": [
+  {
+    "type": "package",
+    "package": {
+      "name": "zviryatko/drupal-react-scaffold-theme",
+      "version": "1.0.0",
+      "type": "drupal-theme",
+      "dist": {
+        "url": "https://github.com/zviryatko/drupal-react-scaffold-theme/releases/download/v1.0.0/react_scaffold-1.0.0.zip",
+        "type": "zip"
+      }
+    }
+  }
+]
+// then: composer require zviryatko/drupal-react-scaffold-theme:1.0.0
 ```
 ```bash [git]
+# Latest source: build the assets yourself.
 cd web/themes/contrib
 git clone https://github.com/zviryatko/drupal-react-scaffold-theme.git react_scaffold
+cd react_scaffold && npm install && npm run dist
 ```
 :::
 
-The built runtime (`assets/`) is committed, nothing to build for the base theme. Enable it (and `stable9`, its base) so Drupal knows
-its libraries:
+Replace `1.0.0` with the [latest release](https://github.com/zviryatko/drupal-react-scaffold-theme/releases).
+
+Then install the tooling dependencies of the base theme once. The build and the tests of your subthemes use them (the Vite plugins, Babel presets, Testing Library):
+
+```bash
+cd web/themes/contrib/react_scaffold && npm install
+```
+
+Enable the base theme so Drupal knows its libraries:
 
 ```bash
 drush theme:install react_scaffold
 ```
 
-## 2. Create a subtheme
+## 2. Generate a subtheme
+
+Use Drupal core's generator with this theme's starterkit, as described in the [official sub-theme documentation](https://www.drupal.org/node/2165673):
 
 ```bash
-cd web/themes/contrib/react_scaffold
-npm run create-subtheme -- my_theme "My Theme" ../../custom
+# from the Drupal root
+php web/core/scripts/drupal generate-theme my_theme \
+  --starterkit react_scaffold_starterkit \
+  --path themes/custom \
+  --name "My Theme"
 ```
 
-Arguments: machine name, label, destination folder (default: next to the base theme). The generator writes a working subtheme with a
-`hello-react` component, `vite.config.js` and `package.json` linked to the base theme, the region list, and a test.
+`--path` is relative to the web root (the folder with `core/`). On Drupal 11.4+ the script is `web/core/scripts/dr`
+(`drupal` still works and prints a deprecation notice).
 
 ```bash
-cd ../../custom/my_theme
-npm install          # also installs the base theme tooling (preinstall hook)
+cd web/themes/custom/my_theme
+npm install          # vite, sass, jest
 npm run dist         # builds ./assets (git-ignored)
 drush theme:install my_theme
 drush config:set system.theme default my_theme -y
 drush cr
 ```
 
-Place the starter component to see it work (for example in `page.html.twig` of your theme, or any template):
+The generated theme has a working `hello-react` component, the block placement for a basic page, `vite.config.js`, a Jest setup and a
+README. Place the component to see it work (in any template):
 
 ```twig
 {% embed 'my_theme:hello-react' with { greeting: 'Hello' } %}
@@ -53,6 +87,12 @@ Place the starter component to see it work (for example in `page.html.twig` of y
 ```
 
 You get "Hello, World!" and a counter button, rendered by React inside a Drupal page.
+
+::: tip drush generate theme
+`drush generate theme` asks for a base theme and creates an *empty* subtheme (info file, libraries). It does not know this starterkit, so there are
+no components, build or tests. Use it only when you want to write everything yourself: answer `react_scaffold` for the base theme and copy the
+regions, see [Create a subtheme](/guide/create-your-theme#by-hand).
+:::
 
 ## 3. Develop
 

@@ -1,1 +1,1 @@
-module.exports = require('react-scaffold/jest')(__dirname);
+module.exports = require('../../jest.base.cjs')(__dirname);
