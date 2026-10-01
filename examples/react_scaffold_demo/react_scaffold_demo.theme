@@ -22,7 +22,7 @@ function react_scaffold_demo_preprocess_page_title(&$variables) {
     '#type' => 'component',
     '#component' => 'react_scaffold_demo:react-tooltip',
     '#props' => [
-      'text' => 'Tooltip text',
+      'text' => 'This title is a React component (react-tippy tooltip)',
     ],
     '#slots' => [
       'content' => $title,

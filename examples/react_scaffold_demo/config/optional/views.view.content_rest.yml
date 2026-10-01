@@ -273,8 +273,8 @@ display:
           click_sort_column: value
           type: timestamp
           settings:
-            date_format: medium
-            custom_date_format: ''
+            date_format: custom
+            custom_date_format: 'M j, Y'
             timezone: ''
           group_column: value
           group_columns: {  }
@@ -340,8 +340,8 @@ display:
           click_sort_column: value
           type: timestamp
           settings:
-            date_format: medium
-            custom_date_format: ''
+            date_format: custom
+            custom_date_format: 'M j, Y'
             timezone: ''
           group_column: value
           group_columns: {  }
@@ -617,7 +617,7 @@ display:
               alias: ''
               raw_output: 0
             uid:
-              alias: ''
+              alias: author
               raw_output: 0
             created:
               alias: ''
@@ -627,6 +627,12 @@ display:
               raw_output: 0
             type:
               alias: ''
+              raw_output: 0
+            nothing:
+              alias: modal_edit
+              raw_output: 0
+            operations:
+              alias: operations
               raw_output: 0
             view_node:
               alias: url

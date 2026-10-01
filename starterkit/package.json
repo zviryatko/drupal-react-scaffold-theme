@@ -1,18 +1,14 @@
 {
-  "name": "__THEME__",
+  "name": "react_scaffold_starterkit",
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "dependencies": {
-    "react-scaffold": "file:__BASE_PATH__"
-  },
   "devDependencies": {
     "jest": "^30.1.3",
     "sass": "^1.49.7",
     "vite": "^7.1.6"
   },
   "scripts": {
-    "preinstall": "npm install --prefix __BASE_PATH__ --no-audit --no-fund",
     "build": "vite build",
     "watch": "vite build --watch --mode development",
     "dist": "vite build --mode production",

@@ -1,22 +1,8 @@
 {
-  "name": "react-scaffold",
+  "name": "react_scaffold",
   "version": "1.0.0",
   "description": "Drupal base theme: React islands as core Single Directory Components, shared Vite and Jest config for subthemes.",
   "type": "module",
-  "exports": {
-    "./vite": "./vite.base.js",
-    "./jest": "./jest.base.cjs",
-    "./package.json": "./package.json"
-  },
-  "files": [
-    "vite.base.js",
-    "vite-plugin-copy-react.js",
-    "jest.base.cjs",
-    "test",
-    "src",
-    "scripts",
-    "starter"
-  ],
   "dependencies": {
     "@vitejs/plugin-react": "^4.2.1",
     "vite-plugin-external": "^6.2.2",
@@ -46,7 +32,6 @@
     "demo": "npm --prefix demo run capture",
     "docs:dev": "npm --prefix docs run dev",
     "docs:build": "npm --prefix docs run build",
-    "docs:preview": "npm --prefix docs run preview",
-    "create-subtheme": "node scripts/create-subtheme.mjs"
+    "docs:preview": "npm --prefix docs run preview"
   }
 }

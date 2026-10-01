@@ -1,0 +1,5 @@
+# Keep source archives (GitHub, composer) lean: docs, demo recorder and CI are not part of the theme.
+/docs export-ignore
+/demo export-ignore
+/.github export-ignore
+/.gitattributes export-ignore

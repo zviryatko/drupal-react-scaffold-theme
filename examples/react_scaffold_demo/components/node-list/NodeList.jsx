@@ -42,7 +42,8 @@ export const NodeList = ({endpoint, theme}) => {
   const isSortable = (col) => {
     return response?.exposed_sorts?.filter(sort => sort?.field_identifier === col).length > 0
   }
-  const ucfirst = (word) => word.charAt(0).toUpperCase() + word.slice(1)
+  // Header text from the JSON key: `modal_edit` -> `Modal edit`.
+  const ucfirst = (word) => { const text = word.replace(/_/g, ' '); return text.charAt(0).toUpperCase() + text.slice(1) }
   const getOptions = (options) => {
     const entries = Object.entries(options)
     return entries.map((data) => {
@@ -83,6 +84,7 @@ export const NodeList = ({endpoint, theme}) => {
         </Form>
       )}
       <Table data={response.rows}
+             autoHeight
              className={'rs-theme-' + theme}
              onSortColumn={sortColumn}
              rowHeight={60}
@@ -92,7 +94,7 @@ export const NodeList = ({endpoint, theme}) => {
         {response?.rows?.length && Object.keys(response.rows[0]).map((col) => {
           return <Column
             key={col}
-            flexGrow={Math.floor(10 / Object.keys(response.rows[0]).length)}
+            flexGrow={col === 'title' ? 3 : 1}
             minWidth={100}
             sortable={isSortable(col)}
           >

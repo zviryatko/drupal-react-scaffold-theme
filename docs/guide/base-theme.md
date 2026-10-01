@@ -18,13 +18,13 @@ themes/
 | **API client** with CSRF header | `src/apiClient.js` → `assets/apiClient.js` | global `apiClient()`, library `react_scaffold/react-api-client` |
 | **CSRF token** in `drupalSettings.csrfToken` | `react_scaffold.theme` | automatic, base theme hooks run for subthemes |
 | **Page layout** and region list | `templates/layout/page.html.twig`, `react_scaffold.info.yml`, `scss/base.scss` | inherited template, restyle with your CSS |
-| **Vite config factory** | `vite.base.js`, export `react-scaffold/vite` | `createViteConfig({ root, mode })` in your `vite.config.js` |
-| **Jest config factory** | `jest.base.cjs`, export `react-scaffold/jest` | `require('react-scaffold/jest')(__dirname)` |
-| **Generator + starter** | `scripts/create-subtheme.mjs`, `starter/` | `npm run create-subtheme` |
+| **Vite config factory** | `vite.base.js` | `createViteConfig({ root, mode })` in your `vite.config.js` |
+| **Jest config factory** | `jest.base.cjs` | one line in your `jest.config.cjs` |
+| **Starterkit** | `starterkit/` (`react_scaffold_starterkit`) | `php core/scripts/drupal generate-theme my_theme --starterkit react_scaffold_starterkit` |
 
-The base theme itself has `base theme: stable9` (core's stable markup) and ships **no components**, only the runtime.
-The built `assets/` of the base theme are **committed**, so a site that installs the base theme with composer or git does not need Node
-to run it. Node is needed to build *your subtheme*.
+The base theme itself has `base theme: false`: it does not depend on `stable9` or any other theme, core's default templates and CSS apply.
+It ships **no components**, only the runtime. Compiled files are not in git: a release archive contains the built `assets/`, a git checkout needs
+`npm install && npm run dist` once. Node is needed to build *your subtheme*, never to run the site.
 
 ## What a subtheme inherits, and what it does not
 
@@ -36,7 +36,7 @@ to run it. Node is needed to build *your subtheme*.
 | `.theme` hooks (`react_scaffold_js_settings_alter`) | the subtheme's own assets (`npm run dist`) |
 | SDC components of the base theme (none shipped) | |
 
-The generator copies the current region list from the base theme into your `info.yml`. If a new base version adds regions, add them
+The starterkit declares the current region list in your `info.yml` (a test keeps it equal to the base theme's). If a new base version adds regions, add them
 to your subtheme too (the changelog says so).
 
 ## How the pieces fit at runtime
@@ -54,11 +54,19 @@ page ─► react_scaffold/global-libraries   (base: core/drupal, once, drupalSe
 Subtheme build output goes to the subtheme's `assets/`. The base theme only builds its own runtime. The shared factory guarantees
 that both follow the same rules (one bundle per `components/<name>/index.jsx`, React as an external), see [Build](/guide/build).
 
-`vite.config.js` of a subtheme is five lines:
+The shared configuration lives in the base theme (`vite.base.js`, `jest.base.cjs`) and is plain files with plain dependencies: no npm link, no
+registry package. A subtheme finds the base theme **by content** (`base-theme.cjs`: a folder next to the theme or in `contrib`/`custom` that has
+`react_scaffold.info.yml` and `vite.base.js`; `REACT_SCAFFOLD_DIR` overrides), then loads the factory:
 
 ```js
+// vite.config.js of a subtheme (generated)
 import { defineConfig } from 'vite';
-import { createViteConfig } from 'react-scaffold/vite';
+import { pathToFileURL } from 'node:url';
+import { resolve } from 'node:path';
+import { createRequire } from 'node:module';
+
+const baseTheme = createRequire(import.meta.url)('./base-theme.cjs');
+const { createViteConfig } = await import(pathToFileURL(resolve(baseTheme, 'vite.base.js')).href);
 
 export default defineConfig(({ mode }) => createViteConfig({
   root: import.meta.dirname,
@@ -67,23 +75,16 @@ export default defineConfig(({ mode }) => createViteConfig({
 }));
 ```
 
-`package.json` of the subtheme links the base theme as a local package:
-
-```json
-{
-  "scripts": {
-    "preinstall": "npm install --prefix ../../contrib/react_scaffold --no-audit --no-fund",
-    "dist": "vite build --mode production",
-    "test": "jest"
-  },
-  "dependencies": { "react-scaffold": "file:../../contrib/react_scaffold" },
-  "devDependencies": { "vite": "^7", "sass": "^1", "jest": "^30" }
-}
+```js
+// jest.config.cjs of a subtheme (generated)
+const path = require('node:path');
+const baseTheme = require('./base-theme.cjs');
+module.exports = require(path.join(baseTheme, 'jest.base.cjs'))(__dirname);
 ```
 
-`file:` creates a symlink, so the import `react-scaffold/vite` always runs the code of the installed base theme version. The `preinstall`
-script installs the base theme's own tooling dependencies (Vite plugins, Babel presets, Testing Library), npm does not do that for linked
-packages. The generator writes both with the right relative path.
+The subtheme's `package.json` only lists what it needs itself: `vite`, `sass`, `jest` and the libraries its components import. The Vite plugins, Babel
+presets and Testing Library come from the base theme's `node_modules`, so **run `npm install` in the base theme once**. The configuration is read
+from whatever base theme version is installed, so updating the base theme updates the build config of every subtheme.
 
 ### `createViteConfig` options
 
@@ -111,21 +112,40 @@ export default defineConfig({ ...config, plugins: [...config.plugins, myPlugin()
 - **Regions**: your own `regions:` (keep the base names, the base template prints them).
 - **Hooks**: the same `.theme` hooks in your subtheme add to the base ones, they do not replace them.
 
-## Updating the base theme
+## Following the Drupal sub-theme rules
+
+[Creating sub-themes](https://www.drupal.org/node/2165673) lists what a subtheme has to handle itself. How React Scaffold deals with each:
+
+| Rule from the Drupal documentation | In React Scaffold |
+|---|---|
+| **Regions are not inherited**: copy them into the subtheme | the starterkit's `info.yml` has the base theme's regions, a test keeps them equal |
+| **Block placement** is inherited only from the default theme and only if the subtheme ships no block config | the starterkit ships `config/optional/block.block.*.yml` (branding, main menu, page title...) for the generated theme, edit or replace them |
+| **Block templates** are named after the block ID, a subtheme's blocks have other IDs | the base theme has no block templates. If you add some in your subtheme, add `hook_theme_suggestions_block_alter` as described in the doc |
+| **Config schema** of theme settings is not inherited | the base theme has no theme settings |
+| Sub-themes can be nested | a subtheme can be the base of another one, it inherits libraries, templates and hooks the same way |
+
+## Releases and updating the base theme
+
+Compiled files are never committed. The workflow `.github/workflows/release.yml` builds them when a version tag is pushed (`git tag v1.0.0 && git push --tags`)
+and attaches `react_scaffold-<version>.zip` and `.tar.gz` to the GitHub release: the theme, with `assets/`, without docs and CI files. CI (`ci.yml`) builds the base theme,
+the example subtheme and a theme generated with core's `generate-theme` on every push and pull request.
+
+To update:
 
 ```bash
-# git
-cd themes/contrib/react_scaffold && git pull
-# or composer (see Getting started for the repository entry)
-composer update zviryatko/drupal-react-scaffold-theme
+# release archive: replace the folder (or `composer update` with the pinned version bumped)
+# git checkout:
+cd themes/contrib/react_scaffold && git pull && npm install && npm run dist
 
 # then, per subtheme
-cd themes/custom/my_theme && npm install && npm run dist && drush cr
+cd themes/custom/my_theme && npm run dist && drush cr
 ```
 
 - Read [`CHANGELOG.md`](https://github.com/zviryatko/drupal-react-scaffold-theme/blob/main/CHANGELOG.md): it lists the public API, anything outside it can change in a minor version.
-- Because the subtheme links the base package, the build config updates for free. The runtime (`assets/`) updates with the base theme files.
-- If a release changes the React major version, rebuild all subthemes (they treat React as an external, so no code is bundled, but the UMD API must match).
+- The subtheme finds the base theme at build time, so a new base version changes the build configuration of every subtheme at the next `npm run dist`.
+  The runtime (`assets/`) updates with the base theme files.
+- If a release changes the React major version, rebuild all subthemes (React is an external, nothing is bundled, but the UMD API must match).
+- If a release adds regions, add them to your subtheme's `info.yml`.
 
 ## Example subtheme
 
