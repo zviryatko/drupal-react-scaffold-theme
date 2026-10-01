@@ -1,0 +1,33 @@
+$schema: https://git.drupalcode.org/project/drupal/-/raw/HEAD/core/assets/schemas/v1/metadata.schema.json
+name: Recipe Explorer
+status: stable
+description: 'A React-based recipe browser: exposed filters, sorting and pager are driven by a views_better_rest endpoint.'
+group: Content
+props:
+  type: object
+  properties:
+    endpoint:
+      type: string
+      title: Endpoint
+      description: 'Better REST export endpoint of the recipe_explorer view'
+      default: '/api/recipes'
+      examples:
+        - '/api/recipes'
+    heading:
+      type: string
+      title: Heading
+      description: 'Accessible heading of the results region'
+      default: 'Recipes'
+      examples:
+        - 'Find a recipe'
+  required:
+    - endpoint
+libraryOverrides:
+  js:
+    ../../assets/recipe-explorer.js: { attributes: { type: module } }
+  css:
+    theme:
+      ../../assets/recipe-explorer.css: { }
+  dependencies:
+    - react_scaffold/react
+    - react_scaffold/react-api-client

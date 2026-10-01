@@ -1,1 +1,1 @@
-<span {{ attributes.addClass('react-tooltip').setAttribute('data-text', text) }}>{{ content }}</span>
+<span {{ attributes.addClass('react-tooltip').setAttribute('data-text', text) }}>{% block content %}{% endblock %}</span>

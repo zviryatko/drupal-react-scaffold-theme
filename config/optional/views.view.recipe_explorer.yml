@@ -1,0 +1,421 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - core.entity_view_mode.media.thumbnail
+    - image.style.medium_3_2_600x400
+    - node.type.recipe
+    - taxonomy.vocabulary.recipe_category
+  module:
+    - image
+    - language
+    - media
+    - node
+    - options
+    - rest
+    - serialization
+    - taxonomy
+    - user
+    - views_better_rest
+id: recipe_explorer
+label: 'Recipe explorer'
+module: views
+description: 'Recipes with exposed filters, sorts and pager. Feeds the React Scaffold recipe-explorer component through views_better_rest.'
+tag: ''
+base_table: node_field_data
+base_field: nid
+display:
+  default:
+    id: default
+    display_title: Default
+    display_plugin: default
+    position: 0
+    display_options:
+      title: 'Recipe explorer'
+      fields:
+        title:
+          id: title
+          table: node_field_data
+          field: title
+          entity_type: node
+          entity_field: title
+          plugin_id: field
+          label: Title
+          type: string
+          settings:
+            link_to_entity: false
+        field_summary:
+          id: field_summary
+          table: node__field_summary
+          field: field_summary
+          plugin_id: field
+          label: Summary
+          type: text_trimmed
+          settings:
+            trim_length: 140
+        image:
+          id: field_media_image
+          table: media__field_media_image
+          field: field_media_image
+          relationship: field_media_image
+          plugin_id: field
+          label: Image
+          type: image_url
+          settings:
+            image_style: medium_3_2_600x400
+        field_difficulty:
+          id: field_difficulty
+          table: node__field_difficulty
+          field: field_difficulty
+          plugin_id: field
+          label: Difficulty
+          type: list_default
+        field_preparation_time:
+          id: field_preparation_time
+          table: node__field_preparation_time
+          field: field_preparation_time
+          plugin_id: field
+          label: 'Preparation time'
+          type: number_integer
+          settings:
+            thousand_separator: ''
+            prefix_suffix: false
+        field_recipe_category:
+          id: field_recipe_category
+          table: node__field_recipe_category
+          field: field_recipe_category
+          plugin_id: field
+          label: Category
+          type: entity_reference_label
+          settings:
+            link: false
+        view_node:
+          id: view_node
+          table: node
+          field: view_node
+          entity_type: node
+          plugin_id: entity_link
+          label: URL
+          text: View
+          output_url_as_text: true
+      pager:
+        type: full
+        options:
+          offset: 0
+          items_per_page: 6
+          id: 0
+          tags:
+            next: 'Next ›'
+            previous: '‹ Previous'
+            first: '« First'
+            last: 'Last »'
+          expose:
+            items_per_page: false
+          quantity: 9
+      exposed_form:
+        type: basic
+        options:
+          submit_button: Apply
+          reset_button: true
+          expose_sort_order: true
+      access:
+        type: perm
+        options:
+          perm: 'access content'
+      cache:
+        type: tag
+        options: {  }
+      empty: {  }
+      sorts:
+        created:
+          id: created
+          table: node_field_data
+          field: created
+          entity_type: node
+          entity_field: created
+          plugin_id: date
+          order: DESC
+          exposed: true
+          expose:
+            label: Newest
+            field_identifier: created
+          granularity: second
+        title:
+          id: title
+          table: node_field_data
+          field: title
+          entity_type: node
+          entity_field: title
+          plugin_id: standard
+          order: ASC
+          exposed: true
+          expose:
+            label: Title
+            field_identifier: title
+        field_preparation_time_value:
+          id: field_preparation_time_value
+          table: node__field_preparation_time
+          field: field_preparation_time_value
+          plugin_id: standard
+          order: ASC
+          exposed: true
+          expose:
+            label: 'Preparation time'
+            field_identifier: field_preparation_time_value
+      arguments: {  }
+      filters:
+        status:
+          id: status
+          table: node_field_data
+          field: status
+          entity_type: node
+          entity_field: status
+          plugin_id: boolean
+          value: '1'
+          group: 1
+        type:
+          id: type
+          table: node_field_data
+          field: type
+          entity_type: node
+          entity_field: type
+          plugin_id: bundle
+          value:
+            recipe: recipe
+          group: 1
+        langcode:
+          id: langcode
+          table: node_field_data
+          field: langcode
+          entity_type: node
+          entity_field: langcode
+          plugin_id: language
+          value:
+            '***LANGUAGE_language_content***': '***LANGUAGE_language_content***'
+          group: 1
+        media_langcode:
+          id: langcode
+          table: media_field_data
+          field: langcode
+          relationship: field_media_image
+          entity_type: media
+          entity_field: langcode
+          plugin_id: language
+          value:
+            '***LANGUAGE_language_content***': '***LANGUAGE_language_content***'
+          group: 1
+        title:
+          id: title
+          table: node_field_data
+          field: title
+          entity_type: node
+          entity_field: title
+          plugin_id: string
+          operator: contains
+          group: 1
+          exposed: true
+          expose:
+            operator_id: title_op
+            label: Search
+            description: 'Words in the recipe title'
+            identifier: search
+            use_operator: false
+            remember: false
+            multiple: false
+        field_difficulty_value:
+          id: field_difficulty_value
+          table: node__field_difficulty
+          field: field_difficulty_value
+          plugin_id: list_field
+          operator: or
+          value: {  }
+          group: 1
+          exposed: true
+          expose:
+            operator_id: field_difficulty_value_op
+            label: Difficulty
+            identifier: difficulty
+            use_operator: false
+            remember: false
+            multiple: false
+            reduce: false
+        field_recipe_category_target_id:
+          id: field_recipe_category_target_id
+          table: node__field_recipe_category
+          field: field_recipe_category_target_id
+          plugin_id: taxonomy_index_tid
+          operator: or
+          value: {  }
+          group: 1
+          exposed: true
+          expose:
+            operator_id: field_recipe_category_target_id_op
+            label: Category
+            identifier: category
+            use_operator: false
+            remember: false
+            multiple: false
+            reduce: false
+          type: select
+          vid: recipe_category
+          hierarchy: false
+          limit: true
+        field_preparation_time_value:
+          id: field_preparation_time_value
+          table: node__field_preparation_time
+          field: field_preparation_time_value
+          plugin_id: numeric
+          operator: '<='
+          value:
+            min: ''
+            max: ''
+            value: ''
+          group: 1
+          exposed: true
+          is_grouped: true
+          expose:
+            operator_id: ''
+            label: 'Preparation time'
+            identifier: time
+            remember: false
+          group_info:
+            label: 'Preparation time'
+            identifier: time
+            optional: true
+            widget: select
+            multiple: false
+            remember: false
+            default_group: All
+            default_group_multiple: {  }
+            group_items:
+              1:
+                title: 'Up to 10 minutes'
+                operator: '<='
+                value:
+                  min: ''
+                  max: ''
+                  value: '10'
+              2:
+                title: 'Up to 20 minutes'
+                operator: '<='
+                value:
+                  min: ''
+                  max: ''
+                  value: '20'
+              3:
+                title: 'Over 20 minutes'
+                operator: '>'
+                value:
+                  min: ''
+                  max: ''
+                  value: '20'
+      style:
+        type: default
+      row:
+        type: fields
+      query:
+        type: views_query
+        options:
+          distinct: false
+      relationships:
+        field_media_image:
+          id: field_media_image
+          table: node__field_media_image
+          field: field_media_image
+          plugin_id: standard
+          required: false
+      display_extenders: {  }
+    cache_metadata:
+      max-age: -1
+      contexts:
+        - 'languages:language_content'
+        - 'languages:language_interface'
+        - url
+        - url.query_args
+        - user.permissions
+      tags: {  }
+  better_rest_export_1:
+    id: better_rest_export_1
+    display_title: 'Better REST export'
+    display_plugin: better_rest_export
+    position: 1
+    display_options:
+      display_extenders: {  }
+      defaults:
+        pager: false
+      pager:
+        type: full
+        options:
+          offset: 0
+          items_per_page: 6
+          id: 0
+          total_pages: null
+          quantity: 9
+          expose:
+            items_per_page: false
+      path: api/recipes
+      style:
+        type: better_rest_resources_serializer
+        options:
+          uses_fields: false
+          formats:
+            json: json
+      row:
+        type: data_field
+        options:
+          field_options:
+            title:
+              alias: title
+              raw_output: false
+            field_summary:
+              alias: summary
+              raw_output: false
+            image:
+              alias: image
+              raw_output: false
+            field_difficulty:
+              alias: difficulty
+              raw_output: true
+            field_preparation_time:
+              alias: prep_time
+              raw_output: true
+            field_recipe_category:
+              alias: category
+              raw_output: false
+            view_node:
+              alias: url
+              raw_output: false
+    cache_metadata:
+      max-age: -1
+      contexts:
+        - 'languages:language_content'
+        - 'languages:language_interface'
+        - request_format
+        - url
+        - url.query_args
+        - user.permissions
+      tags: {  }
+  page_1:
+    id: page_1
+    display_title: Page
+    display_plugin: page
+    position: 2
+    display_options:
+      display_extenders: {  }
+      defaults:
+        pager: false
+      path: recipe-explorer
+      pager:
+        type: some
+        options:
+          offset: 0
+          items_per_page: 1
+      exposed_block: false
+    cache_metadata:
+      max-age: -1
+      contexts:
+        - 'languages:language_content'
+        - 'languages:language_interface'
+        - url.query_args
+        - user.permissions
+      tags: {  }

@@ -9,11 +9,6 @@ libraries:
   - "react_scaffold/global-styling"
   - "react_scaffold/global-libraries"
 
-# Enable component discovery in the components directory
-components:
-  namespaces:
-    react_scaffold: components
-
 regions:
   pre_header: Pre-header
   header: Header

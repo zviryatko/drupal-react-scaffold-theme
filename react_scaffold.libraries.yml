@@ -7,7 +7,6 @@ global-libraries:
   js:
     assets/common.js: { minified: true, weight: -4 }
   dependencies:
-    - core/jquery
     - core/drupal
     - core/once
     - core/drupalSettings
@@ -16,32 +15,10 @@ react:
   js:
     assets/react/react.js: { minified: true, weight: -4 }
     assets/react/react-dom.js: { minified: true, weight: -4 }
-    assets/helpers.js: { minified: true, weight: -3 }
+    assets/helpers.js: { minified: true, weight: -3, attributes: { type: module } }
   dependencies:
     - react_scaffold/global-libraries
 
 react-api-client:
   js:
     assets/apiClient.js: { minified: true, weight: -2 }
-
-# SDC Component libraries
-node-list:
-  js:
-    assets/node-list.js: { minified: true }
-  css:
-    theme:
-      assets/node-list.css: {}
-  dependencies:
-    - react_scaffold/react
-    - react_scaffold/react-api-client
-    - core/drupal.ajax
-    - core/drupal.dropbutton
-
-react-tooltip:
-  js:
-    assets/react-tooltip.js: { minified: true }
-  css:
-    theme:
-      assets/react-tooltip.css: {}
-  dependencies:
-    - react_scaffold/react

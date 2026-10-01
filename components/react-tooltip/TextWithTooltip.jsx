@@ -6,6 +6,7 @@ export const TextWithTooltip = ({ text, content }) => (
     className="react-tooltip__container"
     position="right"
     delay={100}
+    animateFill={false}
   >
     {content}
   </Tooltip>

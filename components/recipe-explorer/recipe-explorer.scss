@@ -1,0 +1,227 @@
+// Palette follows the Umami demo theme.
+$green: #008068;
+$green-light: #e6eee0;
+$pink: #fcece7;
+$red: #da3c13;
+$grey: #767775;
+
+.recipe-explorer {
+  margin: 2rem 0;
+  font-family: "Source Sans Pro", Verdana, sans-serif;
+
+  &__filters {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+    gap: 1rem;
+    align-items: end;
+    padding: 1.25rem;
+    background: $green-light;
+    border-radius: .5rem;
+  }
+
+  &__field {
+    display: flex;
+    flex-direction: column;
+    gap: .35rem;
+
+    label {
+      font-size: .85rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+    }
+
+    input,
+    select {
+      height: 2.5rem;
+      padding: 0 .75rem;
+      border: 1px solid #b8c4b0;
+      border-radius: .25rem;
+      background: #fff;
+      font: inherit;
+      min-width: 0;
+    }
+
+    input:focus-visible,
+    select:focus-visible,
+    button:focus-visible {
+      outline: 3px solid #0094f0;
+      outline-offset: 1px;
+    }
+  }
+
+  &__sort {
+    display: flex;
+    gap: .35rem;
+
+    select {
+      flex: 1;
+    }
+  }
+
+  &__order,
+  &__reset,
+  &__pager button {
+    height: 2.5rem;
+    min-width: 2.5rem;
+    padding: 0 .9rem;
+    border: 1px solid $green;
+    border-radius: .25rem;
+    background: #fff;
+    color: $green;
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+
+    &:hover:not(:disabled) {
+      background: $green;
+      color: #fff;
+    }
+
+    &:disabled {
+      opacity: .4;
+      cursor: default;
+    }
+  }
+
+  &__heading {
+    margin: 2rem 0 .25rem;
+    font-family: "Scope One", Georgia, serif;
+    font-weight: 400;
+  }
+
+  &__count,
+  &__status {
+    margin: 0 0 1rem;
+    color: $grey;
+  }
+
+  &__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(17rem, 1fr));
+    gap: 1.5rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    transition: opacity .15s;
+  }
+
+  .is-loading &__grid {
+    opacity: .5;
+  }
+
+  &__card {
+    background: #fff;
+    border-radius: .5rem;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, .15);
+    overflow: hidden;
+    transition: box-shadow .15s, transform .15s;
+
+    &:hover,
+    &:focus-within {
+      box-shadow: 0 6px 16px rgba(0, 0, 0, .2);
+      transform: translateY(-2px);
+    }
+  }
+
+  &__link {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    color: inherit;
+    text-decoration: none;
+  }
+
+  &__media {
+    position: relative;
+    display: block;
+    aspect-ratio: 3 / 2;
+    background: $pink;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+  }
+
+  &__category {
+    position: absolute;
+    left: .75rem;
+    bottom: .75rem;
+    padding: .15rem .6rem;
+    background: $green;
+    color: #fff;
+    font-size: .8rem;
+    border-radius: 1rem;
+  }
+
+  &__body {
+    display: flex;
+    flex-direction: column;
+    gap: .5rem;
+    padding: 1rem;
+  }
+
+  &__title {
+    font-family: "Scope One", Georgia, serif;
+    font-size: 1.2rem;
+    line-height: 1.3;
+  }
+
+  &__meta {
+    display: flex;
+    gap: .75rem;
+    align-items: center;
+    font-size: .9rem;
+    color: $grey;
+  }
+
+  &__badge {
+    padding: .1rem .55rem;
+    border-radius: 1rem;
+    background: $green-light;
+    color: #025c4b;
+    text-transform: capitalize;
+
+    &--medium {
+      background: #fdf0c8;
+      color: #7a5600;
+    }
+
+    &--hard {
+      background: $pink;
+      color: $red;
+    }
+  }
+
+  &__summary {
+    font-size: .95rem;
+    line-height: 1.5;
+
+    p {
+      margin: 0;
+    }
+  }
+
+  &__pager {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .4rem;
+    justify-content: center;
+    margin-top: 2rem;
+
+    .is-active {
+      background: $green;
+      color: #fff;
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .recipe-explorer__card,
+  .recipe-explorer__grid {
+    transition: none;
+  }
+}
