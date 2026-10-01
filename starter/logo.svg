@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2" viewBox="95 0 170 150" width="70" height="70">
+    <path d="m301.094 89.774 4.082-7.102a25 25 0 0 1 43.347-.002l166.809 290.105-293.689-.156 20.218-34.967h205.916L301.094 89.774Z" style="fill:url(#a)" transform="translate(40.971 -29.826) scale(.42536)"/>
+    <path d="M361.69 426.971a25 25 0 0 1-21.673 37.462l-339.739.001 148.92-261.74 16.929 29.179L60.812 414.256l293.668.177 7.21 12.538Z" style="fill:url(#b)" transform="translate(109.392 -47.55) scale(.42536)"/>
+    <path d="M14.174 334.798a25 25 0 0 1-21.672-37.462L162.44 1.802l146.682 247.884-35.275-.006-102.45-176.622-148.919 261.74h-8.304Z" style="fill:url(#c)" transform="translate(99.952 7.588) scale(.42536)"/>
+    <defs>
+        <linearGradient id="a" x1="0" x2="1" y1="0" y2="0" gradientTransform="scale(-330.8733) rotate(-14.765 -4.624 4.71)" gradientUnits="userSpaceOnUse"><stop offset="0" style="stop-color:black;stop-opacity:1"/><stop offset="1" style="stop-color:black;stop-opacity:0"/></linearGradient>
+        <linearGradient id="b" x1="0" x2="1" y1="0" y2="0" gradientTransform="rotate(-69.857 327.12 163.693) scale(322.359)" gradientUnits="userSpaceOnUse"><stop offset="0" style="stop-color:black;stop-opacity:1"/><stop offset="1" style="stop-color:black;stop-opacity:0"/></linearGradient>
+        <linearGradient id="c" x1="0" x2="1" y1="0" y2="0" gradientTransform="scale(332.267) rotate(51.974 .033 .64)" gradientUnits="userSpaceOnUse"><stop offset="0" style="stop-color:black;stop-opacity:1"/><stop offset="1" style="stop-color:black;stop-opacity:0"/></linearGradient>
+    </defs>
+</svg>

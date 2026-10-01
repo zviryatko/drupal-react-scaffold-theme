@@ -18,21 +18,27 @@ export. The step by step flow is in [React + Drupal behaviors](/guide/react-beha
 
 | Piece | Where |
 |---|---|
-| Global React + helpers | `assets/react/react.js`, `assets/react/react-dom.js`, `assets/helpers.js` (library `react_scaffold/react`) |
-| API client | `components/apiClient.js` (library `react_scaffold/react-api-client`) |
-| Components | `components/<name>/` |
-| Build | `vite.config.js`, `vite-plugin-copy-react.js` |
-| Optional config (views, blocks) | `config/optional/` |
+| Global React + helpers | base theme: `assets/react/react.js`, `react-dom.js`, `assets/helpers.js` (library `react_scaffold/react`) |
+| API client | base theme: `src/apiClient.js` (library `react_scaffold/react-api-client`) |
+| Components | your subtheme: `components/<name>/` |
+| Build | `vite.base.js` in the base theme (`react-scaffold/vite`), `vite.config.js` in each subtheme |
+| Views, blocks, templates | your subtheme: `config/optional/`, `templates/` |
+
+## Base theme and subthemes
+
+The scaffold is a **base theme**: it ships the runtime (React, helpers, API client, CSRF hook), a neutral page layout and the shared Vite/Jest
+configuration. You create a **subtheme** with `npm run create-subtheme` and put your components there. Updating the scaffold then means updating
+one folder. Details: [Base theme and subthemes](/guide/base-theme).
 
 ## What you get out of the box
 
-- `react-tooltip`: the smallest possible React SDC, used on the page title.
-- `node-list`: rsuite table with filters and sorting, plus Drupal ajax modal links inside React markup.
-- `recipe-explorer`: a data-driven filter UI on top of a Views REST export (see [the walkthrough](/examples/recipe-explorer)).
+- the **base theme** `react_scaffold` and a **generator** for subthemes (`starter/` with a working `hello-react` component),
+- the example subtheme `react_scaffold_demo` with `react-tooltip` (smallest component), `node-list` (rsuite table with Drupal ajax modal links) and
+  `recipe-explorer` (data-driven filter UI on a Views REST export, see [the walkthrough](/examples/recipe-explorer)).
 
 ## Requirements
 
 - Drupal 10.3+ / 11 (SDC in core). Developed against 11.4-dev.
 - Node.js 20+ to build.
 - For the data-driven examples: [`drupal/views_better_rest`](https://www.drupal.org/project/views_better_rest), `rest`, `serialization`, `views`.
-- The example blocks and pages target the `demo_umami` profile (the theme has `base theme: umami`).
+- The example subtheme targets the content of the `demo_umami` profile (recipes, articles), the base theme and the generated subthemes do not depend on it.

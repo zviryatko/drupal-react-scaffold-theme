@@ -1,43 +1,72 @@
-# Drupal React Scaffold theme
+# Drupal React Scaffold: base theme
 
-React components as **core Single Directory Components** (SDC) for Drupal 10.3+ / 11. No contrib modules for components, Vite build,
-data from Views through [`views_better_rest`](https://www.drupal.org/project/views_better_rest).
+A Drupal **base theme** for React islands built as **core Single Directory Components** (SDC), for Drupal 10.3+ / 11.
+Install it once, generate a **subtheme** for your project, put your components there. The React runtime, helpers, API client,
+CSRF hook and the Vite/Jest configuration come from the base theme, so updating the scaffold is updating one folder.
 
 📖 **Documentation: https://zviryatko.github.io/drupal-react-scaffold-theme/**
 
 ![Recipe explorer demo](docs/public/media/recipe-explorer-demo.gif)
 
-*Recipe explorer on the Umami demo. Filters, sorting and pager come from one Views REST export, DevTools (Network, Fetch/XHR)
+*Recipe explorer from the example subtheme. Filters, sorting and pager come from one Views REST export, DevTools (Network, Fetch/XHR)
 shows the ajax calls.* [Full video (mp4)](docs/public/media/recipe-explorer-demo.mp4)
 
 ## What it gives you
 
 - every React widget is an SDC (`*.component.yml` + twig): place it with `include`, `embed` or a render array,
-- one shared React (UMD, loaded once as a library), components are small Vite bundles attached through `libraryOverrides`,
+- one shared React (UMD, loaded once), components are small Vite bundles attached through `libraryOverrides`,
 - components mount from `Drupal.behaviors` + `once()` + `executeWhenVisible()`: they work after ajax, in modals, in hidden tabs, with BigPipe,
-- `apiClient` (fetch with CSRF header) and helpers to render server HTML inside React and attach Drupal behaviors to it (`rawHtml`, `attachBehaviors`),
-- no jQuery in the theme code,
-- Jest tests, Playwright demo recorder.
+- `apiClient` (fetch with CSRF header) and helpers to render server HTML inside React and attach Drupal behaviors to it,
+- `react-scaffold/vite` and `react-scaffold/jest`: shared build and test config for every subtheme,
+- a generator (`npm run create-subtheme`) and an example subtheme with real components, views and blocks,
+- no jQuery in the theme code.
 
 ## Quick start
 
 ```bash
-cd web/themes/custom
-git clone git@github.com:zviryatko/drupal-react-scaffold-theme.git
-cd drupal-react-scaffold-theme
-npm install && npm run dist        # builds ./assets (git-ignored)
+# 1. base theme (built assets are committed, nothing to build)
+cd web/themes/contrib
+git clone https://github.com/zviryatko/drupal-react-scaffold-theme.git react_scaffold
+# or: composer config repositories.react_scaffold vcs https://github.com/zviryatko/drupal-react-scaffold-theme
+#     composer require zviryatko/drupal-react-scaffold-theme
+drush theme:install react_scaffold
 
-composer require drupal/views_better_rest
-drush en node rest serialization views_better_rest
-drush theme:install react_scaffold  # imports config/optional: views + Umami blocks
+# 2. your subtheme
+cd react_scaffold
+npm run create-subtheme -- my_theme "My Theme" ../../custom
+cd ../../custom/my_theme
+npm install && npm run dist
+drush theme:install my_theme && drush config:set system.theme default my_theme -y && drush cr
 ```
 
-Pages on the `demo_umami` profile: `/recipe-explorer` and `/node-list`.
+The generated `hello-react` component works out of the box:
 
-> `views_better_rest` 1.2.0 / 1.x fatals on Drupal 11.4-dev (`UrlNormalizer` must extend `NormalizerBase`), see
-> [Getting started](https://zviryatko.github.io/drupal-react-scaffold-theme/guide/getting-started).
+```twig
+{% embed 'my_theme:hello-react' with { greeting: 'Hello' } %}{% block name %}World{% endblock %}{% endembed %}
+```
 
-## Examples
+## Repository layout
+
+| Path | What |
+|---|---|
+| `react_scaffold.*`, `templates/`, `scss/base.scss` | the base theme: info, libraries, CSRF hook, page layout |
+| `src/` | runtime sources: `helpers.jsx`, `apiClient.js`, `common.js` (built into the committed `assets/`) |
+| `vite.base.js`, `jest.base.cjs` | shared configs, exported as `react-scaffold/vite` and `react-scaffold/jest` |
+| `starter/`, `scripts/create-subtheme.mjs` | template and generator for subthemes |
+| `examples/react_scaffold_demo/` | example subtheme: `recipe-explorer`, `node-list`, `react-tooltip`, views, blocks |
+| `docs/` | documentation site (VitePress) and demo media |
+| `demo/` | Playwright recorder for the media |
+
+## Example subtheme
+
+For sites with the `demo_umami` content:
+
+```bash
+composer require drupal/views_better_rest
+drush en node rest serialization views_better_rest
+cd examples/react_scaffold_demo && npm install && npm run dist
+drush theme:install react_scaffold_demo && drush config:set system.theme default react_scaffold_demo -y
+```
 
 | Component | What it shows | Docs |
 |---|---|---|
@@ -49,32 +78,27 @@ Pages on the `demo_umami` profile: `/recipe-explorer` and `/node-list`.
 
 [Full video (mp4)](docs/public/media/node-list-modal-demo.mp4)
 
-## Use it for your own theme
+> `views_better_rest` 1.2.0 / 1.x fatals on Drupal 11.4-dev (`UrlNormalizer` must extend `NormalizerBase`), see
+> [Getting started](https://zviryatko.github.io/drupal-react-scaffold-theme/guide/getting-started).
 
-Copy the scaffold and rename `react_scaffold`, then add components under `components/<name>/` (any folder with `index.jsx` is built
-automatically). Everything is explained in the docs:
+## Documentation
 
-- [Create your own theme](https://zviryatko.github.io/drupal-react-scaffold-theme/guide/create-your-theme)
-- [Creating a component](https://zviryatko.github.io/drupal-react-scaffold-theme/guide/components) and [placing them in Twig](https://zviryatko.github.io/drupal-react-scaffold-theme/guide/twig)
+- [Getting started](https://zviryatko.github.io/drupal-react-scaffold-theme/guide/getting-started) and [Base theme and subthemes](https://zviryatko.github.io/drupal-react-scaffold-theme/guide/base-theme)
+- [Create a subtheme](https://zviryatko.github.io/drupal-react-scaffold-theme/guide/create-your-theme), [Creating a component](https://zviryatko.github.io/drupal-react-scaffold-theme/guide/components), [placing it in Twig](https://zviryatko.github.io/drupal-react-scaffold-theme/guide/twig)
 - [React + Drupal behaviors](https://zviryatko.github.io/drupal-react-scaffold-theme/guide/react-behaviors): why `once()` and `executeWhenVisible`
 - [Ajax calls and HTML responses](https://zviryatko.github.io/drupal-react-scaffold-theme/guide/ajax)
-- [Build: Vite and webpack](https://zviryatko.github.io/drupal-react-scaffold-theme/guide/build)
-- [Troubleshooting](https://zviryatko.github.io/drupal-react-scaffold-theme/guide/troubleshooting)
+- [Build: Vite and webpack](https://zviryatko.github.io/drupal-react-scaffold-theme/guide/build), [Testing](https://zviryatko.github.io/drupal-react-scaffold-theme/guide/testing), [Troubleshooting](https://zviryatko.github.io/drupal-react-scaffold-theme/guide/troubleshooting)
 
-## Scripts
+## Working on the base theme
 
 | Command | Does |
 |---|---|
-| `npm run dist` | production build into `assets/` |
-| `npm run watch` | development build, rebuilds on change |
-| `npm test` | Jest |
-| `npm run docs:dev` / `docs:build` | the documentation site (VitePress, sources in `docs/`) |
-| `npm run demo` | records screenshots and videos into `docs/public/media` (Playwright, ffmpeg, a demo_umami site, set `BASE_URL`) |
+| `npm install && npm run dist` | rebuild the runtime into `assets/` (commit the result, CI checks it is current) |
+| `npm test` | Jest (tests of `src/`) |
+| `npm run docs:dev` / `docs:build` | the documentation site (installs from `docs/package.json`) |
+| `npm run demo` | records screenshots and videos into `docs/public/media` (`BASE_URL`, Playwright, ffmpeg) |
 
-## Documentation site
-
-Sources are in [`docs/`](docs) (VitePress). The workflow `.github/workflows/docs.yml` builds and publishes it to GitHub Pages. In the repository
-settings, set **Pages → Source: GitHub Actions**. By default the `github-pages` environment only allows deployments from the default branch.
+See [`CHANGELOG.md`](CHANGELOG.md) for the public API and changes. The docs are published by `.github/workflows/docs.yml` (Pages source: GitHub Actions).
 
 # Credits
 

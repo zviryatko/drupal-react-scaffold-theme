@@ -24,6 +24,8 @@ features:
     details: React is loaded once as a global library and treated as an external by the build, so components stay small and independent.
   - title: Drupal-aware
     details: Components mount from Drupal.behaviors with once(), so they work after ajax, in modals, in hidden tabs and with BigPipe.
+  - title: Base theme + subthemes
+    details: Install the scaffold once, generate a subtheme with one command. It reuses the base React runtime and the Vite/Jest config, and updates with the base theme.
   - title: Views as the API
     details: A Better REST export display gives rows, exposed filters, sorts and pager as JSON. The UI is built from that, no hardcoded filter lists.
 ---
@@ -38,19 +40,19 @@ More in [Demos](/demos).
 
 ## This is a whole component
 
-A React tooltip as a Drupal component: five small files. Nothing else to register, the build discovers the folder.
+A React tooltip as a Drupal component in a subtheme: five small files. Nothing else to register, the build discovers the folder.
 
 ::: code-group
 
-<<< ../components/react-tooltip/react-tooltip.component.yml{yaml} [react-tooltip.component.yml]
+<<< ../examples/react_scaffold_demo/components/react-tooltip/react-tooltip.component.yml{yaml} [react-tooltip.component.yml]
 
-<<< ../components/react-tooltip/react-tooltip.twig{twig} [react-tooltip.twig]
+<<< ../examples/react_scaffold_demo/components/react-tooltip/react-tooltip.twig{twig} [react-tooltip.twig]
 
-<<< ../components/react-tooltip/index.jsx{jsx} [index.jsx]
+<<< ../examples/react_scaffold_demo/components/react-tooltip/index.jsx{jsx} [index.jsx]
 
-<<< ../components/react-tooltip/TextWithTooltip.jsx{jsx} [TextWithTooltip.jsx]
+<<< ../examples/react_scaffold_demo/components/react-tooltip/TextWithTooltip.jsx{jsx} [TextWithTooltip.jsx]
 
-<<< ../components/react-tooltip/react-tooltip.scss{scss} [react-tooltip.scss]
+<<< ../examples/react_scaffold_demo/components/react-tooltip/react-tooltip.scss{scss} [react-tooltip.scss]
 
 :::
 

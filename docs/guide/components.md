@@ -1,11 +1,13 @@
 # Creating a component
 
+Components live in your **subtheme** (see [Base theme and subthemes](/guide/base-theme)). The base theme only provides the React runtime and helpers that
+`react_scaffold/react` attaches. Below, `my_theme` stands for your subtheme.
+
 Each widget lives in its own folder under `components/`. Drupal discovers it because it contains `<name>.component.yml`
-(theme components are namespaced by the theme machine name: `react_scaffold:node-list`).
+(theme components are namespaced by the theme machine name: `my_theme:node-list`).
 
 ```
 components/
-  apiClient.js  common.js  helpers.jsx      # shared entries, not components
   recipe-explorer/
     recipe-explorer.component.yml           # SDC metadata: props, slots, library
     recipe-explorer.twig                    # server markup: the mount point
@@ -152,7 +154,7 @@ slots:
 **Naming and wiring**
 
 - The **folder name is the bundle name**: folder `my-widget` → `assets/my-widget.js`/`.css`. The path in `libraryOverrides`,
-  the folder and the component ID (`react_scaffold:my-widget`) must agree. A typo gives a 404 for the script, not an error.
+  the folder and the component ID (`my_theme:my-widget`) must agree. A typo gives a 404 for the script, not an error.
 - **`index.jsx` is required** for the build to pick the folder up (`index.js` also works). Other files are free.
 - **One behavior per component**, named uniquely (`Drupal.behaviors.myWidget`). A clashing name silently replaces another behavior.
 - Use a **specific mount class** (`.my-widget`) in `once()`. A generic selector mounts React into unrelated markup.

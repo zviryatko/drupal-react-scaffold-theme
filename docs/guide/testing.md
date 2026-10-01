@@ -2,13 +2,24 @@
 
 React parts are tested with Jest and Testing Library, run `npm test`.
 
-Setup (already in the repo):
+The configuration is shared: every subtheme's `jest.config.cjs` is one line.
 
-| File | Purpose |
+```js
+module.exports = require('react-scaffold/jest')(__dirname);
+```
+
+| What the shared config does | |
 |---|---|
-| `jest.config.cjs` | jsdom environment, `moduleNameMapper` for `Components/*`, `setupTests.js`. It is `.cjs` because `package.json` has `"type": "module"` |
-| `.babelrc` | `@babel/preset-env` + `@babel/preset-react` for test files |
-| `setupTests.js` | jest-dom matchers, global `React`, stubs for `Drupal.t` and `drupalSettings`, `matchMedia` |
+| jsdom environment | resolved from the base theme |
+| Babel (`preset-env`, `preset-react` classic) | presets resolved from the base theme, so no `.babelrc` is needed |
+| `Components/...` alias | maps to `<theme>/components` |
+| CSS/SCSS imports | mocked |
+| One React | `react` / `react-dom` always resolve to the base theme copy, even if a dependency (rsuite) installed another |
+| `@testing-library/*` | importable from the base theme location |
+| setup file | jest-dom matchers, global `React`, stubs for `Drupal.t` and `drupalSettings`, `matchMedia` |
+
+Pass overrides as the second argument: `require('react-scaffold/jest')(__dirname, { testPathIgnorePatterns: [...] })`.
+The base theme's own tests (`src/__tests__`) cover `apiClient` and `executeWhenVisible`.
 
 ## Example
 

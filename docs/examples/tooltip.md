@@ -1,6 +1,6 @@
 # Tooltip: the smallest component
 
-`components/react-tooltip`. Wraps the page title in a react-tippy tooltip. It is the minimal reference for the pattern.
+`components/react-tooltip` in the `react_scaffold_demo` subtheme. Wraps the page title in a react-tippy tooltip. It is the minimal reference for the pattern.
 
 ## Files
 
@@ -20,26 +20,26 @@ That is the whole component. Click the tabs.
 
 ::: code-group
 
-<<< ../../components/react-tooltip/react-tooltip.component.yml{yaml} [react-tooltip.component.yml]
+<<< ../../examples/react_scaffold_demo/components/react-tooltip/react-tooltip.component.yml{yaml} [react-tooltip.component.yml]
 
-<<< ../../components/react-tooltip/react-tooltip.twig{twig} [react-tooltip.twig]
+<<< ../../examples/react_scaffold_demo/components/react-tooltip/react-tooltip.twig{twig} [react-tooltip.twig]
 
-<<< ../../components/react-tooltip/index.jsx{jsx} [index.jsx]
+<<< ../../examples/react_scaffold_demo/components/react-tooltip/index.jsx{jsx} [index.jsx]
 
-<<< ../../components/react-tooltip/TextWithTooltip.jsx{jsx} [TextWithTooltip.jsx]
+<<< ../../examples/react_scaffold_demo/components/react-tooltip/TextWithTooltip.jsx{jsx} [TextWithTooltip.jsx]
 
-<<< ../../components/react-tooltip/react-tooltip.scss{scss} [react-tooltip.scss]
+<<< ../../examples/react_scaffold_demo/components/react-tooltip/react-tooltip.scss{scss} [react-tooltip.scss]
 
 :::
 
 ## Used from PHP
 
-`react_scaffold.theme` wraps the page title in the component, so every page title gets the tooltip:
+`react_scaffold_demo.theme` wraps the page title in the component, so every page title gets the tooltip:
 
 ```php
 $variables['title'] = [
   '#type' => 'component',
-  '#component' => 'react_scaffold:react-tooltip',
+  '#component' => 'react_scaffold_demo:react-tooltip',
   '#props' => ['text' => 'Tooltip text'],
   '#slots' => ['content' => $title],
 ];

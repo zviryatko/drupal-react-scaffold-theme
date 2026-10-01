@@ -3,7 +3,7 @@ name: Docs
 on:
   push:
     branches: [main]
-    paths: ['docs/**', 'package.json', 'package-lock.json', '.github/workflows/docs.yml']
+    paths: ['docs/**', 'examples/**/components/**', '.github/workflows/docs.yml']
   workflow_dispatch:
 
 permissions:
@@ -24,8 +24,9 @@ jobs:
         with:
           node-version: 22
           cache: npm
-      - run: npm ci
-      - run: npm run docs:build
+          cache-dependency-path: docs/package-lock.json
+      - run: npm ci --prefix docs
+      - run: npm run build --prefix docs
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:

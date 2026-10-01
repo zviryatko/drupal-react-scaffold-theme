@@ -1,0 +1,42 @@
+{#
+/**
+ * @file
+ * Page layout of the React Scaffold base theme.
+ *
+ * Prints every region declared in react_scaffold.info.yml. Subthemes inherit the regions and can override
+ * this template, or only style it (class names are stable: .page, .page__header, .page__main, ...).
+ */
+#}
+<div class="page">
+  {% if page.pre_header %}
+    <div class="page__pre-header">{{ page.pre_header }}</div>
+  {% endif %}
+
+  <header class="page__header" role="banner">
+    {{ page.header }}
+  </header>
+
+  {{ page.highlighted }}
+  {{ page.banner_top }}
+
+  <main class="page__main" role="main">
+    <a id="main-content" tabindex="-1"></a>
+    {{ page.breadcrumbs }}
+    {{ page.page_title }}
+    {{ page.tabs }}
+    <div class="page__columns{{ page.sidebar ? ' page__columns--with-sidebar' }}">
+      <div class="page__content">
+        {{ page.content }}
+      </div>
+      {% if page.sidebar %}
+        <aside class="page__sidebar" role="complementary">{{ page.sidebar }}</aside>
+      {% endif %}
+    </div>
+    {{ page.content_bottom }}
+  </main>
+
+  {% if page.footer %}
+    <footer class="page__footer" role="contentinfo">{{ page.footer }}</footer>
+  {% endif %}
+  {{ page.bottom }}
+</div>

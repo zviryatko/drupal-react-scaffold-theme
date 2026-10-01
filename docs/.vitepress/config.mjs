@@ -22,7 +22,8 @@ export default defineConfig({
         items: [
           { text: 'What is this', link: '/guide/what-is-this' },
           { text: 'Getting started', link: '/guide/getting-started' },
-          { text: 'Create your own theme', link: '/guide/create-your-theme' },
+          { text: 'Base theme and subthemes', link: '/guide/base-theme' },
+          { text: 'Create a subtheme', link: '/guide/create-your-theme' },
           { text: 'Creating a component', link: '/guide/components' },
           { text: 'Placing components in Twig', link: '/guide/twig' },
           { text: 'React + Drupal behaviors', link: '/guide/react-behaviors' },

@@ -1,0 +1,24 @@
+{
+  "name": "react-scaffold-demo",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "react-scaffold": "file:../..",
+    "react-tippy": "^1.4.0",
+    "rsuite": "^5.83.3",
+    "rsuite-table": "^5.19.2"
+  },
+  "devDependencies": {
+    "jest": "^30.1.3",
+    "sass": "^1.49.7",
+    "vite": "^7.1.6"
+  },
+  "scripts": {
+    "preinstall": "npm install --prefix ../.. --no-audit --no-fund",
+    "build": "vite build",
+    "watch": "vite build --watch --mode development",
+    "dist": "vite build --mode production",
+    "test": "jest"
+  }
+}

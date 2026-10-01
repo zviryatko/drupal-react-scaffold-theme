@@ -1,0 +1,14 @@
+{
+    "name": "zviryatko/drupal-react-scaffold-theme",
+    "description": "Base theme for React islands built as core Single Directory Components, with a shared Vite/Jest config for subthemes.",
+    "type": "drupal-theme",
+    "license": "GPL-2.0-or-later",
+    "homepage": "https://zviryatko.github.io/drupal-react-scaffold-theme/",
+    "support": {
+        "issues": "https://github.com/zviryatko/drupal-react-scaffold-theme/issues",
+        "source": "https://github.com/zviryatko/drupal-react-scaffold-theme"
+    },
+    "require": {
+        "drupal/core": "^10.3 || ^11"
+    }
+}

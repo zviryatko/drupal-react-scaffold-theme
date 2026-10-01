@@ -1,6 +1,10 @@
 node_modules
-assets
+examples/*/assets
+starter/assets
 junit.xml
+coverage
 docs/.vitepress/dist
 docs/.vitepress/cache
 docs/public/media/.tmp
+docs/node_modules
+demo/node_modules

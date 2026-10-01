@@ -2,7 +2,7 @@
 
 ## `apiClient`
 
-`components/apiClient.js` defines `window.apiClient(url, query, params)`: a thin `fetch` wrapper.
+The base theme (`src/apiClient.js`, library `react_scaffold/react-api-client`) defines `window.apiClient(url, query, params)`: a thin `fetch` wrapper.
 
 ```js
 const data = await apiClient('/en/api/recipes', { difficulty: 'easy', page: 1 });
@@ -14,7 +14,7 @@ What it does:
 - appends `query` as a query string and **drops `null`/`undefined` values**, so clearing a filter is `{ difficulty: null }`,
 - returns `response.json()`.
 
-The CSRF token comes from the theme: `hook_js_settings_alter()` in the `.theme` file puts a token into `drupalSettings.csrfToken`,
+The CSRF token comes from the base theme: `hook_js_settings_alter()` in `react_scaffold.theme` (it also runs for subthemes) puts a token into `drupalSettings.csrfToken`,
 which Drupal needs for non-GET REST requests from cookie-authenticated users.
 
 ```php
@@ -98,7 +98,7 @@ Core's `drupal.ajax` / `drupal.dropbutton` depend on jQuery, so a page with them
 
 ## Example: "Edit in Modal"
 
-In the `content_rest` view a *Custom text* field (`nothing`) outputs this HTML:
+In the `content_rest` view of the example subtheme a *Custom text* field (`nothing`) outputs this HTML:
 
 ```html
 <a class="use-ajax" data-dialog-type="modal" data-dialog-options='{"width":600}' href="/en/node/19/edit">Edit in Modal</a>
