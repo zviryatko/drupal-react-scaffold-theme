@@ -23,7 +23,7 @@ export default defineConfig({
           { text: 'What is this', link: '/guide/what-is-this' },
           { text: 'Getting started', link: '/guide/getting-started' },
           { text: 'Create your own theme', link: '/guide/create-your-theme' },
-          { text: 'Components (SDC)', link: '/guide/components' },
+          { text: 'Creating a component', link: '/guide/components' },
           { text: 'Placing components in Twig', link: '/guide/twig' },
           { text: 'React + Drupal behaviors', link: '/guide/react-behaviors' },
           { text: 'Ajax calls and HTML responses', link: '/guide/ajax' },

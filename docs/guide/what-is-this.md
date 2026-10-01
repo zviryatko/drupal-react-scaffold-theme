@@ -13,17 +13,8 @@ SEO markup, and React only owns the interactive widgets.
 
 ## Architecture
 
-```
-Drupal page (Twig, blocks, regions)
- └─ SDC component  ──►  <div class="recipe-explorer" data-endpoint="/en/api/recipes">
-      │  libraryOverrides attaches assets/recipe-explorer.{js,css}
-      ▼
- Drupal.behaviors.recipeExplorer.attach()  ──once()──►  createRoot(el).render(<RecipeExplorer/>)
-                                                            │
-                                         window.apiClient() (fetch + CSRF header)
-                                                            ▼
-                                       Views "Better REST export" display (JSON)
-```
+In short: Drupal renders a mount element from an SDC, a Drupal behavior mounts React into it, React fetches JSON from a Views REST
+export. The step by step flow is in [React + Drupal behaviors](/guide/react-behaviors#how-it-works-end-to-end).
 
 | Piece | Where |
 |---|---|

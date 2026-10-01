@@ -56,7 +56,7 @@ drush cr
 
 ## 4. Add your first component
 
-Follow [Components (SDC)](/guide/components#add-a-new-component-step-by-step). The build picks up any folder under `components/`
+Follow [Creating a component](/guide/components#add-a-new-component-step-by-step). The build picks up any folder under `components/`
 that has an `index.jsx` (or `index.js`), no config change needed.
 
 ## Deploying

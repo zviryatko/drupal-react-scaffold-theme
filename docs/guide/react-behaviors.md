@@ -3,6 +3,35 @@
 React must not start from a plain `DOMContentLoaded` script. In Drupal, markup appears and disappears after the initial load, and
 the thing that knows about it is `Drupal.behaviors`.
 
+## How it works, end to end
+
+```
+Drupal page (Twig, blocks, regions)
+ └─ SDC component  ──►  <div class="recipe-explorer" data-endpoint="/en/api/recipes">
+      │  libraryOverrides attaches assets/recipe-explorer.{js,css}  (+ react_scaffold/react)
+      ▼
+ Drupal.behaviors.recipeExplorer.attach(context)
+      │  once('react', '.recipe-explorer', context)       → only new elements
+      │  executeWhenVisible(el, mount, id)                 → waits for layout if hidden
+      ▼
+ createRoot(el).render(<RecipeExplorer/>)
+      │
+      ▼  window.apiClient(url, query)  (fetch + CSRF header)
+ Views "Better REST export" display (JSON)
+```
+
+1. **Server**: Twig renders the SDC. The page contains only the mount element with `data-*` props, and Drupal attaches the component's
+   library (and the global React library it depends on) *because the component was rendered on this page*.
+2. **Browser, page load**: scripts are loaded, then Drupal calls `Drupal.attachBehaviors(document)`. Your `attach(context)` runs with
+   `context = document`.
+3. **Mount**: `once()` selects mount elements not yet processed, `executeWhenVisible` mounts them now or when they become visible.
+4. **Later insertions**: an ajax response, a modal, a BigPipe placeholder or a Views ajax refresh inserts markup and Drupal calls
+   `attachBehaviors(newMarkup)`. Your `attach` runs again with `context = newMarkup`, and only new mount elements get a root.
+5. **Data**: React calls `apiClient`. If the response contains HTML, the [helpers](/guide/ajax#when-the-response-contains-html) call
+   `attachBehaviors` on it, which is step 4 again, one level deeper.
+
+That loop (`attach` → `once` → mount → data → `attach` on inserted HTML) is the whole design. The rest of this page explains each piece.
+
 ## The pattern
 
 ```jsx
@@ -87,9 +116,4 @@ Drupal.behaviors.myWidget = {
 };
 ```
 
-## Gotchas
-
-- Put `import './x.scss'` in `index.jsx`, Vite extracts it to `assets/<name>.css`.
-- Use `Drupal.t()` instead of hardcoded English; `Drupal` is a global.
-- `window.executeWhenVisible`, `apiClient`, `rawHtml`... are globals from the shared libraries. Depend on `react_scaffold/react` (and
-  `react-api-client`) in the component's `libraryOverrides.dependencies`, otherwise they are undefined.
+Practical advice for writing components (props vs slots, naming, libraries) is in [Creating a component](/guide/components#gotchas-and-advice).

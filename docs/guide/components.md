@@ -1,4 +1,4 @@
-# Components (SDC)
+# Creating a component
 
 Each widget lives in its own folder under `components/`. Drupal discovers it because it contains `<name>.component.yml`
 (theme components are namespaced by the theme machine name: `react_scaffold:node-list`).
@@ -94,7 +94,7 @@ import { createRoot } from 'react-dom/client';
 })(Drupal, once);
 ```
 
-Why it is written like this is explained in [React + Drupal behaviors](/guide/react-behaviors).
+Keep `index.jsx` thin: it only wires Drupal to React. Why it is written like this is explained in [React + Drupal behaviors](/guide/react-behaviors).
 
 ## Add a new component, step by step
 
@@ -110,9 +110,29 @@ Why it is written like this is explained in [React + Drupal behaviors](/guide/re
 
 The folder name is also the bundle name, so keep the three in sync: folder `my-widget`, bundle `assets/my-widget.js`, and the path in `libraryOverrides`.
 
-## Slots
+## Props or slots?
 
-Use slots for content that comes from Drupal and may be markup, for example the tooltip's trigger text:
+SDC gives you two ways to pass content in. Choose by *what the value is*:
+
+| Use a **prop** when | Use a **slot** when |
+|---|---|
+| it is a value: string, number, boolean, enum, URL, ID | it is content: markup, links, a render array, translated rich text |
+| you want core to validate it (type, enum, required, default) | the caller may want to put any HTML or other components inside |
+| React needs it as data (`endpoint`, `variant`, `limit`) | Drupal should render it (page title, field output, a block) |
+| it is small and safe in an HTML attribute | it could contain user content you do not want to double-encode |
+
+Rules of thumb:
+
+- **Config for React → props.** `endpoint`, `variant`, `heading`. They end up in `data-*` attributes and `element.dataset`.
+- **Anything Drupal renders → slots.** Never pass rendered HTML as a prop string, it is escaped and bypasses Drupal's render pipeline.
+- **Enums over free text** for anything that changes behavior (`variant: light | dark`), the schema documents and enforces them.
+- **Defaults in `component.yml`**, not in twig or JS, so every caller sees the same default.
+- **Prop values are strings in the browser.** `data-limit="10"` arrives as `"10"`. Parse numbers and booleans in `index.jsx`, or send
+  structured data as one JSON attribute and `JSON.parse` it.
+- **Slot content is server markup.** React replaces the element's children when it mounts, so read what you need first
+  (`element.innerText`, `element.innerHTML`) and render it yourself. The tooltip does this with its trigger text.
+
+### Slot example (tooltip)
 
 ```yaml
 # react-tooltip.component.yml
@@ -125,4 +145,44 @@ slots:
 <span {{ attributes.addClass('react-tooltip').setAttribute('data-text', text) }}>{% block content %}{% endblock %}</span>
 ```
 
-The React side reads the rendered text (`element.innerText`) and replaces the element. Props are for values, slots for markup.
+`text` is a value React needs, `content` is whatever Drupal wants shown in the span.
+
+## Gotchas and advice
+
+**Naming and wiring**
+
+- The **folder name is the bundle name**: folder `my-widget` → `assets/my-widget.js`/`.css`. The path in `libraryOverrides`,
+  the folder and the component ID (`react_scaffold:my-widget`) must agree. A typo gives a 404 for the script, not an error.
+- **`index.jsx` is required** for the build to pick the folder up (`index.js` also works). Other files are free.
+- **One behavior per component**, named uniquely (`Drupal.behaviors.myWidget`). A clashing name silently replaces another behavior.
+- Use a **specific mount class** (`.my-widget`) in `once()`. A generic selector mounts React into unrelated markup.
+- The `once()` id (`'react'`) can be shared: `once` tracks element and id together, different elements never conflict.
+
+**Libraries**
+
+- Always depend on `react_scaffold/react` (and `react_scaffold/react-api-client` if you call `apiClient`). Without it `React`, `apiClient`
+  and `executeWhenVisible` are undefined and the component fails silently.
+- If the HTML you render contains ajax links or dropbuttons, add `core/drupal.ajax` / `core/drupal.dropbutton`, see [Ajax](/guide/ajax).
+  These pull jQuery in through core, your code does not need it.
+- Scripts that are ES modules need `attributes: { type: module }`, see [Build](/guide/build).
+
+**JavaScript**
+
+- `import './my-widget.scss'` in `index.jsx`. Vite extracts the CSS into `assets/my-widget.css`. Third-party CSS (`react-tippy/dist/tippy.css`)
+  must be imported the same way, it is not automatic.
+- Use `Drupal.t()` / `Drupal.formatPlural()` for text. `Drupal`, `once` and `drupalSettings` are globals, do not bundle them.
+- React is an external, so it is not bundled: `import { useState } from 'react'` is fine, it resolves to the global `React`. Do not add a second React to a component's dependencies.
+- Keep React component files free of Drupal globals where you can. Pass `endpoint` and text in as props, so Jest tests do not need Drupal.
+- Handle loading, error and empty states. The server markup is a bare mount element, users see it until your first render.
+
+**Markup and accessibility**
+
+- Put server-rendered fallback inside the mount element (`<noscript>`, or real content that React replaces). It is what search engines and no-JS users get.
+- Prefer real form controls, labels and `aria-live` for results. React does not add them for you.
+- SDC `attributes` lets callers add classes and attributes, keep `attributes.addClass(...)` in twig instead of hardcoding a bare `<div>`.
+
+**Workflow**
+
+- After editing `*.component.yml`, twig or `libraries.yml`: `drush cr`. After editing JSX/SCSS: rebuild (`npm run watch` does it).
+- Component props are validated on every render, a wrong type is a visible error. Fix the schema or the caller, do not loosen the schema to silence it.
+- If something does not show up, follow the checklist in [Build](/guide/build#checklist-when-a-component-does-not-show-up).

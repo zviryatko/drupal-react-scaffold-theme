@@ -55,7 +55,7 @@ Copy the scaffold and rename `react_scaffold`, then add components under `compon
 automatically). Everything is explained in the docs:
 
 - [Create your own theme](https://zviryatko.github.io/drupal-react-scaffold-theme/guide/create-your-theme)
-- [Components (SDC)](https://zviryatko.github.io/drupal-react-scaffold-theme/guide/components) and [placing them in Twig](https://zviryatko.github.io/drupal-react-scaffold-theme/guide/twig)
+- [Creating a component](https://zviryatko.github.io/drupal-react-scaffold-theme/guide/components) and [placing them in Twig](https://zviryatko.github.io/drupal-react-scaffold-theme/guide/twig)
 - [React + Drupal behaviors](https://zviryatko.github.io/drupal-react-scaffold-theme/guide/react-behaviors): why `once()` and `executeWhenVisible`
 - [Ajax calls and HTML responses](https://zviryatko.github.io/drupal-react-scaffold-theme/guide/ajax)
 - [Build: Vite and webpack](https://zviryatko.github.io/drupal-react-scaffold-theme/guide/build)
