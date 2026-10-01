@@ -2,7 +2,6 @@ langcode: en
 status: true
 dependencies:
   config:
-    - core.entity_view_mode.media.thumbnail
     - image.style.medium_3_2_600x400
     - node.type.recipe
     - taxonomy.vocabulary.recipe_category

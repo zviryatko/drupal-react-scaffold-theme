@@ -120,7 +120,10 @@ drush theme:install react_scaffold_demo
 drush config:set system.theme default react_scaffold_demo -y
 ```
 
-Pages: `/recipe-explorer`, `/node-list`.
+Pages: `/recipe-explorer`, `/node-list`. Installing the theme creates the two views and the block placement (`config/optional`).
+
+Spanish translations are an extra step, see [Translations](/guide/translations): import `translations/es.po` in the UI (JS strings) and import `config/optional/language/es/*.yml`
+through your config sync directory (view labels).
 
 ::: warning views_better_rest and Drupal 11.4-dev
 `views_better_rest` 1.2.0 and the 1.x branch fatal on Drupal 11.4-dev: `UrlNormalizer` extends `ComplexDataNormalizer`, whose

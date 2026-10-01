@@ -56,11 +56,11 @@ but it does not scale and splits the texts of one component between Twig and JS.
 The Better REST export is rendered for the language of the request, so give the fetch URL a language prefix. The examples do this
 with `path('view.recipe_explorer.better_rest_export_1')` in Twig (it returns `/es/api/recipes` on a Spanish page).
 
-Labels of exposed filters and sorts, group titles, pager text and the view title belong to the view's configuration, translate them with config translation
-(*Structure → Views → your view → Translate*). A subtheme can ship them in `config/optional/language/<langcode>/`, installed together with the view:
+Labels of exposed filters and sorts, group titles, pager text and the view title belong to the view's configuration, so they are translated with config translation:
+*Structure → Views → your view → Translate*, or as files in your project's config sync directory. The overrides are plain YAML, only the keys that differ:
 
 ```yaml
-# config/optional/language/es/views.view.recipe_explorer.yml
+# <config sync directory>/language/es/views.view.recipe_explorer.yml
 display:
   default:
     display_options:
@@ -70,6 +70,15 @@ display:
           expose:
             label: Buscar
 ```
+
+Put the files in `<sync directory>/language/es/` and run `drush config:import` (a normal full import: the `language/<langcode>` folders are config collections). The example subtheme
+ships ready files in `config/optional/language/es/` to copy there.
+
+::: warning Optional config translations are not installed by Drupal
+Core installs `config/optional` of a module or theme for the default collection only, so `config/optional/language/<langcode>/` is **not** imported when the theme is installed
+(only translations in `config/install/language/` are, and the view cannot live there because it needs modules that the theme install does not enable).
+That is why the example ships the files for you to import. `drush config:import --partial` is not a way around it, partial imports do not carry config collections.
+:::
 
 Only the keys that are translatable in the Views configuration schema can be overridden. Row values (titles, summaries, categories) come from the
 translated entities.

@@ -1,3 +1,3 @@
-<div {{ attributes.addClass('hello-react').setAttribute('data-greeting', greeting).setAttribute('data-start', start) }}>
+<div {{ attributes.addClass('hello-react').setAttribute('data-greeting', greeting|default('Hello')).setAttribute('data-start', start|default(0)) }}>
   <span class="hello-react__name">{% block name %}{% endblock %}</span>
 </div>

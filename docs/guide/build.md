@@ -64,47 +64,58 @@ Things worth knowing:
 - **Base theme build**: `npm run dist` in the base theme builds its runtime into `assets/` (React UMD, helpers, apiClient). The compiled files are not committed,
   releases build and attach them, see [Releases](/guide/base-theme#releases-and-updating-the-base-theme).
 
-## Webpack (equivalent sketch)
+## Webpack in a subtheme
 
-::: warning Not tested in this repository
-The scaffold ships Vite only. This is the same contract expressed for webpack 5, use it as a starting point.
-:::
+Vite is what the scaffold uses, but the contract above is tool independent. This `webpack.config.cjs` follows it for a subtheme. It was tested with
+webpack 5 on a generated subtheme: all components mounted in Drupal from its output.
+
+```bash
+npm i -D webpack webpack-cli babel-loader css-loader sass-loader mini-css-extract-plugin @babel/core @babel/preset-react
+npx webpack --mode production -c webpack.config.cjs
+```
 
 ```js
-// webpack.config.js
+// webpack.config.cjs: the same contract as the Vite build (see "What the build has to do").
 const path = require('path');
 const fs = require('fs');
+const webpack = require('webpack');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-const CopyPlugin = require('copy-webpack-plugin');
 
-const components = fs.readdirSync('components', { withFileTypes: true })
-  .filter((d) => d.isDirectory() && fs.existsSync(`components/${d.name}/index.jsx`))
-  .reduce((acc, d) => ({ ...acc, [d.name]: `./components/${d.name}/index.jsx` }), {});
+// One entry per folder of components/ with an index.jsx.
+const components = Object.fromEntries(
+  fs.readdirSync('components', { withFileTypes: true })
+    .filter((d) => d.isDirectory() && fs.existsSync(`components/${d.name}/index.jsx`))
+    .map((d) => [d.name, `./components/${d.name}/index.jsx`]),
+);
 
-module.exports = (env, argv) => ({
-  entry: { common: './components/common.js', helpers: './components/helpers.jsx', apiClient: './components/apiClient.js', ...components },
+module.exports = {
+  entry: { ...components, global: './scss/global.scss' },
   output: { path: path.resolve(__dirname, 'assets'), filename: '[name].js', clean: true },
   externals: { react: 'React', 'react-dom': 'ReactDOM', 'react-dom/client': 'ReactDOM' },
-  optimization: { splitChunks: false },            // one self-contained file per entry
+  optimization: { splitChunks: false },        // one self-contained classic script per entry
   module: {
     rules: [
-      { test: /\.jsx?$/, exclude: /node_modules/, use: 'babel-loader' },   // @babel/preset-react with runtime: 'classic'
+      { test: /\.jsx?$/, exclude: /node_modules/, use: { loader: 'babel-loader', options: { presets: [['@babel/preset-react', { runtime: 'classic' }]] } } },
       { test: /\.s?css$/, use: [MiniCssExtractPlugin.loader, 'css-loader', 'sass-loader'] },
     ],
   },
   resolve: { extensions: ['.js', '.jsx'] },
   plugins: [
+    new webpack.ProvidePlugin({ React: 'react' }),   // classic JSX needs React in scope, 'react' is the external window.React
     new MiniCssExtractPlugin({ filename: '[name].css' }),
-    new CopyPlugin({ patterns: [
-      { from: 'node_modules/react/umd/react.production.min.js', to: 'react/react.js' },
-      { from: 'node_modules/react-dom/umd/react-dom.production.min.js', to: 'react/react-dom.js' },
-    ] }),
   ],
-});
+};
 ```
 
-Because `splitChunks: false` yields classic scripts without `import`, drop `attributes: { type: module }` from the libraries.
-`helpers.jsx` uses `import { forwardRef } from 'react'`, which the external mapping turns into the global `React.forwardRef`.
+What differs from the Vite build:
+
+- `optimization.splitChunks: false` gives one self-contained **classic** script per entry, so drop `attributes: { type: module }` from the `libraryOverrides`
+  (it also works with the attribute, a classic script is valid as a module).
+- The React runtime is not built here: the base theme provides it (`react_scaffold/react`), so there is no UMD copy step.
+- Classic JSX needs `React` in scope: `ProvidePlugin` injects the external `window.React`. The automatic JSX runtime would import `react/jsx-runtime`, which the UMD build does not have.
+- webpack also emits an empty `global.js` for the SCSS-only entry, ignore it.
+- Keep `assets/` as the output folder, the libraries point there. Do not run both tools into the same folder.
+- Build and tests of the **base theme** itself stay on Vite. Subthemes can use any bundler.
 
 ## Checklist when a component does not show up
 

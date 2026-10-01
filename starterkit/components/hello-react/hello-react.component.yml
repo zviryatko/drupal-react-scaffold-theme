@@ -3,6 +3,8 @@ name: Hello React
 status: experimental
 description: 'Starter React component: a greeting and a counter button.'
 group: Starter
+# `default` documents the value (and shows in tools), but core SDC does not apply it to the Twig variables:
+# the template uses |default(...) for every optional prop.
 props:
   type: object
   properties:

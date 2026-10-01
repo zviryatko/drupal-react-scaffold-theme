@@ -19,3 +19,9 @@ The public API of the base theme, which follows semantic versioning:
 - `helpers.jsx` reads `window.Drupal` / `drupalSettings` lazily.
 - Page layout template and neutral layout CSS in the base theme.
 - Example subtheme: node-list headers are readable (`Author`, `Modal edit`), dates are short, the table shows all rows.
+- Every guide was run in a clean environment and fixed where it failed:
+  - starterkit `hello-react`: optional props use `|default()` (core SDC does not apply schema defaults, an omitted `start` gave `NaN`),
+  - example view `recipe_explorer` declared a dependency on a config that does not exist, so Drupal skipped it on theme install,
+  - docs: webpack config is tested (classic scripts, no `type: module`), "existing theme" needs the CSRF hook, `create-your-theme` minimum includes the libraries file.
+- Example subtheme: Spanish translations (`translations/es.po`, `config/optional/language/es`), node-list cards on narrow screens.
+- New guide: Translations.

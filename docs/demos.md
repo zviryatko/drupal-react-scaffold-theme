@@ -25,13 +25,14 @@ The table is a React component, the "Edit in Modal" link is plain Drupal ajax (`
 | ![Empty state](/media/screenshots/04-recipe-explorer-empty.png) | ![Page 2, sorted](/media/screenshots/05-recipe-explorer-page-2-sorted.png) |
 | ![Node list](/media/screenshots/06-node-list.png) | ![Node list filter](/media/screenshots/06-node-list-filter-open.png) |
 | ![Tooltip](/media/screenshots/07-title-tooltip.png) | ![Mobile](/media/screenshots/08-recipe-explorer-mobile.png) |
+| ![Node list on a phone](/media/screenshots/08-node-list-mobile.png) | |
 
 ## Regenerate
 
-With the example subtheme built and enabled on a site that has the `demo_umami` content (see [Getting started](/guide/getting-started#try-the-example-subtheme)):
+The recorder is in the repository only (`demo/` is not part of release archives). With a git checkout of the base theme, the example subtheme built and enabled on a site that has the `demo_umami` content (see [Getting started](/guide/getting-started#try-the-example-subtheme)):
 
 ```bash
-cd themes/contrib/react_scaffold/demo
+cd react_scaffold/demo
 npm install
 npx playwright install chromium
 BASE_URL=https://your-site.example npm run capture

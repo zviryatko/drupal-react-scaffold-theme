@@ -7,7 +7,7 @@ import { createRoot } from 'react-dom/client';
     // Props arrive as data-* strings, slots as server markup: read both before React replaces the children.
     const name = element.querySelector('.hello-react__name')?.innerText ?? '';
     createRoot(element).render(
-      <HelloReact greeting={element.dataset.greeting} name={name} start={Number(element.dataset.start)}/>
+      <HelloReact greeting={element.dataset.greeting} name={name} start={Number(element.dataset.start) || 0}/>
     );
   };
 

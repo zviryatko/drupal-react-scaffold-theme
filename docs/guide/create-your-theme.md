@@ -71,8 +71,16 @@ regions:               # copy from react_scaffold.info.yml, regions are not inhe
   # ...
 ```
 
+```yaml
+# my_theme.libraries.yml
+global-styling:
+  css:
+    theme:
+      assets/global.css: {}
+```
+
 This is also what `drush generate theme` produces when you answer `react_scaffold` for the base theme. For the build and the tests copy
-`vite.config.js`, `jest.config.cjs`, `base-theme.cjs` and `package.json` from `react_scaffold/starterkit/`. Components are discovered from `components/`.
+`vite.config.js`, `jest.config.cjs`, `base-theme.cjs` and `package.json` from `react_scaffold/starterkit/` (rename the package), add `scss/global.scss`, then `npm install && npm run dist`. Components are discovered from `components/`.
 
 ## Existing site, existing theme?
 
@@ -82,7 +90,21 @@ Otherwise keep your theme and add the React runtime to it:
 - attach `react_scaffold/react` from your components' `libraryOverrides.dependencies` (libraries of any installed theme can be attached from anywhere),
 - use `vite.config.js` and `base-theme.cjs` from the starterkit for the build.
 
-You lose the inherited page template and the `libraries:` auto-attach (add `react_scaffold/global-libraries` to your `libraries:`).
+This was tested with a theme that has `base theme: false`: the component mounts and `executeWhenVisible`, `apiClient` and `rawHtml` are available.
+What you give up by not extending the base theme:
+
+- the inherited page template and the `libraries:` auto-attach: add `react_scaffold/global-libraries` to your `libraries:` if you want the same libraries on every page,
+- **the CSRF token**: `drupalSettings.csrfToken` is set by a hook of the base theme, which only runs when `react_scaffold` is in the active theme's chain.
+  Without it `apiClient` sends no token, fine for GET requests, writes will be rejected. Add the hook to your own `.theme` file:
+
+```php
+use Drupal\Core\Access\CsrfRequestHeaderAccessCheck;
+use Drupal\Core\Asset\AttachedAssetsInterface;
+
+function my_theme_js_settings_alter(array &$settings, AttachedAssetsInterface $assets) {
+  $settings['csrfToken'] = \Drupal::service('csrf_token')->get(CsrfRequestHeaderAccessCheck::TOKEN_KEY);
+}
+```
 
 ## Deploying
 

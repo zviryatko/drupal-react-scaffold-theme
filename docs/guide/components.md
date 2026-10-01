@@ -128,7 +128,9 @@ Rules of thumb:
 - **Config for React → props.** `endpoint`, `variant`, `heading`. They end up in `data-*` attributes and `element.dataset`.
 - **Anything Drupal renders → slots.** Never pass rendered HTML as a prop string, it is escaped and bypasses Drupal's render pipeline.
 - **Enums over free text** for anything that changes behavior (`variant: light | dark`), the schema documents and enforces them.
-- **Defaults in `component.yml`**, not in twig or JS, so every caller sees the same default.
+- **Optional props need `|default()` in twig.** The `default:` in `component.yml` documents the value, but core SDC does **not** apply it to the Twig variables: an omitted
+  prop is simply undefined, and `data-start="{{ start }}"` becomes an empty attribute (`Number(undefined)` is `NaN` in JS). Write `start|default(0)` in the template and, for numbers, `Number(el.dataset.start) || 0` in `index.jsx`.
+  Keep the same default in `component.yml` so the documentation matches.
 - **Prop values are strings in the browser.** `data-limit="10"` arrives as `"10"`. Parse numbers and booleans in `index.jsx`, or send
   structured data as one JSON attribute and `JSON.parse` it.
 - **Slot content is server markup.** React replaces the element's children when it mounts, so read what you need first
