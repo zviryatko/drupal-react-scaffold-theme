@@ -1,0 +1,16 @@
+{#
+/**
+ * @file
+ * Mounts the React recipe-explorer SDC on the recipe_explorer page display.
+ *
+ * Results, filters, sorts and pager come from the better_rest_export_1 display
+ * of the same view, so nothing from the view result is printed here.
+ */
+#}
+{% set classes = ['view', 'view-' ~ id|clean_class, 'view-id-' ~ id, 'view-display-id-' ~ display_id] %}
+<div{{ attributes.addClass(classes) }}>
+  {% include 'react_scaffold:recipe-explorer' with {
+    endpoint: path('view.recipe_explorer.better_rest_export_1'),
+    heading: 'Recipes'|t,
+  } only %}
+</div>

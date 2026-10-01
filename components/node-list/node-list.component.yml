@@ -32,7 +32,7 @@ props:
     - endpoint
 libraryOverrides:
   js:
-    ../../assets/node-list.js: { }
+    ../../assets/node-list.js: { attributes: { type: module } }
   css:
     theme:
       ../../assets/node-list.css: { }

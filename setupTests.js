@@ -1,28 +1,12 @@
 import React from "react";
 import "@testing-library/jest-dom";
 
-// Make React available in all test files without importing
+// Make React available in all test files without importing (components use the global, like in Drupal).
 global.React = React;
 
-// Make Drupal and drupalSettings available in all test files without importin
-global.drupalSettings = {
-  user: {
-    uid: 0,
-  },
-  editor: {
-    formats: {},
-  },
-};
-global.Drupal = {
-  editors: {
-    ckeditor: {},
-  },
-  t: (text) => text,
-};
-global.CKEDITOR = null;
-
-global.jQuery = jest.fn();
-global.jQuery.param = jest.fn();
+// Globals provided by Drupal at runtime. Override per test when needed.
+global.drupalSettings = { user: { uid: 0 } };
+global.Drupal = { t: (text) => text };
 
 global.matchMedia =
   global.matchMedia ||

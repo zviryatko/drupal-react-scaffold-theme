@@ -669,3 +669,35 @@ display:
         - 'user.node_grants:view'
         - user.permissions
       tags: {  }
+  page_1:
+    id: page_1
+    display_title: Page
+    display_plugin: page
+    position: 3
+    display_options:
+      display_extenders: {  }
+      title: 'Node list'
+      path: node-list
+      defaults:
+        title: false
+        pager: false
+        style: false
+        row: false
+      style:
+        type: default
+      row:
+        type: fields
+      pager:
+        type: some
+        options:
+          offset: 0
+          items_per_page: 1
+      exposed_block: false
+    cache_metadata:
+      max-age: -1
+      contexts:
+        - 'languages:language_content'
+        - 'languages:language_interface'
+        - url.query_args
+        - user.permissions
+      tags: {  }

@@ -1,7 +1,123 @@
 @import 'rsuite-table/dist/css/rsuite-table.css';
 @import 'rsuite/dist/rsuite-no-reset.min.css';
 
+// Make rsuite blend into the Umami demo theme (palette and fonts of demo_umami).
+$green: #008068;
+$green-dark: #025c4b;
+$green-light: #e6eee0;
+$pink: #fcece7;
+$grey: #767775;
+
+// Pickers render their menu in a portal on <body>, so these are global.
+:root,
 .node-list {
-  &__dark {
+  --rs-primary-500: #{$green};
+  --rs-text-link: #{$green};
+  --rs-text-link-hover: #{$green-dark};
+  --rs-text-link-active: #{$green-dark};
+  --rs-border-primary: #b8c4b0;
+  --rs-input-focus-border: #{$green};
+  --rs-listbox-option-hover-bg: #{$green-light};
+  --rs-listbox-option-hover-text: #{$green-dark};
+  --rs-bg-active: #{$green};
+  --rs-picker-value: #{$green-dark};
+  --rs-btn-default-hover-bg: #{$green};
+  --rs-btn-default-hover-text: #fff;
+}
+
+.rs-picker-popup {
+  font-family: "Source Sans Pro", Verdana, sans-serif;
+  z-index: 1100;
+}
+
+.node-list {
+  font-family: "Source Sans Pro", Verdana, sans-serif;
+
+  // Exposed filters bar, like the recipe explorer one.
+  .rs-form {
+    margin-bottom: 1.25rem;
+    padding: 1.25rem;
+    background: $green-light;
+    border-radius: .5rem;
+  }
+
+  .rs-form-group {
+    margin-bottom: 0;
+  }
+
+  .rs-form-control-label {
+    display: block;
+    margin-bottom: .35rem;
+    font-size: .85rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+  }
+
+  .rs-form-help-text {
+    color: $grey;
+  }
+
+  .rs-picker-default .rs-picker-toggle.rs-btn {
+    border-color: #b8c4b0;
+    border-radius: .25rem;
+    background: #fff;
+  }
+
+  // Table.
+  .rs-table {
+    border-radius: .5rem;
+    background: #fff;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, .15);
+    font-size: 1rem;
+    color: #333;
+  }
+
+  .rs-table-row-header .rs-table-cell {
+    background: $green;
+    color: #fff;
+  }
+
+  .rs-table-cell-header .rs-table-cell-content {
+    font-size: .85rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+  }
+
+  .rs-table-cell-header .rs-table-cell-content,
+  .rs-table-cell-header .rs-table-cell-header-icon-sort {
+    color: #fff;
+  }
+
+  .rs-table-row {
+    border-bottom-color: $green-light;
+  }
+
+  .rs-table-row:not(.rs-table-row-header):hover .rs-table-cell {
+    background: $pink;
+  }
+
+  .rs-table-cell {
+    background: #fff;
+  }
+
+  .rs-table-cell-content a {
+    color: $green;
+    font-weight: 600;
+  }
+
+  .rs-table-cell-content a:hover {
+    color: $green-dark;
+  }
+
+  // Drupal dropbutton ("View") inside cells.
+  .dropbutton-wrapper .dropbutton-widget {
+    border-color: $green;
+    border-radius: .25rem;
+  }
+
+  .dropbutton-wrapper .dropbutton-action a {
+    color: $green;
   }
 }

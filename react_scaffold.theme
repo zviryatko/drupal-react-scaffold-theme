@@ -6,7 +6,7 @@ use Drupal\Core\Asset\AttachedAssetsInterface;
 /**
  * Implements hook_js_settings_alter().
  */
-function wfpspa_js_settings_alter(array &$settings, AttachedAssetsInterface $assets) {
+function react_scaffold_js_settings_alter(array &$settings, AttachedAssetsInterface $assets) {
   /** @var \Drupal\Core\Access\CsrfTokenGenerator $tokenGenerator */
   $tokenGenerator = \Drupal::service('csrf_token');
   $token = $tokenGenerator->get(CsrfRequestHeaderAccessCheck::TOKEN_KEY);
@@ -19,11 +19,17 @@ function wfpspa_js_settings_alter(array &$settings, AttachedAssetsInterface $ass
  */
 function react_scaffold_preprocess_page_title(&$variables) {
   $title = $variables['title'];
+  // Slots accept render arrays or scalars only, titles may be markup objects.
+  if (!is_array($title) && !is_scalar($title)) {
+    $title = ['#markup' => $title];
+  }
   $variables['title'] = [
-    '#type' => 'pattern',
-    '#id' => 'react_tooltip',
-    '#fields' => [
+    '#type' => 'component',
+    '#component' => 'react_scaffold:react-tooltip',
+    '#props' => [
       'text' => 'Tooltip text',
+    ],
+    '#slots' => [
       'content' => $title,
     ],
   ];

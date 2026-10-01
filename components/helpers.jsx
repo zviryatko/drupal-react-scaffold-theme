@@ -5,27 +5,38 @@ const Drupal = window.Drupal || {};
 
 // Execute callback when element become visible.
 // Algorithm is simple: run callback if element is visible
-// Get first hidden parent and attach mutation observer
+// Get outermost hidden parent and attach mutation observer
 // When parent become visible run check again
 // Execute passed callback when element become visible.
+const isVisible = (element) => element.getClientRects().length > 0;
+const waiting = new WeakMap();
+
 window.executeWhenVisible = function(element, callback, id) {
-  const $element = window.jQuery(element);
-  if ($element.is(":visible")) {
+  if (isVisible(element)) {
     callback(element);
     attachBehaviors(element);
+    return;
   }
-  else {
-    // If component is initially hidden wait until it will be visible.
-    const $firstHiddenParent = $element.parents(":hidden").last();
-    if (!$firstHiddenParent.data(`wait-for-${id}`)) {
-      $firstHiddenParent.data(`wait-for-${id}`, true);
-      const observer = new MutationObserver(() => {
-        $firstHiddenParent.removeData(`wait-for-${id}`);
-        observer.disconnect();
-        executeWhenVisible(element, callback, id);
-      });
-      observer.observe($firstHiddenParent.get(0), {attributes: true});
+  // If component is initially hidden wait until it will be visible.
+  let hiddenParent = null;
+  for (let parent = element.parentElement; parent; parent = parent.parentElement) {
+    if (!isVisible(parent)) {
+      hiddenParent = parent;
     }
+  }
+  if (!hiddenParent) {
+    return;
+  }
+  const flags = waiting.get(hiddenParent) || new Set();
+  if (!flags.has(id)) {
+    flags.add(id);
+    waiting.set(hiddenParent, flags);
+    const observer = new MutationObserver(() => {
+      flags.delete(id);
+      observer.disconnect();
+      executeWhenVisible(element, callback, id);
+    });
+    observer.observe(hiddenParent, {attributes: true});
   }
 }
 

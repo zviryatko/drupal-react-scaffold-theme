@@ -13,19 +13,17 @@ props:
       default: 'Tooltip text'
       examples:
         - 'This is the tooltip text'
-    content:
-      type: string
-      title: Content
-      description: 'The content that triggers the tooltip when hovered'
-      default: 'Hover me'
-      examples:
-        - 'Hover me to see the tooltip'
   required:
     - text
-    - content
+slots:
+  content:
+    title: Content
+    description: 'The content that triggers the tooltip when hovered'
+    examples:
+      - 'Hover me to see the tooltip'
 libraryOverrides:
   js:
-    ../../assets/react-tooltip.js: { }
+    ../../assets/react-tooltip.js: { attributes: { type: module } }
   css:
     theme:
       ../../assets/react-tooltip.css: { }
