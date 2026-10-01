@@ -1,0 +1,73 @@
+# Spanish translation of the React Scaffold Demo subtheme (strings of the React components and Twig templates).
+# Import: Configuration > Regional and language > User interface translation > Import
+#         (language Spanish, "Replace existing translations"), then clear caches.
+msgid ""
+msgstr ""
+"Project-Id-Version: react_scaffold_demo 1.0.0\n"
+"Language: es\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "Any"
+msgstr "Cualquiera"
+
+msgid "Sort by"
+msgstr "Ordenar por"
+
+msgid "Ascending"
+msgstr "Ascendente"
+
+msgid "Descending"
+msgstr "Descendente"
+
+msgid "Reset"
+msgstr "Restablecer"
+
+msgid "Recipes"
+msgstr "Recetas"
+
+msgid "Pagination"
+msgstr "Paginación"
+
+msgid "Previous"
+msgstr "Anterior"
+
+msgid "Next"
+msgstr "Siguiente"
+
+msgid "Page @n"
+msgstr "Página @n"
+
+msgid "@min min"
+msgstr "@min min"
+
+msgid "Loading…"
+msgstr "Cargando…"
+
+msgid "Loading..."
+msgstr "Cargando..."
+
+msgid "Error loading recipes"
+msgstr "Error al cargar las recetas"
+
+msgid "Error loading nodes"
+msgstr "Error al cargar los contenidos"
+
+msgid "No recipes match these filters."
+msgstr "Ninguna receta coincide con estos filtros."
+
+msgid "1 recipe found"
+msgid_plural "@count recipes found"
+msgstr[0] "1 receta encontrada"
+msgstr[1] "@count recetas encontradas"
+
+msgid "The recipe explorer needs JavaScript."
+msgstr "El explorador de recetas necesita JavaScript."
+
+msgid "Edit in Modal"
+msgstr "Editar en ventana modal"
+
+msgid "This title is a React component (react-tippy tooltip)"
+msgstr "Este título es un componente React (tooltip de react-tippy)"

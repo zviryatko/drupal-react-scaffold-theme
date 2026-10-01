@@ -1,0 +1,16 @@
+label: 'Contenido REST'
+display:
+  page_1:
+    display_options:
+      title: 'Lista de contenidos'
+  default:
+    display_options:
+      sorts:
+        created:
+          expose:
+            label: 'Fecha de creación'
+      filters:
+        type:
+          expose:
+            label: 'Tipo de contenido'
+            description: 'Tipo de contenido'

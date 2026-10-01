@@ -28,6 +28,7 @@ export default defineConfig({
           { text: 'Placing components in Twig', link: '/guide/twig' },
           { text: 'React + Drupal behaviors', link: '/guide/react-behaviors' },
           { text: 'Ajax calls and HTML responses', link: '/guide/ajax' },
+          { text: 'Translations', link: '/guide/translations' },
           { text: 'Build: Vite and webpack', link: '/guide/build' },
           { text: 'Testing', link: '/guide/testing' },
           { text: 'Troubleshooting', link: '/guide/troubleshooting' },

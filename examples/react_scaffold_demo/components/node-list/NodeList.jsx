@@ -2,7 +2,26 @@ import {useState, useEffect} from "react";
 import {Table, Column, HeaderCell, Cell} from 'rsuite-table';
 import {Form, SelectPicker} from 'rsuite';
 
+// Narrow screens get cards instead of the table (a table with six columns does not fit a phone).
+const useMediaQuery = (query) => {
+  const [matches, setMatches] = useState(() => window.matchMedia?.(query).matches ?? false)
+  useEffect(() => {
+    const list = window.matchMedia?.(query)
+    if (!list) return
+    const update = () => setMatches(list.matches)
+    update()
+    if (list.addEventListener) list.addEventListener('change', update)
+    else list.addListener?.(update)
+    return () => {
+      if (list.removeEventListener) list.removeEventListener('change', update)
+      else list.removeListener?.(update)
+    }
+  }, [query])
+  return matches
+}
+
 export const NodeList = ({endpoint, theme}) => {
+  const compact = useMediaQuery('(max-width: 40rem)')
   const [response, setResponse] = useState([]);
   const [sort, setSort] = useState(null)
   const [sortType, setSortType] = useState('desc')
@@ -56,9 +75,13 @@ export const NodeList = ({endpoint, theme}) => {
   if (error) {
     return <div>{Drupal.t('Error loading nodes')}</div>;
   }
+  const rows = response?.rows || []
+  const columns = rows.length ? Object.keys(rows[0]) : []
+  const sorts = response?.exposed_sorts || []
+  const activeSort = sort || sorts[0]?.field_identifier || ''
   return (
     <>
-      {response?.exposed_filters?.length && (
+      {response?.exposed_filters?.length > 0 && (
         <Form>
           {response.exposed_filters.map((filter) =>
             <Form.Group key={filter.identifier}>
@@ -83,26 +106,58 @@ export const NodeList = ({endpoint, theme}) => {
           )}
         </Form>
       )}
-      <Table data={response.rows}
-             autoHeight
-             className={'rs-theme-' + theme}
-             onSortColumn={sortColumn}
-             rowHeight={60}
-             sortColumn={sort ? sort : response?.exposed_sorts[0]?.field_identifier}
-             sortType={sortType}
-      >
-        {response?.rows?.length && Object.keys(response.rows[0]).map((col) => {
-          return <Column
-            key={col}
-            flexGrow={col === 'title' ? 3 : 1}
-            minWidth={100}
-            sortable={isSortable(col)}
-          >
-            <HeaderCell>{ucfirst(col)}</HeaderCell>
-            <Cell rowKey={'nid'} dataKey={col}>{(row) => rawHtml(row[col])}</Cell>
-          </Column>
-        })}
-      </Table>
+      {compact ? (
+        <>
+          {sorts.length > 0 && (
+            <div className="node-list__sort">
+              <label htmlFor="node-list-sort">{Drupal.t('Sort by')}</label>
+              <select id="node-list-sort" value={activeSort} onChange={(e) => sortColumn(e.target.value, sortType)}>
+                {sorts.map((item) => <option key={item.field_identifier} value={item.field_identifier}>{item.label}</option>)}
+              </select>
+              <button type="button"
+                      aria-label={sortType === 'asc' ? Drupal.t('Ascending') : Drupal.t('Descending')}
+                      onClick={() => sortColumn(activeSort, sortType === 'asc' ? 'desc' : 'asc')}>
+                {sortType === 'asc' ? '↑' : '↓'}
+              </button>
+            </div>
+          )}
+          <ul className="node-list__cards">
+            {rows.map((row, index) => (
+              <li className="node-list__card" key={row.nid ?? index}>
+                <dl>
+                  {columns.map((col) => (
+                    <div key={col}>
+                      <dt>{ucfirst(col)}</dt>
+                      <dd>{rawHtml(row[col])}</dd>
+                    </div>
+                  ))}
+                </dl>
+              </li>
+            ))}
+          </ul>
+        </>
+      ) : (
+        <Table data={rows}
+               autoHeight
+               className={'rs-theme-' + theme}
+               onSortColumn={sortColumn}
+               rowHeight={60}
+               sortColumn={activeSort}
+               sortType={sortType}
+        >
+          {columns.map((col) => (
+            <Column
+              key={col}
+              flexGrow={col === 'title' ? 3 : 1}
+              minWidth={100}
+              sortable={isSortable(col)}
+            >
+              <HeaderCell>{ucfirst(col)}</HeaderCell>
+              <Cell rowKey={'nid'} dataKey={col}>{(row) => rawHtml(row[col])}</Cell>
+            </Column>
+          ))}
+        </Table>
+      )}
     </>
   );
 }

@@ -105,6 +105,8 @@ const loginState = path.join(tmp, 'admin.json');
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto(`${BASE}/recipe-explorer`); await cards.first().waitFor(); await settle(page);
   await shot('08-recipe-explorer-mobile', { fullPage: true });
+  await page.goto(`${BASE}/node-list`); await page.locator('.node-list__card').first().waitFor(); await settle(page);
+  await shot('08-node-list-mobile', { fullPage: true });
 
   await ctx.close();
   if (errors.length) { console.error('Browser errors:\n' + errors.join('\n')); process.exitCode = 1; }
