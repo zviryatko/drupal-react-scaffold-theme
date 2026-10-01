@@ -202,6 +202,24 @@ with the REST URL of the sibling display:
 } only %}
 ```
 
+## Full source of the component
+
+The files below are imported from the repository, so they are always the real code.
+
+::: code-group
+
+<<< ../../components/recipe-explorer/recipe-explorer.component.yml{yaml} [recipe-explorer.component.yml]
+
+<<< ../../components/recipe-explorer/recipe-explorer.twig{twig} [recipe-explorer.twig]
+
+<<< ../../components/recipe-explorer/index.jsx{jsx} [index.jsx]
+
+<<< ../../components/recipe-explorer/RecipeExplorer.jsx{jsx} [RecipeExplorer.jsx]
+
+<<< ../../components/recipe-explorer/recipe-explorer.scss{scss} [recipe-explorer.scss]
+
+:::
+
 ## Adapting it
 
 - **Another entity type**: change the base table and fields, keep the row aliases you use in `Card`.

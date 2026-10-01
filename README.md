@@ -23,7 +23,7 @@ shows the ajax calls.* [Full video (mp4)](docs/public/media/recipe-explorer-demo
 
 ```bash
 cd web/themes/custom
-git clone -b v2 git@github.com:zviryatko/drupal-react-scaffold-theme.git
+git clone git@github.com:zviryatko/drupal-react-scaffold-theme.git
 cd drupal-react-scaffold-theme
 npm install && npm run dist        # builds ./assets (git-ignored)
 

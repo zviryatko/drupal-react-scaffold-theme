@@ -6,7 +6,7 @@ The scaffold is meant to be copied. `react_scaffold` is the machine name everywh
 
 ```bash
 cd web/themes/custom
-git clone -b v2 git@github.com:zviryatko/drupal-react-scaffold-theme.git my_theme
+git clone git@github.com:zviryatko/drupal-react-scaffold-theme.git my_theme
 cd my_theme
 rm -rf .git docs demo node_modules assets          # you do not need the docs site and demo recorder
 for f in react_scaffold.*; do mv "$f" "${f/react_scaffold/my_theme}"; done

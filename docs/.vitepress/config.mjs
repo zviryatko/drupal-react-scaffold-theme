@@ -44,7 +44,7 @@ export default defineConfig({
     ],
     socialLinks: [{ icon: 'github', link: 'https://github.com/zviryatko/drupal-react-scaffold-theme' }],
     search: { provider: 'local' },
-    editLink: { pattern: 'https://github.com/zviryatko/drupal-react-scaffold-theme/edit/v2/docs/:path' },
+    editLink: { pattern: 'https://github.com/zviryatko/drupal-react-scaffold-theme/edit/main/docs/:path' },
     outline: [2, 3],
   },
 });

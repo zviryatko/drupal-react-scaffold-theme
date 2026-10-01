@@ -28,6 +28,22 @@ libraryOverrides:
     - core/drupal.dropbutton
 ```
 
+## Full source
+
+::: code-group
+
+<<< ../../components/node-list/node-list.component.yml{yaml} [node-list.component.yml]
+
+<<< ../../components/node-list/node-list.twig{twig} [node-list.twig]
+
+<<< ../../components/node-list/index.jsx{jsx} [index.jsx]
+
+<<< ../../components/node-list/NodeList.jsx{jsx} [NodeList.jsx]
+
+<<< ../../components/node-list/node-list.scss{scss} [node-list.scss]
+
+:::
+
 ## Look in DevTools
 
 Filter the Network tab by **Fetch/XHR**:

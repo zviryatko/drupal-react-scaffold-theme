@@ -14,29 +14,23 @@ react-tooltip/
   __tests__/react-tooltip.test.js # snapshot test
 ```
 
-## `index.jsx`
+## Full source
 
-```jsx
-import 'react-tippy/dist/tippy.css';       // library CSS must be imported, it is not automatic
-import { TextWithTooltip } from './TextWithTooltip';
-import './react-tooltip.scss';
-import { createRoot } from 'react-dom/client';
+That is the whole component. Click the tabs.
 
-(function (Drupal, once) {
-  const attachTooltip = (element) => {
-    createRoot(element).render(
-      <TextWithTooltip text={element.dataset.text} content={element.innerText}/>
-    );
-  };
+::: code-group
 
-  Drupal.behaviors.reactTooltip = {
-    attach(context) {
-      once('react', '.react-tooltip', context)
-        .forEach((element) => executeWhenVisible(element, attachTooltip, 'tooltip'));
-    },
-  };
-})(Drupal, once);
-```
+<<< ../../components/react-tooltip/react-tooltip.component.yml{yaml} [react-tooltip.component.yml]
+
+<<< ../../components/react-tooltip/react-tooltip.twig{twig} [react-tooltip.twig]
+
+<<< ../../components/react-tooltip/index.jsx{jsx} [index.jsx]
+
+<<< ../../components/react-tooltip/TextWithTooltip.jsx{jsx} [TextWithTooltip.jsx]
+
+<<< ../../components/react-tooltip/react-tooltip.scss{scss} [react-tooltip.scss]
+
+:::
 
 ## Used from PHP
 

@@ -2,7 +2,7 @@ name: Docs
 
 on:
   push:
-    branches: [main, v2]
+    branches: [main]
     paths: ['docs/**', 'package.json', 'package-lock.json', '.github/workflows/docs.yml']
   workflow_dispatch:
 

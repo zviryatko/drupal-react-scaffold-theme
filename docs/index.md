@@ -35,3 +35,23 @@ Recipe explorer on the Umami demo: a Views REST export drives filters, sorting a
 <Video src="/media/recipe-explorer-demo.mp4" poster="/media/screenshots/09-recipe-explorer-devtools.png" />
 
 More in [Demos](/demos).
+
+## This is a whole component
+
+A React tooltip as a Drupal component: five small files. Nothing else to register, the build discovers the folder.
+
+::: code-group
+
+<<< ../components/react-tooltip/react-tooltip.component.yml{yaml} [react-tooltip.component.yml]
+
+<<< ../components/react-tooltip/react-tooltip.twig{twig} [react-tooltip.twig]
+
+<<< ../components/react-tooltip/index.jsx{jsx} [index.jsx]
+
+<<< ../components/react-tooltip/TextWithTooltip.jsx{jsx} [TextWithTooltip.jsx]
+
+<<< ../components/react-tooltip/react-tooltip.scss{scss} [react-tooltip.scss]
+
+:::
+
+See the [full walkthrough](/examples/tooltip) and the bigger [recipe explorer](/examples/recipe-explorer).

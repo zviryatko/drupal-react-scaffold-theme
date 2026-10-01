@@ -3,7 +3,7 @@ import {TextWithTooltip} from './TextWithTooltip';
 import './react-tooltip.scss'
 import { createRoot } from 'react-dom/client';
 
-// Values for this component (e.g. 'text') come from the pattern field.
+// Props of the SDC (e.g. 'text') arrive as data-* attributes on the mount element.
 (function (Drupal, once) {
 
   const attachTooltip = (element) => {
@@ -13,7 +13,7 @@ import { createRoot } from 'react-dom/client';
   };
 
   Drupal.behaviors.reactTooltip = {
-    attach(context, settings) {
+    attach(context) {
       once('react', '.react-tooltip', context)
         .forEach((element) => executeWhenVisible(element, attachTooltip, "tooltip"))
     },
