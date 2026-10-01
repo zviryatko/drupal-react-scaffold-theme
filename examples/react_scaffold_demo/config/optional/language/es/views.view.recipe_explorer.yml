@@ -1,0 +1,46 @@
+# Spanish overrides of the labels shown by the recipe explorer (they come from the view through views_better_rest).
+label: 'Explorador de recetas'
+display:
+  default:
+    display_options:
+      title: 'Explorador de recetas'
+      pager:
+        options:
+          tags:
+            next: 'Siguiente ›'
+            previous: '‹ Anterior'
+            first: '« Primera'
+            last: 'Última »'
+      sorts:
+        created:
+          expose:
+            label: 'Más recientes'
+        title:
+          expose:
+            label: Título
+        field_preparation_time_value:
+          expose:
+            label: 'Tiempo de preparación'
+      filters:
+        title:
+          expose:
+            label: Buscar
+            description: 'Palabras del título de la receta'
+        field_difficulty_value:
+          expose:
+            label: Dificultad
+        field_recipe_category_target_id:
+          expose:
+            label: Categoría
+        field_preparation_time_value:
+          expose:
+            label: 'Tiempo de preparación'
+          group_info:
+            label: 'Tiempo de preparación'
+            group_items:
+              1:
+                title: 'Hasta 10 minutos'
+              2:
+                title: 'Hasta 20 minutos'
+              3:
+                title: 'Más de 20 minutos'
