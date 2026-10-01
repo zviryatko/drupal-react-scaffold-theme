@@ -28,12 +28,12 @@ The table is a React component, the "Edit in Modal" link is plain Drupal ajax (`
 
 ## Regenerate
 
+With the theme installed and built on a site that has the demo content (`demo_umami`), from the theme folder:
+
 ```bash
-./dev-install.sh                     # in the Drupal root, see Getting started
-cd themes/custom/drupal-react-scaffold-theme
 npm run dist
 npx playwright install chromium
-BASE_URL=http://localhost:8088 npm run demo
+BASE_URL=https://your-site.example npm run demo
 ```
 
-Needs `ffmpeg`. The modal demo logs in as `admin` / `admin`.
+Needs `ffmpeg`. The modal demo logs in as `admin` / `admin`, so create that user on your demo site.

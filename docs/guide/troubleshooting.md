@@ -20,5 +20,3 @@ Problems hit while building this scaffold, with the fix.
 | `npm test`: `module is not defined in ES module scope` | `jest.config.js` must be `.cjs` when `package.json` has `"type": "module"` |
 | `npm test`: `jest-environment-jsdom cannot be found` | Install it (`npm i -D jest-environment-jsdom`), it is not bundled since Jest 28 |
 | React 19 and no `node_modules/react/umd` | React 19 dropped UMD builds. Stay on React 18 for this approach, or switch to bundling React per page (not covered here) |
-| Docker: `Pool overlaps with other one on this address space` | Another network uses the subnet. Change the subnet in `docker-compose.yaml` |
-| SQLite data gone after container restart | The tmpfs is RAM. Run `./dev-install.sh` again |

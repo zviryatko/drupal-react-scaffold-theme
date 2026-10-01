@@ -41,35 +41,3 @@ npm run docs:dev     # this documentation
 After changing a `*.component.yml`, a twig file or `libraries.yml`, clear the Drupal cache. With CSS/JS aggregation off,
 rebuilt files are picked up without a cache clear, but the `?query` string on asset URLs only changes after a cache rebuild,
 so a stubborn browser cache can keep an old file.
-
-## Local environment used for the demos (Drupal core checkout)
-
-If you work in a Drupal core checkout, the repository's author uses Docker with the SQLite file on a tmpfs for speed:
-
-```yaml
-# docker-compose.yaml (php service)
-tmpfs:
-  - /var/www/html/web/db:size=2g,mode=1777,uid=1000,gid=1000
-ports:
-  - "8088:80"
-```
-
-```bash
-./dev-install.sh     # installs demo_umami with sites/default/files/.sqlite symlinked into the tmpfs
-```
-
-The core installer hardcodes `sites/default/files/.sqlite`, so the script symlinks that path into the tmpfs. The data is lost when
-the container is recreated, run the script again. This is a dev convenience, not part of the theme.
-
-`dev-install.sh` (lives in the Drupal checkout root, next to `docker-compose.yaml`):
-
-```sh
-#!/bin/sh
-set -e
-docker exec -u web-user core sh -c '
-  cd /var/www/html/web
-  rm -f sites/default/settings.php sites/default/files/.sqlite*
-  ln -sf /var/www/html/web/db/site.sqlite sites/default/files/.sqlite
-  php core/scripts/dr install demo_umami --site-name="Drupal Umami" --password=admin
-'
-```

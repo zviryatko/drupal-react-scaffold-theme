@@ -69,7 +69,7 @@ automatically). Everything is explained in the docs:
 | `npm run watch` | development build, rebuilds on change |
 | `npm test` | Jest |
 | `npm run docs:dev` / `docs:build` | the documentation site (VitePress, sources in `docs/`) |
-| `npm run demo` | records screenshots and videos into `docs/public/media` (Playwright, ffmpeg, a running demo_umami site) |
+| `npm run demo` | records screenshots and videos into `docs/public/media` (Playwright, ffmpeg, a demo_umami site, set `BASE_URL`) |
 
 ## Documentation site
 

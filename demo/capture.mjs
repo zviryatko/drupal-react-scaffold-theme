@@ -1,5 +1,5 @@
 // Captures screenshots and demo videos of the theme running on demo_umami.
-//   BASE_URL=http://localhost:8088 npm run demo
+//   BASE_URL=https://your-site.example npm run demo
 // Requires: `npx playwright install chromium`, ffmpeg. The demos with DevTools use the real Chromium
 // DevTools frontend (served over the remote debugging port) in a second window, stacked under the site.
 import { chromium } from 'playwright';
@@ -8,7 +8,7 @@ import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 
-const BASE = process.env.BASE_URL || 'http://localhost:8088';
+const BASE = process.env.BASE_URL || 'http://localhost';
 const PORT = 9333;
 const docs = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../docs/public/media');
 const shots = path.join(docs, 'screenshots');
