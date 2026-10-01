@@ -1,3 +1,6 @@
 node_modules
 assets
 junit.xml
+docs/.vitepress/dist
+docs/.vitepress/cache
+docs/public/media/.tmp
