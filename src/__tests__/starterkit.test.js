@@ -1,4 +1,4 @@
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
 const root = resolve(__dirname, '../..');
@@ -19,5 +19,12 @@ describe('starterkit', () => {
     const info = read('starterkit/react_scaffold_starterkit.info.yml');
     expect(info).toMatch(/^hidden: true/m);
     expect(info).toMatch(/'base theme': react_scaffold/);
+  });
+
+  it('has no build configuration or dependencies of its own, only scripts that call the base theme', () => {
+    const pkg = JSON.parse(read('starterkit/package.json'));
+    expect(pkg.dependencies ?? pkg.devDependencies).toBeUndefined();
+    Object.values(pkg.scripts).forEach((script) => expect(script).toMatch(/react_scaffold\/bin\/react-scaffold\.mjs /));
+    ['vite.config.js', 'jest.config.cjs'].forEach((file) => expect(existsSync(resolve(root, 'starterkit', file))).toBe(false));
   });
 });

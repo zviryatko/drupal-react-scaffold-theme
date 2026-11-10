@@ -2,7 +2,7 @@
 //
 // Base theme (builds the runtime: React UMD, helpers, apiClient):
 //   createViteConfig({ root: import.meta.dirname, mode, runtime: true })
-// Subtheme (builds only its own components, React and helpers come from the base theme):
+// Subtheme (builds only its own components, React and helpers come from the base theme), done by bin/react-scaffold.mjs:
 //   createViteConfig({ root: import.meta.dirname, mode })
 //
 // Contract with Drupal: one bundle per `components/<name>/index.jsx` written to `<outDir>/<name>.{js,css}`,

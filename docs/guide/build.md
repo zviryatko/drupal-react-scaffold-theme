@@ -14,18 +14,14 @@ Whatever the tool, the output must satisfy the Drupal side:
 
 ## Vite (what the scaffold uses)
 
-The configuration lives once, in the base theme: `vite.base.js`. The base theme, the example subtheme and generated subthemes call it:
+The configuration lives once, in the base theme: `vite.base.js`. Subthemes do not have a `vite.config.js`, their `npm run build` runs
+`react-scaffold build` of the base theme, which calls the factory for the current folder:
 
 ```js
-// vite.config.js of a generated subtheme, see Base theme and subthemes for the whole file
-const { createViteConfig } = await import(pathToFileURL(resolve(baseTheme, 'vite.base.js')).href);
-
-export default defineConfig(({ mode }) => createViteConfig({
-  root: import.meta.dirname,
-  mode,
-  entries: { global: './scss/global.scss' },
-}));
+createViteConfig({ root: process.cwd(), mode, entries: { global: './scss/global.scss' } })   // `global` only when the file exists
 ```
+
+A theme that needs more can add its own `vite.config.js`, see [Base theme and subthemes](/guide/base-theme#your-own-configuration-optional).
 
 Options are listed in [Base theme and subthemes](/guide/base-theme#createviteconfig-options). What the factory does:
 
@@ -56,7 +52,7 @@ Things worth knowing:
   `DOMContentLoaded`, which is when Drupal attaches behaviors, so ordering is fine. The base theme runtime has no shared chunks, it is classic scripts.
 - **`react-dom/client`** is mapped to `ReactDOM`: the UMD React 18 `ReactDOM` object has `createRoot`.
 - **`jsxRuntime: 'classic'` + `jsxInject`**: JSX compiles to `React.createElement` with the global React.
-- **Modes**: `npm run watch` = development (source maps), `npm run dist` = production.
+- **Modes**: `npm run watch` = development (source maps), `npm run build` = production.
 - **New component = no config change**: the entries are read from `components/`.
 - **CSS names**: the CSS imported by `index.jsx` is emitted as `assets/<entry>.css`.
 - **Dependencies**: the Vite plugins, Babel and Testing Library packages come from the base theme's `node_modules` (run `npm install` in the base theme once).

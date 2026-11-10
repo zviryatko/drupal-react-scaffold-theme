@@ -6,15 +6,16 @@ The public API of the base theme, which follows semantic versioning:
 - globals: `apiClient`, `executeWhenVisible`, `rawHtml`, `attachBehaviors`, `detachBehaviors`, `reattachBehaviors`, `withDrupalBehaviors`,
 - `drupalSettings.csrfToken`,
 - regions and the CSS class names of `page.html.twig` (`.page`, `.page__header`, `.page__main`, ...),
-- `vite.base.js` (`createViteConfig` options) and `jest.base.cjs`,
+- `bin/react-scaffold.mjs` (`new`, `build`, `watch`, `test`), `vite.base.js` (`createViteConfig` options) and `jest.base.cjs`,
 - the starterkit `react_scaffold_starterkit` used with `generate-theme`.
 
 ## 1.0.0
 
 - The scaffold is a base theme (`base theme: false`, no dependency on stable9 or Umami) with subthemes. The Umami specific code moved to the
   example subtheme `examples/react_scaffold_demo`.
-- Subthemes are generated with core's `generate-theme --starterkit react_scaffold_starterkit` (official starterkit mechanism).
-- Shared Vite config (`createViteConfig`) and Jest config; a subtheme finds the base theme folder at build time (`base-theme.cjs`).
+- Subthemes are created with `node <base theme>/bin/react-scaffold.mjs new my_theme`, or with core's `generate-theme --starterkit react_scaffold_starterkit`.
+- A subtheme has no build configuration and no build dependencies: its `package.json` scripts call `bin/react-scaffold.mjs build|watch|test` of the base theme,
+  which owns Vite, Sass, Jest and their configuration (`createViteConfig`, `jest.base.cjs`). A theme can still add its own `vite.config.js` / `jest.config.cjs`.
 - Base theme runtime sources live in `src/`. Compiled `assets/` are not committed: releases (`release.yml`) build them and attach archives.
 - `helpers.jsx` reads `window.Drupal` / `drupalSettings` lazily.
 - Page layout template and neutral layout CSS in the base theme.

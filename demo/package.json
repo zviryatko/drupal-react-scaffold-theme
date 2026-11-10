@@ -3,7 +3,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "capture": "node capture.mjs"
+    "capture": "node capture.mjs",
+    "smoke": "node smoke.mjs"
   },
   "devDependencies": {
     "playwright": "^1.63.0"

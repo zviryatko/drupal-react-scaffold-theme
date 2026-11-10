@@ -106,7 +106,7 @@ Keep `index.jsx` thin: it only wires Drupal to React. Why it is written like thi
 3. **`my-widget.twig`**: the mount element with a class and `data-*` props.
 4. **`index.jsx`**: copy the behavior above, change the selector, behavior name and the component.
 5. **`MyWidget.jsx`** and **`my-widget.scss`**.
-6. `npm run dist`. The Vite config scans `components/*/index.jsx` and names the bundle after the folder, so
+6. `npm run build`. The Vite config scans `components/*/index.jsx` and names the bundle after the folder, so
    `my-widget/` produces `assets/my-widget.js` and `assets/my-widget.css`.
 7. `drush cr`, then [place it in Twig](/guide/twig).
 
