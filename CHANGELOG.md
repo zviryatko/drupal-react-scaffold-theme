@@ -16,6 +16,8 @@ The public API of the base theme, which follows semantic versioning:
 - Subthemes are created with `node <base theme>/bin/react-scaffold.mjs new my_theme`, or with core's `generate-theme --starterkit react_scaffold_starterkit`.
 - A subtheme has no build configuration and no build dependencies: its `package.json` scripts call `bin/react-scaffold.mjs build|watch|test` of the base theme,
   which owns Vite, Sass, Jest and their configuration (`createViteConfig`, `jest.base.cjs`). A theme can still add its own `vite.config.js` / `jest.config.cjs`.
+- React imports are mapped to the page globals by a small plugin in `vite.base.js` (`reactFromGlobals`). `vite-plugin-external` is removed: it wrote its
+  stub files concurrently and a build could fail at random with `"useState" is not exported`. Subthemes get no `node_modules/.vite_external` folder any more.
 - Base theme runtime sources live in `src/`. Compiled `assets/` are not committed: releases (`release.yml`) build them and attach archives.
 - `helpers.jsx` reads `window.Drupal` / `drupalSettings` lazily.
 - Page layout template and neutral layout CSS in the base theme.

@@ -32,13 +32,12 @@ build: {
   emptyOutDir: true,
   rollupOptions: {
     input: entries,
-    external: ['react', 'react-dom'],
     output: { entryFileNames: '[name].js', chunkFileNames: '[name].js', assetFileNames: '[name][extname]' },
   },
 },
 plugins: [
   react({ jsxRuntime: 'classic' }),
-  vitePluginExternal({ externals: { react: 'React', 'react-dom': 'ReactDOM', 'react-dom/client': 'ReactDOM' } }),
+  reactFromGlobals(),   // react, react-dom, react-dom/client → window.React / window.ReactDOM, also inside npm libraries
   // runtime: true (base theme only) → also copies node_modules/react/umd/*.js into assets/react/
 ],
 esbuild: { jsxInject: `import React from 'react'` },   // classic runtime: React is the global
