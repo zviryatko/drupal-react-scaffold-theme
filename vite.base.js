@@ -10,11 +10,35 @@
 import { resolve } from 'node:path';
 import { existsSync, readdirSync } from 'node:fs';
 import react from '@vitejs/plugin-react';
-import vitePluginExternal from 'vite-plugin-external';
+import { createRequire } from 'node:module';
 import autoprefixer from 'autoprefixer';
 import { vitePluginCopyReact } from './vite-plugin-copy-react.js';
 
 const here = import.meta.dirname;
+const require = createRequire(import.meta.url);
+
+// React is loaded once per page by the `react_scaffold/react` library (UMD, window.React / window.ReactDOM).
+const reactGlobals = { react: 'React', 'react-dom': 'ReactDOM', 'react-dom/client': 'ReactDOM' };
+
+/**
+ * Resolves `react`, `react-dom` and `react-dom/client` to the page globals instead of bundling them, also for the
+ * npm libraries a component imports. Each import becomes a virtual module that re-exports the global.
+ */
+export function reactFromGlobals() {
+  const prefix = '\0react-scaffold-global:';
+  const identifier = /^[A-Za-z_$][\w$]*$/;
+  return {
+    name: 'react-scaffold-globals',
+    enforce: 'pre',
+    resolveId: (id) => (id in reactGlobals ? prefix + id : null),
+    load(id) {
+      if (!id.startsWith(prefix)) return null;
+      const lib = id.slice(prefix.length);
+      const names = Object.keys(require(lib)).filter((name) => name !== 'default' && identifier.test(name));
+      return `const lib = window.${reactGlobals[lib]};\nexport default lib;\nexport const { ${names.join(', ')} } = lib;\n`;
+    },
+  };
+}
 
 /** One entry per folder of `<root>/<componentsDir>` that has an index.jsx or index.js. */
 export function componentEntries(root, componentsDir = 'components') {
@@ -60,12 +84,10 @@ export function createViteConfig({ root, mode = 'production', runtime = false, e
       emptyOutDir: true,
       rollupOptions: {
         input,
-        external: ['react', 'react-dom'],
         output: {
           entryFileNames: '[name].js',
           chunkFileNames: '[name].js',
           assetFileNames: (asset) => (/\.(png|jpe?g|svg|gif|tiff|bmp|ico)$/i.test(asset.name) ? 'images/[name][extname]' : '[name][extname]'),
-          globals: { react: 'React', 'react-dom': 'ReactDOM' },
         },
       },
       sourcemap: mode === 'development',
@@ -83,9 +105,7 @@ export function createViteConfig({ root, mode = 'production', runtime = false, e
     esbuild: { jsxInject: `import React from 'react'`, loader: 'jsx' },
     plugins: [
       react({ jsxRuntime: 'classic' }),
-      vitePluginExternal({
-        externals: { react: 'React', 'react-dom': 'ReactDOM', 'react-dom/client': 'ReactDOM' },
-      }),
+      reactFromGlobals(),
       ...(runtime ? [vitePluginCopyReact({ root, outDir, mode })] : []),
     ],
   };
