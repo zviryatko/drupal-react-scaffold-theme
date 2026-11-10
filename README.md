@@ -1,7 +1,7 @@
 # Drupal React Scaffold: base theme
 
 A Drupal **base theme** for React islands built as **core Single Directory Components** (SDC), for Drupal 10.3+ / 11.
-Install it once, generate a **subtheme** with Drupal core's `generate-theme` and put your components there. The React runtime, helpers, API client,
+Install it once, create a small **subtheme** with one command and put your components there. The React runtime, helpers, API client,
 CSRF hook and the Vite/Jest configuration come from the base theme, so updating the scaffold is updating one folder.
 
 📖 **Documentation: https://zviryatko.github.io/drupal-react-scaffold-theme/**
@@ -17,8 +17,8 @@ shows the ajax calls.* [Full video (mp4)](docs/public/media/recipe-explorer-demo
 - one shared React (UMD, loaded once), components are small Vite bundles attached through `libraryOverrides`,
 - components mount from `Drupal.behaviors` + `once()` + `executeWhenVisible()`: they work after ajax, in modals, in hidden tabs, with BigPipe,
 - `apiClient` (fetch with CSRF header) and helpers to render server HTML inside React and attach Drupal behaviors to it,
-- shared build and test config (`vite.base.js`, `jest.base.cjs`) reused by every subtheme,
-- a starterkit for core's `generate-theme` and an example subtheme with real components, views and blocks,
+- build and tests live in the base theme: a subtheme has no Vite/Jest config and no `node_modules`, only `npm run build|watch|test` scripts that call it,
+- a one-command subtheme generator (also a starterkit for core's `generate-theme`) and an example subtheme with real components, views and blocks,
 - no jQuery in the theme code.
 
 ## Quick start
@@ -31,12 +31,15 @@ unzip react_scaffold.zip && rm react_scaffold.zip
 (cd react_scaffold && npm install)        # build/test tooling for subthemes, once
 drush theme:install react_scaffold
 
-# 2. your subtheme, with core's generator and this theme's starterkit (from the Drupal root)
-php web/core/scripts/drupal generate-theme my_theme --starterkit react_scaffold_starterkit --path themes/custom --name "My Theme"
+# 2. your subtheme (from the Drupal root)
+node web/themes/contrib/react_scaffold/bin/react-scaffold.mjs new my_theme --name "My Theme"
 cd web/themes/custom/my_theme
-npm install && npm run dist
+npm run build
 drush theme:install my_theme && drush config:set system.theme default my_theme -y && drush cr
 ```
+
+A subtheme is an info file, a libraries file, your components and a `package.json` with three scripts and no dependencies. The Vite and Jest
+setup stays in the base theme, so updating the base theme updates every subtheme's build.
 
 The generated `hello-react` component works out of the box:
 
@@ -54,12 +57,13 @@ for composer and git installs.
 |---|---|
 | `react_scaffold.*`, `templates/`, `scss/base.scss` | the base theme (`base theme: false`): info, libraries, CSRF hook, page layout |
 | `src/` | runtime sources: `helpers.jsx`, `apiClient.js`, `common.js` (built into `assets/`, git-ignored) |
-| `vite.base.js`, `jest.base.cjs` | shared build and test configs, loaded by every subtheme |
-| `starterkit/` | `react_scaffold_starterkit`, the template for core's `generate-theme` |
+| `bin/react-scaffold.mjs` | command line used by subthemes: `new`, `build`, `watch`, `test` |
+| `vite.base.js`, `jest.base.cjs` | shared build and test configs |
+| `starterkit/` | template of a subtheme, for `react-scaffold new` and core's `generate-theme` |
 | `examples/react_scaffold_demo/` | example subtheme: `recipe-explorer`, `node-list`, `react-tooltip`, views, blocks |
 | `docs/` | documentation site (VitePress) and demo media |
-| `demo/` | Playwright recorder for the media |
-| `.github/workflows/` | `ci.yml` (tests, builds, `generate-theme`), `release.yml` (compiled archive), `docs.yml` (Pages) |
+| `demo/` | Playwright: recorder for the media, `smoke.mjs` browser check used by CI |
+| `.github/workflows/` | `ci.yml` (tests, builds, subthemes on a real Drupal with SQLite), `release.yml` (compiled archive), `docs.yml` (Pages) |
 
 ## Example subtheme
 

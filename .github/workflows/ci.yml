@@ -27,18 +27,42 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      # The example imports the shared build and test config of the base theme.
+      # The example is built and tested by the base theme's tooling, it only installs its own libraries (rsuite...).
       - run: npm ci
-      - run: npm install
+      - run: npm ci
         working-directory: examples/react_scaffold_demo
-      - run: npm run dist
+      - run: npm run build
         working-directory: examples/react_scaffold_demo
       - run: npm test
         working-directory: examples/react_scaffold_demo
 
-  starterkit:
-    name: generate-theme with the starterkit
+  new:
+    name: react-scaffold new
     runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Base theme in themes/contrib, as on a site
+        run: |
+          mkdir -p "$RUNNER_TEMP/themes/contrib"
+          git archive --prefix=react_scaffold/ HEAD | tar -x -C "$RUNNER_TEMP/themes/contrib"
+          cd "$RUNNER_TEMP/themes/contrib/react_scaffold" && npm ci
+      - name: Create, build and test a subtheme
+        run: |
+          node themes/contrib/react_scaffold/bin/react-scaffold.mjs new ci_theme --name "CI Theme"
+          cd themes/custom/ci_theme
+          test ! -e node_modules && test ! -e vite.config.js
+          npm run build && npm test
+          test -s assets/hello-react.js && test -s assets/global.css
+        working-directory: ${{ runner.temp }}
+
+  drupal:
+    name: Subthemes on Drupal (SQLite)
+    runs-on: ubuntu-latest
+    env:
+      SITE: ${{ runner.temp }}/site
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -47,17 +71,45 @@ jobs:
       - uses: shivammathur/setup-php@v2
         with:
           php-version: '8.3'
-      - name: Drupal site with the base theme
+          extensions: gd, pdo_sqlite, sqlite3
+      - name: Drupal site on SQLite with the base theme
         run: |
-          composer create-project drupal/recommended-project:^11 "$RUNNER_TEMP/site" --no-interaction --no-progress
-          mkdir -p "$RUNNER_TEMP/site/web/themes/contrib" "$RUNNER_TEMP/site/web/themes/custom"
-          git archive --prefix=react_scaffold/ HEAD | tar -x -C "$RUNNER_TEMP/site/web/themes/contrib"
+          composer create-project drupal/recommended-project:^11 "$SITE" --no-interaction --no-progress
+          composer require drush/drush --working-dir="$SITE" --no-interaction --no-progress
+          mkdir -p "$SITE/web/themes/contrib" "$SITE/web/themes/custom"
+          git archive --prefix=react_scaffold/ HEAD | tar -x -C "$SITE/web/themes/contrib"
+          cd "$SITE"
+          vendor/bin/drush site:install minimal --db-url=sqlite://sites/default/files/.ht.sqlite --site-name="CI Site" -y
       - name: Build the base theme
         run: npm ci && npm run dist
-        working-directory: ${{ runner.temp }}/site/web/themes/contrib/react_scaffold
-      - name: Generate a theme with core's generate-theme
-        run: php web/core/scripts/drupal generate-theme ci_theme --starterkit react_scaffold_starterkit --path themes/custom --name "CI Theme"
-        working-directory: ${{ runner.temp }}/site
-      - name: Build and test the generated theme
-        run: npm install && npm run dist && npm test
-        working-directory: ${{ runner.temp }}/site/web/themes/custom/ci_theme
+        working-directory: ${{ env.SITE }}/web/themes/contrib/react_scaffold
+      - name: Create one subtheme with react-scaffold new, one with core's generate-theme
+        run: |
+          node web/themes/contrib/react_scaffold/bin/react-scaffold.mjs new new_theme --name "New Theme"
+          php web/core/scripts/drupal generate-theme core_theme --starterkit react_scaffold_starterkit --path themes/custom --name "Core Theme"
+        working-directory: ${{ env.SITE }}
+      - name: Build, test and install the subthemes
+        run: |
+          for theme in new_theme core_theme; do
+            cd "$SITE/web/themes/custom/$theme"
+            npm run build && npm test
+            test ! -e node_modules/vite && test ! -e vite.config.js
+            # Put the example component on every page.
+            mkdir -p templates
+            printf "{%% embed '%s:hello-react' with { greeting: 'Hello', start: 2 } %%}{%% block name %%}World{%% endblock %%}{%% endembed %%}\n{{ content }}\n" "$theme" > templates/region--content.html.twig
+            "$SITE/vendor/bin/drush" theme:install "$theme" -y
+          done
+      - name: Browser
+        run: npm ci && npx playwright install --with-deps chromium-headless-shell
+        working-directory: demo
+      - name: Check each subtheme in the browser
+        run: |
+          (cd "$SITE/web" && php -S 127.0.0.1:8080 .ht.router.php > "$RUNNER_TEMP/php.log" 2>&1 &)
+          for theme in new_theme core_theme; do
+            "$SITE/vendor/bin/drush" config:set system.theme default "$theme" -y
+            "$SITE/vendor/bin/drush" cr
+            echo "== $theme"
+            BASE_URL=http://127.0.0.1:8080 npm --prefix demo run smoke
+          done
+      - if: failure()
+        run: cat "$RUNNER_TEMP/php.log" || true

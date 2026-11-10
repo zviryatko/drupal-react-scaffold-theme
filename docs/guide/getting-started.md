@@ -53,32 +53,23 @@ Enable the base theme so Drupal knows its libraries:
 drush theme:install react_scaffold
 ```
 
-## 2. Generate a subtheme
-
-Use Drupal core's generator with this theme's starterkit, as described in the [official sub-theme documentation](https://www.drupal.org/node/2165673):
+## 2. Create a subtheme
 
 ```bash
 # from the Drupal root
-php web/core/scripts/drupal generate-theme my_theme \
-  --starterkit react_scaffold_starterkit \
-  --path themes/custom \
-  --name "My Theme"
-```
+node web/themes/contrib/react_scaffold/bin/react-scaffold.mjs new my_theme --name "My Theme"
 
-`--path` is relative to the web root (the folder with `core/`). On Drupal 11.4+ the script is `web/core/scripts/dr`
-(`drupal` still works and prints a deprecation notice).
-
-```bash
 cd web/themes/custom/my_theme
-npm install          # vite, sass, jest
-npm run dist         # builds ./assets (git-ignored)
+npm run build        # builds ./assets (git-ignored), nothing to install
 drush theme:install my_theme
 drush config:set system.theme default my_theme -y
 drush cr
 ```
 
-The generated theme has a working `hello-react` component, the block placement for a basic page, `vite.config.js`, a Jest setup and a
-README. Place the component to see it work (in any template):
+The subtheme is small on purpose: an info file, a libraries file, your components and a `package.json` with three scripts that call the base theme.
+The build configuration and its dependencies stay in the base theme. Core's `generate-theme` works too, see [Create a subtheme](/guide/create-your-theme).
+
+The generated theme has a working `hello-react` component with a test, the block placement for a basic page and a README. Place the component to see it work (in any template):
 
 ```twig
 {% embed 'my_theme:hello-react' with { greeting: 'Hello' } %}
@@ -89,8 +80,7 @@ README. Place the component to see it work (in any template):
 You get "Hello, World!" and a counter button, rendered by React inside a Drupal page.
 
 ::: tip drush generate theme
-`drush generate theme` asks for a base theme and creates an *empty* subtheme (info file, libraries). It does not know this starterkit, so there are
-no components, build or tests. Use it only when you want to write everything yourself: answer `react_scaffold` for the base theme and copy the
+`drush generate theme` asks for a base theme and creates an *empty* subtheme (info file, libraries), without components, build scripts or tests. Use it only when you want to write everything yourself: answer `react_scaffold` for the base theme and copy the
 regions, see [Create a subtheme](/guide/create-your-theme#by-hand).
 :::
 
@@ -98,7 +88,7 @@ regions, see [Create a subtheme](/guide/create-your-theme#by-hand).
 
 ```bash
 npm run watch        # rebuild on change (development mode)
-npm run dist         # production build
+npm run build        # production build
 npm test             # Jest
 ```
 
