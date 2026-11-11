@@ -1,0 +1,38 @@
+$schema: https://git.drupalcode.org/project/drupal/-/raw/HEAD/core/assets/schemas/v1/metadata.schema.json
+name: Section
+# The demo theme has its own look for this component of the base theme.
+replaces: react_scaffold:section
+status: experimental
+description: 'A titled container for other components.'
+group: Layout
+props:
+  type: object
+  properties:
+    heading:
+      type: string
+      title: Heading
+      description: 'Shown above the content. Leave empty for a section without a heading.'
+      examples:
+        - 'Section'
+    variant:
+      type: string
+      title: Variant
+      description: 'Tinted gives the section a light panel look.'
+      enum:
+        - plain
+        - tinted
+      meta:enum:
+        plain: Plain
+        tinted: Tinted
+      examples:
+        - plain
+# Page builder: the icon in the list of blocks.
+thirdPartySettings:
+  react_scaffold_builder:
+    # A typical use, as a layout item: shown to the AI assistant.
+    example: { type: 'react_scaffold:section', props: { heading: 'Why join the class', variant: tinted, _spacing: { padding: { size: l, sides: vertical } }, content: [ { type: 'react_scaffold:text', props: { text: '<p>What is in the section.</p>' } } ] } }
+    icon: section
+slots:
+  content:
+    title: Content
+    description: 'Components shown in the section.'

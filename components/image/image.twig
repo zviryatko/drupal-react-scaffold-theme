@@ -1,0 +1,19 @@
+{#
+/**
+ * @file
+ * Image: a figure with an image and an optional caption.
+ *
+ * `image_picture` is ready markup (from the page builder); `image` is a URL, for use from Twig:
+ *   {% include 'react_scaffold:image' with { image: '/path/to.jpg', alt: 'What it shows' } only %}
+ */
+#}
+<figure {{ attributes.addClass('image-block', image_picture or image ? 'image-block--filled' : 'image-block--empty') }}>
+  {% if image_picture %}
+    {{ image_picture }}
+  {% elseif image %}
+    <img src="{{ image }}" alt="{{ alt }}" loading="lazy">
+  {% endif %}
+  {% if caption %}
+    <figcaption class="image-block__caption">{{ caption }}</figcaption>
+  {% endif %}
+</figure>

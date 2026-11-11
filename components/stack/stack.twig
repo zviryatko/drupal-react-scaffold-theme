@@ -1,0 +1,11 @@
+{#
+/**
+ * @file
+ * Stack: items below each other with an even gap. `gap` is a CSS length.
+ */
+#}
+<div {{ attributes.addClass('layout-stack', 'layout-stack--align-' ~ align|default('stretch'), dividers ? 'layout-stack--dividers' : 'layout-stack--plain') }}>
+  <div class="layout-stack__items"{% if gap %} style="--layout-gap: {{ gap }}"{% endif %}>
+    {%- block content %}{% endblock -%}
+  </div>
+</div>

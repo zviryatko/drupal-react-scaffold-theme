@@ -1,0 +1,6 @@
+.accordion-item__title { position: relative; padding: 0.9rem 2rem 0.9rem 0; font-weight: 700; cursor: pointer; list-style: none; }
+.accordion-item__title::-webkit-details-marker { display: none; }
+.accordion-item__title::after { content: ""; position: absolute; inset-inline-end: 0.4rem; top: 50%; width: 0.5rem; height: 0.5rem; margin-top: -0.4rem; border-right: 2px solid currentColor; border-bottom: 2px solid currentColor; transform: rotate(45deg); transition: transform 0.15s ease; }
+.accordion-item[open] > .accordion-item__title::after { margin-top: -0.1rem; transform: rotate(-135deg); }
+.accordion-item__content { padding-bottom: 1rem; }
+.accordion-item__content > :first-child { margin-top: 0; }

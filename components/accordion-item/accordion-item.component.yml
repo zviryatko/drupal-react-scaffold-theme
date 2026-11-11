@@ -1,0 +1,28 @@
+$schema: https://git.drupalcode.org/project/drupal/-/raw/HEAD/core/assets/schemas/v1/metadata.schema.json
+name: 'Accordion item'
+status: experimental
+description: 'One title that opens to show its content. Belongs in an Accordion.'
+group: Content
+props:
+  type: object
+  properties:
+    title:
+      type: string
+      title: Title
+      description: 'The question or title that is always visible.'
+      examples: ['A question']
+    open:
+      type: boolean
+      title: 'Open at the start'
+      description: 'Shown open when the page loads.'
+      examples: [false]
+  required: [title]
+slots:
+  content:
+    title: Content
+    description: 'What shows when it is open: text or other components.'
+thirdPartySettings:
+  react_scaffold_builder:
+    icon: accordion
+    features: { position: false }
+    example: { type: 'react_scaffold:accordion-item', props: { title: 'What should I bring?', open: false, content: [ { type: 'react_scaffold:text', props: { text: '<p>Just yourself. Aprons are provided.</p>' } } ] } }

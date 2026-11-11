@@ -1,0 +1,5 @@
+.image-block { margin: 0 0 1rem; }
+/* Inline, so the image follows the text alignment of the figure (the builder's Alignment). */
+.image-block img { display: inline-block; max-width: 100%; height: auto; vertical-align: middle; }
+.image-block picture { display: inline-block; max-width: 100%; }
+.image-block__caption { margin-top: 0.5rem; font-size: 0.875em; opacity: 0.8; }

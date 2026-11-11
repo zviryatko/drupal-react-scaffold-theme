@@ -22,6 +22,10 @@ props:
         - 'Find a recipe'
   required:
     - endpoint
+# Page builder: the icon in the list of blocks.
+thirdPartySettings:
+  react_scaffold_builder:
+    icon: search
 libraryOverrides:
   js:
     ../../assets/recipe-explorer.js: { attributes: { type: module } }

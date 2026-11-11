@@ -1,7 +1,7 @@
 name: Release
 
-# Compiled files (assets/) are not kept in git. A release builds them and attaches the theme, ready to use without Node,
-# to the GitHub release: react_scaffold-<version>.zip and .tar.gz.
+# Compiled files (assets/, the editor of the page builder module) are not kept in git. A release builds them and attaches
+# the theme with the module inside, ready to use without Node, to the GitHub release: react_scaffold-<version>.zip and .tar.gz.
 #
 #   git tag v1.0.0 && git push origin v1.0.0
 on:
@@ -32,6 +32,9 @@ jobs:
       - run: npm ci
       - run: npm test
       - run: npm run dist
+      # The page builder module ships inside the theme, with its compiled editor.
+      - run: npm run builder:install
+      - run: npm run builder:build
       - name: Package
         run: |
           v='${{ steps.version.outputs.version }}'
@@ -39,6 +42,9 @@ jobs:
           # Tracked files without export-ignore paths (docs, demo, .github) plus the compiled assets.
           git archive --prefix=react_scaffold/ HEAD | tar -x -C dist
           cp -r assets dist/react_scaffold/assets
+          cp -r modules/react_scaffold_builder/js dist/react_scaffold/modules/react_scaffold_builder/js
+          # The sources of the editor are in the repository; the archive has what Drupal runs.
+          rm -rf dist/react_scaffold/modules/react_scaffold_builder/editor
           # Release info for the Drupal UI and composer.
           sed -i "s/^package: Scaffold$/package: Scaffold\nversion: $v/" dist/react_scaffold/react_scaffold.info.yml
           cd dist

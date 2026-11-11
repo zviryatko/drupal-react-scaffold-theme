@@ -95,7 +95,8 @@ npm test             # Jest
 After editing a `*.component.yml`, a twig file or a `*.libraries.yml`: `drush cr`. With CSS/JS aggregation off, rebuilt files are picked up
 without a cache clear, but the `?query` token of asset URLs changes only after a cache rebuild, so a browser can keep an old file.
 
-Next: [Creating a component](/guide/components), [Placing it in Twig](/guide/twig).
+Next: [Creating a component](/guide/components), [Placing it in Twig](/guide/twig). For a site where editors build
+pages from your components, follow [Build a site](/guide/build-a-site).
 
 ## Try the example subtheme
 

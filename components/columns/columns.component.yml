@@ -1,0 +1,55 @@
+$schema: https://git.drupalcode.org/project/drupal/-/raw/HEAD/core/assets/schemas/v1/metadata.schema.json
+name: Columns
+status: experimental
+description: 'Places what is put in it side by side, in a number of columns. Every item is one cell; more items than columns continue on the next row.'
+group: Layout
+props:
+  type: object
+  properties:
+    layout:
+      type: string
+      title: Columns
+      description: 'How many columns, and how wide each is.'
+      enum: ['2', '3', '4', '1-2', '2-1', '1-3', '3-1']
+      meta:enum:
+        '2': '2 equal columns'
+        '3': '3 equal columns'
+        '4': '4 equal columns'
+        '1-2': '1/3 + 2/3'
+        '2-1': '2/3 + 1/3'
+        '1-3': '1/4 + 3/4'
+        '3-1': '3/4 + 1/4'
+      examples: ['2']
+    gap:
+      type: string
+      title: Gap
+      description: 'Space between the columns and rows.'
+      # In the page builder: a step of the theme's spacing scale, or a custom length.
+      x-builder-widget: length
+      examples: ['1rem']
+    align:
+      type: string
+      title: Vertical alignment
+      description: 'How items of different height sit in a row.'
+      enum: [stretch, start, center, end]
+      meta:enum:
+        stretch: 'Same height'
+        start: Top
+        center: Middle
+        end: Bottom
+      examples: [stretch]
+    stack:
+      type: boolean
+      title: 'One column on small screens'
+      description: 'Below 48em the columns go under each other.'
+      examples: [true]
+# Page builder: the icon in the list of blocks.
+thirdPartySettings:
+  react_scaffold_builder:
+    # A typical use, as a layout item: shown to the AI assistant.
+    example: { type: 'react_scaffold:columns', props: { layout: '3', gap: { size: l }, align: stretch, stack: true, content: [ { type: 'react_scaffold:card', props: { heading: 'First' } }, { type: 'react_scaffold:card', props: { heading: 'Second' } }, { type: 'react_scaffold:card', props: { heading: 'Third' } } ] } }
+    icon: columns
+slots:
+  content:
+    title: Content
+    description: 'The items, one per cell.'

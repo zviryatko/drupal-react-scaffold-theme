@@ -1,0 +1,14 @@
+{#
+/**
+ * @file
+ * Columns: a grid with a fixed number of columns.
+ *
+ * `gap` is a CSS length. It is set on the inner element: the root element's attributes belong to whoever places the
+ * component (the page builder puts spacing and background there).
+ */
+#}
+<div {{ attributes.addClass('layout-columns', 'layout-columns--' ~ layout|default('2'), 'layout-columns--align-' ~ align|default('stretch'), stack is same as(false) ? 'layout-columns--keep' : 'layout-columns--stack') }}>
+  <div class="layout-columns__items"{% if gap %} style="--layout-gap: {{ gap }}"{% endif %}>
+    {%- block content %}{% endblock -%}
+  </div>
+</div>

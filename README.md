@@ -19,6 +19,8 @@ shows the ajax calls.* [Full video (mp4)](docs/public/media/recipe-explorer-demo
 - `apiClient` (fetch with CSRF header) and helpers to render server HTML inside React and attach Drupal behaviors to it,
 - build and tests live in the base theme: a subtheme has no Vite/Jest config and no `node_modules`, only `npm run build|watch|test` scripts that call it,
 - a one-command subtheme generator (also a starterkit for core's `generate-theme`) and an example subtheme with real components, views and blocks,
+- a visual **page builder** for those components (the `react_scaffold_builder` module, inside the theme): drag components, fields, views and
+  blocks onto a page; Drupal renders the result as normal SDCs,
 - no jQuery in the theme code.
 
 ## Quick start
@@ -51,6 +53,28 @@ Compiled files are not kept in git. Pushing a version tag runs the release workf
 (`react_scaffold-<version>.zip`) to the GitHub release. See the [documentation](https://zviryatko.github.io/drupal-react-scaffold-theme/guide/getting-started)
 for composer and git installs.
 
+## Page builder
+
+```bash
+drush en react_scaffold_builder      # the module is inside the theme folder
+```
+
+Or set a whole site up with a recipe (media, responsive images, paragraphs with the library, meta tags, the AI assistant):
+
+```bash
+composer require drupal/paragraphs drupal/entity_usage drupal/metatag drupal/ai
+drush recipe themes/contrib/react_scaffold/recipes/react_scaffold_builder_full --input=react_scaffold_builder.theme=my_theme
+```
+
+The theme declares its design tokens once, in its `.info.yml`: editors pick from them in the builder, and the theme's SCSS reads the same
+values with `@use 'react-scaffold/tokens' as rs;` (`rs.space(m)`, `rs.color(primary)`, `@include rs.breakpoint(tablet)`).
+
+Switch it on for a content type (*Structure → Content types → Page builder*; a **Landing page** type is included) and its edit page becomes
+a visual editor over your theme's components: layouts (columns, flex row, stack), spacing and backgrounds from your theme's tokens, fields
+of the page with any formatter, views, Drupal blocks, translations. See the
+[Page builder guide](https://zviryatko.github.io/drupal-react-scaffold-theme/guide/page-builder). From a git checkout, build the editor once
+with `npm run builder:install && npm run builder:build`; release archives include it.
+
 ## Repository layout
 
 | Path | What |
@@ -60,6 +84,10 @@ for composer and git installs.
 | `bin/react-scaffold.mjs` | command line used by subthemes: `new`, `build`, `watch`, `test` |
 | `vite.base.js`, `jest.base.cjs` | shared build and test configs |
 | `starterkit/` | template of a subtheme, for `react-scaffold new` and core's `generate-theme` |
+| `components/` | layout components of the base theme: `columns`, `flex`, `stack` (Twig and CSS only) |
+| `modules/react_scaffold_builder/` | the page builder module: PHP in `src/`, the editor (React, Puck) in `editor/`, built into `js/` |
+| `recipes/` | Drupal recipes that set a site up for the page builder |
+| `tokens.js` | the theme's design tokens (YAML) as a Sass module, used by `vite.base.js` and `react-scaffold tokens` |
 | `examples/react_scaffold_demo/` | example subtheme: `recipe-explorer`, `node-list`, `react-tooltip`, views, blocks |
 | `docs/` | documentation site (VitePress) and demo media |
 | `demo/` | Playwright: recorder for the media, `smoke.mjs` browser check used by CI |
@@ -94,6 +122,17 @@ drush theme:install react_scaffold_demo && drush config:set system.theme default
 - [Getting started](https://zviryatko.github.io/drupal-react-scaffold-theme/guide/getting-started) and [Base theme and subthemes](https://zviryatko.github.io/drupal-react-scaffold-theme/guide/base-theme)
 - [Create a subtheme](https://zviryatko.github.io/drupal-react-scaffold-theme/guide/create-your-theme), [Creating a component](https://zviryatko.github.io/drupal-react-scaffold-theme/guide/components), [placing it in Twig](https://zviryatko.github.io/drupal-react-scaffold-theme/guide/twig)
 - [React + Drupal behaviors](https://zviryatko.github.io/drupal-react-scaffold-theme/guide/react-behaviors): why `once()` and `executeWhenVisible`
+- [Build a site](https://zviryatko.github.io/drupal-react-scaffold-theme/guide/build-a-site): from an empty Drupal to a page, step by step
+- [Page builder](https://zviryatko.github.io/drupal-react-scaffold-theme/guide/page-builder): the visual editor. With it:
+  [recipes](https://zviryatko.github.io/drupal-react-scaffold-theme/builder/recipes),
+  [components](https://zviryatko.github.io/drupal-react-scaffold-theme/builder/components),
+  [views](https://zviryatko.github.io/drupal-react-scaffold-theme/builder/views),
+  [tokens, features and styling](https://zviryatko.github.io/drupal-react-scaffold-theme/builder/styling),
+  [layouts](https://zviryatko.github.io/drupal-react-scaffold-theme/builder/layouts),
+  [library of saved blocks](https://zviryatko.github.io/drupal-react-scaffold-theme/builder/library),
+  [paragraphs](https://zviryatko.github.io/drupal-react-scaffold-theme/builder/paragraphs),
+  [AI assistant](https://zviryatko.github.io/drupal-react-scaffold-theme/builder/ai),
+  [architecture](https://zviryatko.github.io/drupal-react-scaffold-theme/builder/architecture)
 - [Ajax calls and HTML responses](https://zviryatko.github.io/drupal-react-scaffold-theme/guide/ajax)
 - [Build: Vite and webpack](https://zviryatko.github.io/drupal-react-scaffold-theme/guide/build), [Testing](https://zviryatko.github.io/drupal-react-scaffold-theme/guide/testing), [Troubleshooting](https://zviryatko.github.io/drupal-react-scaffold-theme/guide/troubleshooting)
 
@@ -105,6 +144,8 @@ drush theme:install react_scaffold_demo && drush config:set system.theme default
 | `npm test` | Jest (tests of `src/` and of the starterkit) |
 | `npm run docs:dev` / `docs:build` | the documentation site (installs from `docs/package.json`) |
 | `npm run demo` | records screenshots and videos into `docs/public/media` (`BASE_URL`, Playwright, ffmpeg) |
+| `npm run builder:install && npm run builder:build` | build the editor of the page builder into `modules/react_scaffold_builder/js/` (not committed) |
+| `BASE_URL=… npm run builder:smoke` | browser smoke test of the page builder (`demo/builder-smoke.mjs`) |
 
 See [`CHANGELOG.md`](CHANGELOG.md) for the public API and changes. The docs are published by `.github/workflows/docs.yml` (Pages source: GitHub Actions), releases by `.github/workflows/release.yml`.
 

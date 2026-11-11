@@ -30,6 +30,10 @@ props:
         - 'dark'
   required:
     - endpoint
+# Page builder: the icon in the list of blocks.
+thirdPartySettings:
+  react_scaffold_builder:
+    icon: table
 libraryOverrides:
   js:
     ../../assets/node-list.js: { attributes: { type: module } }

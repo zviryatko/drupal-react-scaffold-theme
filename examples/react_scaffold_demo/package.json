@@ -4,6 +4,7 @@
   "private": true,
   "type": "module",
   "dependencies": {
+    "bootstrap-icons": "^1.13.2",
     "react-tippy": "^1.4.0",
     "rsuite": "^5.83.3",
     "rsuite-table": "^5.19.2"

@@ -1,0 +1,4 @@
+.container-block { width: 100%; max-width: 64rem; margin-inline: auto; }
+.container-block--narrow { max-width: 42rem; }
+.container-block--wide { max-width: 80rem; }
+.container-block--full { max-width: none; }

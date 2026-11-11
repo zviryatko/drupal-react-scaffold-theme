@@ -109,6 +109,9 @@ What differs from the Vite build:
 - The React runtime is not built here: the base theme provides it (`react_scaffold/react`), so there is no UMD copy step.
 - Classic JSX needs `React` in scope: `ProvidePlugin` injects the external `window.React`. The automatic JSX runtime would import `react/jsx-runtime`, which the UMD build does not have.
 - webpack also emits an empty `global.js` for the SCSS-only entry, ignore it.
+- `@use 'react-scaffold/tokens'` (the theme's [design tokens in SCSS](/builder/styling#tokens-in-scss)) is resolved by the shared Vite
+  config only. With webpack, write the module to a file before the build, `react-scaffold tokens --out scss/_tokens.scss`, and
+  `@use 'tokens' as rs;`.
 - Keep `assets/` as the output folder, the libraries point there. Do not run both tools into the same folder.
 - Build and tests of the **base theme** itself stay on Vite. Subthemes can use any bundler.
 

@@ -1,0 +1,57 @@
+$schema: https://git.drupalcode.org/project/drupal/-/raw/HEAD/core/assets/schemas/v1/metadata.schema.json
+name: Hero
+status: experimental
+description: 'The opening of a page: a large heading and a short text over a picture or a colour, with room for buttons. Use it once, at the top.'
+group: Layout
+props:
+  type: object
+  properties:
+    heading:
+      type: string
+      title: Heading
+      description: 'The one line that says what the page is about.'
+      examples: ['A big promise in a few words']
+    text:
+      type: string
+      title: Text
+      description: 'One or two sentences under the heading.'
+      x-builder-widget: textarea
+    image:
+      type: string
+      title: Picture
+      description: 'Fills the hero, behind the text. Choose a wide picture; a responsive image style serves the right size per screen.'
+      contentMediaType: 'image/*'
+      x-builder-picture: image_picture
+    image_picture:
+      type: string
+      title: 'Picture markup'
+      description: 'Filled by the page builder: the image as Drupal renders it.'
+      x-builder-widget: hidden
+    overlay:
+      type: string
+      title: 'Shade over the picture'
+      description: 'Makes the text readable on the picture. Dark gives light text, Light gives dark text.'
+      enum: [dark, light, none]
+      meta:enum: { dark: Dark, light: Light, none: None }
+      examples: [dark]
+    height:
+      type: string
+      title: Height
+      enum: [s, m, l, screen]
+      meta:enum: { s: Low, m: Medium, l: Tall, screen: 'As tall as the screen' }
+      examples: [m]
+    align:
+      type: string
+      title: 'Text position'
+      enum: [start, center, end]
+      meta:enum: { start: 'At the start', center: Centred, end: 'At the end' }
+      examples: [center]
+  required: [heading]
+slots:
+  actions:
+    title: Actions
+    description: 'Buttons under the text.'
+thirdPartySettings:
+  react_scaffold_builder:
+    icon: section
+    example: { type: 'react_scaffold:hero', props: { heading: 'Learn to cook like an Italian', text: 'A hands-on class in the heart of Milan.', image: { media: 12 }, overlay: dark, height: m, align: center, actions: [ { type: 'react_scaffold:button', props: { label: 'Sign up', url: '/contact', variant: primary, size: l } } ] } }

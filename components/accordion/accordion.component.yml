@@ -1,0 +1,21 @@
+$schema: https://git.drupalcode.org/project/drupal/-/raw/HEAD/core/assets/schemas/v1/metadata.schema.json
+name: Accordion
+status: experimental
+description: 'A list of questions or titles that each open to show their content: for FAQs and long details. Put Accordion items in it.'
+group: Content
+props:
+  type: object
+  properties:
+    bordered:
+      type: boolean
+      title: 'Box around each item'
+      description: 'Without it the items are separated by lines.'
+      examples: [false]
+slots:
+  items:
+    title: Items
+    description: 'Accordion items.'
+thirdPartySettings:
+  react_scaffold_builder:
+    icon: accordion
+    example: { type: 'react_scaffold:accordion', props: { items: [ { type: 'react_scaffold:accordion-item', props: { title: 'Do I need experience?', content: [ { type: 'react_scaffold:text', props: { text: '<p>No. The class starts from the basics.</p>' } } ] } } ] } }

@@ -1,0 +1,11 @@
+{#
+/**
+ * @file
+ * Heading: one heading, with an optional short line above it.
+ */
+#}
+{% set tag = level in ['h1', 'h2', 'h3', 'h4'] ? level : 'h2' %}
+<div {{ attributes.addClass('heading-block', 'heading-block--' ~ size|default('l')) }}>
+  {% if eyebrow %}<p class="heading-block__eyebrow">{{ eyebrow }}</p>{% endif %}
+  <{{ tag }} class="heading-block__text">{{ text }}</{{ tag }}>
+</div>

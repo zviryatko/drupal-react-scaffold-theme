@@ -1,0 +1,213 @@
+<?php
+
+/**
+ * @file
+ * React Scaffold Builder: Puck editor over Single Directory Components.
+ */
+
+use Drupal\Core\Field\FieldStorageDefinitionInterface;
+use Drupal\react_scaffold_builder\Paragraphs;
+use Drupal\Core\Entity\Display\EntityViewDisplayInterface;
+use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Entity\EntityTypeInterface;
+use Drupal\Core\Field\BaseFieldDefinition;
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Render\Element;
+use Drupal\node\NodeTypeInterface;
+
+/**
+ * Implements hook_entity_base_field_info().
+ *
+ * The layout is the JSON document Puck produces. It is a revisionable,
+ * translatable base field, so revisions, content moderation and translations
+ * cover it. It has no formatter: hook_node_view_alter() renders it.
+ */
+function react_scaffold_builder_entity_base_field_info(EntityTypeInterface $entity_type) {
+  $fields = [];
+  if ($entity_type->id() === 'node') {
+    $fields['react_scaffold_layout'] = BaseFieldDefinition::create('string_long')
+      ->setLabel(t('Builder layout'))
+      ->setDescription(t('Component tree edited with the page builder.'))
+      ->setRevisionable(TRUE)
+      ->setTranslatable(TRUE);
+    // With Paragraphs: the paragraphs of the layout, so that they belong to
+    // the page (see \Drupal\react_scaffold_builder\Paragraphs).
+    if (\Drupal::service('react_scaffold_builder.paragraphs')->available()) {
+      $fields[Paragraphs::FIELD] = BaseFieldDefinition::create('entity_reference_revisions')
+        ->setLabel(t('Builder paragraphs'))
+        ->setDescription(t('Paragraphs used in the page builder layout.'))
+        ->setSetting('target_type', 'paragraph')
+        ->setCardinality(FieldStorageDefinitionInterface::CARDINALITY_UNLIMITED)
+        ->setRevisionable(TRUE)
+        ->setTranslatable(TRUE);
+    }
+  }
+  return $fields;
+}
+
+/**
+ * Implements hook_entity_type_build().
+ *
+ * Registers the form shown in the Content panel of the builder.
+ */
+function react_scaffold_builder_entity_type_build(array &$entity_types) {
+  if (isset($entity_types['node'])) {
+    $entity_types['node']->setFormClass('builder_content', 'Drupal\react_scaffold_builder\Form\BuilderContentForm');
+  }
+  // The form of a Paragraph block, in the right column of the builder.
+  if (isset($entity_types['paragraph'])) {
+    $entity_types['paragraph']->setFormClass('react_scaffold_builder', 'Drupal\react_scaffold_builder\Form\ParagraphBlockForm');
+  }
+}
+
+/**
+ * Implements hook_page_attachments().
+ *
+ * The design tokens of the theme (its .info.yml, see ThemeKit) as CSS custom
+ * properties, on pages of a theme based on React Scaffold: --rs-space-<name>,
+ * --rs-font-<name>, --rs-color-<name>, and --rs-accent, the colour the base theme's components
+ * use for buttons and highlights. The accent is the palette's "accent" or
+ * "primary" colour, else its first one; a theme can also set --rs-accent in
+ * its own CSS.
+ */
+function react_scaffold_builder_page_attachments(array &$attachments) {
+  /** @var \Drupal\react_scaffold_builder\ThemeKit $kit */
+  $kit = \Drupal::service('react_scaffold_builder.theme_kit');
+  if (!$kit->isActiveThemeSupported()) {
+    return;
+  }
+  $declarations = [];
+  foreach ($kit->spacing() as $name => $value) {
+    $declarations[] = '--rs-space-' . preg_replace('/[^a-z0-9-]/i', '-', $name) . ': ' . $value;
+  }
+  foreach ($kit->fontSizes() as $name => $value) {
+    $declarations[] = '--rs-font-' . preg_replace('/[^a-z0-9-]/i', '-', $name) . ': ' . $value;
+  }
+  $colors = $kit->colors();
+  foreach ($colors as $name => $color) {
+    $declarations[] = '--rs-color-' . preg_replace('/[^a-z0-9-]/i', '-', $name) . ': ' . $color['value'];
+  }
+  if ($accent = $colors['accent'] ?? $colors['primary'] ?? reset($colors)) {
+    $declarations[] = '--rs-accent: ' . $accent['value'];
+  }
+  if ($declarations) {
+    $attachments['#attached']['html_head'][] = [
+      ['#tag' => 'style', '#value' => \Drupal\Core\Render\Markup::create(':where(:root) { ' . implode('; ', $declarations) . ' }')],
+      'react_scaffold_builder_tokens',
+    ];
+  }
+}
+
+/**
+ * Implements hook_modules_installed().
+ *
+ * Paragraphs installed after the builder: the field that lists the
+ * paragraphs of a layout is added to nodes.
+ */
+function react_scaffold_builder_modules_installed(array $modules) {
+  if (array_intersect($modules, ['paragraphs', 'entity_reference_revisions'])) {
+    react_scaffold_builder_install_paragraphs_field();
+  }
+}
+
+/**
+ * Adds the field that lists the paragraphs of a layout, when it can exist
+ * and does not yet.
+ */
+function react_scaffold_builder_install_paragraphs_field(): void {
+  \Drupal::service('entity_field.manager')->clearCachedFieldDefinitions();
+  $definitions = \Drupal::service('entity_field.manager')->getBaseFieldDefinitions('node');
+  $manager = \Drupal::entityDefinitionUpdateManager();
+  if (isset($definitions[Paragraphs::FIELD]) && !$manager->getFieldStorageDefinition(Paragraphs::FIELD, 'node')) {
+    $manager->installFieldStorageDefinition(Paragraphs::FIELD, 'node', 'react_scaffold_builder', $definitions[Paragraphs::FIELD]);
+  }
+}
+
+/**
+ * Implements hook_ENTITY_TYPE_view_alter() for nodes.
+ *
+ * On content types that use the builder, the full page is the layout and
+ * nothing else: no field display, no Layout Builder sections. Fields are shown
+ * where the editor placed a "Field" block. Teasers and other view modes keep
+ * their normal display.
+ */
+function react_scaffold_builder_node_view_alter(array &$build, EntityInterface $entity, EntityViewDisplayInterface $display) {
+  if (($build['#view_mode'] ?? '') !== 'full') {
+    return;
+  }
+  /** @var \Drupal\react_scaffold_builder\LayoutStorage $layouts */
+  $layouts = \Drupal::service('react_scaffold_builder.layouts');
+  if (!$layouts->isEnabled($entity)) {
+    return;
+  }
+  $data = $layouts->load($entity);
+  if (empty($data['content'])) {
+    // Nothing built yet: keep the normal display instead of an empty page.
+    return;
+  }
+  foreach (Element::children($build) as $key) {
+    unset($build[$key]);
+  }
+  $build['react_scaffold_layout'] = \Drupal::service('react_scaffold_builder.renderer')->build($data, $entity);
+}
+
+/**
+ * Implements hook_form_BASE_FORM_ID_alter() for the content type form.
+ */
+function react_scaffold_builder_form_node_type_form_alter(array &$form, FormStateInterface $form_state) {
+  /** @var \Drupal\node\NodeTypeInterface $type */
+  $type = $form_state->getFormObject()->getEntity();
+  $form['react_scaffold_builder'] = [
+    '#type' => 'details',
+    '#title' => t('Page builder'),
+    '#group' => 'additional_settings',
+  ];
+  $form['react_scaffold_builder']['react_scaffold_builder_enabled'] = [
+    '#type' => 'checkbox',
+    '#title' => t('Build pages of this type with the page builder'),
+    '#description' => t('The page builder becomes the edit page of this content type. Once a page has a layout, the full page shows only that layout; fields appear where a Field block is placed.'),
+    '#default_value' => $type->getThirdPartySetting('react_scaffold_builder', 'enabled', FALSE),
+  ];
+  $form['react_scaffold_builder']['react_scaffold_builder_translation_mode'] = [
+    '#type' => 'radios',
+    '#title' => t('Translations'),
+    '#options' => [
+      'synced' => t('Synced: one structure for all languages, only text and links are translated'),
+      'independent' => t('Independent: each translation is a copy made when it is created, then changed freely'),
+    ],
+    '#default_value' => $type->getThirdPartySetting('react_scaffold_builder', 'translation_mode', 'synced'),
+    '#states' => ['visible' => [':input[name="react_scaffold_builder_enabled"]' => ['checked' => TRUE]]],
+  ];
+  $form['#entity_builders'][] = 'react_scaffold_builder_node_type_builder';
+}
+
+/**
+ * Entity builder: stores the page builder settings on the content type.
+ */
+function react_scaffold_builder_node_type_builder(string $entity_type, NodeTypeInterface $type, array &$form, FormStateInterface $form_state) {
+  $type->setThirdPartySetting('react_scaffold_builder', 'enabled', (bool) $form_state->getValue('react_scaffold_builder_enabled'));
+  $type->setThirdPartySetting('react_scaffold_builder', 'translation_mode', $form_state->getValue('react_scaffold_builder_translation_mode') === 'independent' ? 'independent' : 'synced');
+}
+
+/**
+ * Implements hook_form_BASE_FORM_ID_alter() for node forms.
+ *
+ * A new page of a content type that uses the builder is created with the
+ * normal form (it needs a title to exist), then continues in the builder.
+ */
+function react_scaffold_builder_form_node_form_alter(array &$form, FormStateInterface $form_state) {
+  $node = $form_state->getFormObject()->getEntity();
+  if ($node->isNew() && \Drupal::service('react_scaffold_builder.layouts')->isEnabled($node) && isset($form['actions']['submit'])) {
+    $form['actions']['submit']['#submit'][] = 'react_scaffold_builder_node_form_to_builder';
+  }
+}
+
+/**
+ * Submit handler: after a new page is saved, open it in the builder.
+ */
+function react_scaffold_builder_node_form_to_builder(array $form, FormStateInterface $form_state) {
+  $node = $form_state->getFormObject()->getEntity();
+  if ($node->id() && $node->access('update')) {
+    $form_state->setRedirect('entity.node.edit_form', ['node' => $node->id()]);
+  }
+}

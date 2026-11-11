@@ -4,8 +4,9 @@
 //
 //   node <base theme>/bin/react-scaffold.mjs new my_theme [--name "My Theme"] [--path <folder>]
 //   node <base theme>/bin/react-scaffold.mjs build | watch | test [jest options]     (run in a subtheme folder)
+//   node <base theme>/bin/react-scaffold.mjs tokens [--out scss/_tokens.scss]        (run in a subtheme folder)
 import { spawnSync } from 'node:child_process';
-import { cpSync, existsSync, readdirSync, readFileSync, renameSync, statSync, writeFileSync } from 'node:fs';
+import { cpSync, existsSync, mkdirSync, readdirSync, readFileSync, renameSync, statSync, writeFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { basename, dirname, join, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -24,7 +25,8 @@ const usage = `React Scaffold
   new <machine_name> [--name "Label"] [--path <folder>]   create a subtheme (default folder: themes/custom, or next to the base theme)
   build [--dev]                                           build the theme in the current folder into ./assets
   watch                                                   rebuild on change (development mode)
-  test [jest options]                                     run Jest in the current folder`;
+  test [jest options]                                     run Jest in the current folder
+  tokens [--out <file>]                                   print the theme's design tokens (its YAML) as SCSS, or write them to a file`;
 
 /** Value of `--flag value` or `--flag=value`. */
 function option(name) {
@@ -63,6 +65,18 @@ function test() {
   const jest = join(dirname(require.resolve('jest/package.json')), 'bin/jest.js');
   const result = spawnSync(process.execPath, [jest, '--config', config, '--rootDir', root, ...args], { stdio: 'inherit', cwd: root });
   process.exit(result.status ?? 1);
+}
+
+async function tokens() {
+  const { readTokens, tokensScss } = await import('../tokens.js');
+  const found = readTokens(process.cwd());
+  if (!found.theme) fail('No theme here: run it in a folder with a <theme>.info.yml.');
+  const scss = tokensScss(found);
+  const out = option('out');
+  if (!out) return process.stdout.write(scss);
+  mkdirSync(dirname(resolve(out)), { recursive: true });
+  writeFileSync(resolve(out), scss);
+  console.log(`Wrote ${out}`);
 }
 
 function create() {
@@ -116,5 +130,6 @@ switch (command) {
   case 'build': case 'dist': await build(args.includes('--dev') ? 'development' : 'production'); break;
   case 'watch': await build('development', true); break;
   case 'test': test(); break;
+  case 'tokens': await tokens(); break;
   default: command && command !== 'help' && command !== '--help' ? fail(`Unknown command "${command}".\n\n${usage}`) : console.log(usage);
 }

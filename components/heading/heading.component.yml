@@ -1,0 +1,36 @@
+$schema: https://git.drupalcode.org/project/drupal/-/raw/HEAD/core/assets/schemas/v1/metadata.schema.json
+name: Heading
+status: experimental
+description: 'A heading on its own: the title of a part of the page. Use it where a Section heading does not fit, and keep the levels in order (one H1 per page, which the theme usually prints already).'
+group: Content
+props:
+  type: object
+  properties:
+    text:
+      type: string
+      title: Text
+      description: 'The heading. Tokens such as [node:title] work.'
+      examples: ['A heading']
+    level:
+      type: string
+      title: Level
+      description: 'The rank in the outline of the page, for search engines and screen readers. It does not have to match the size.'
+      enum: [h1, h2, h3, h4]
+      meta:enum: { h1: 'H1: page title', h2: 'H2: section', h3: 'H3: sub-section', h4: 'H4' }
+      examples: [h2]
+    size:
+      type: string
+      title: Size
+      description: 'How large it looks.'
+      enum: [s, m, l, xl]
+      meta:enum: { s: Small, m: Medium, l: Large, xl: 'Extra large' }
+      examples: [l]
+    eyebrow:
+      type: string
+      title: 'Line above'
+      description: 'A short label above the heading, such as a category.'
+  required: [text]
+thirdPartySettings:
+  react_scaffold_builder:
+    icon: heading
+    example: { type: 'react_scaffold:heading', props: { text: 'Why join the class', level: h2, size: l, eyebrow: 'The course' } }

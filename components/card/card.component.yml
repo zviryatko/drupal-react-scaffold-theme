@@ -1,0 +1,63 @@
+$schema: https://git.drupalcode.org/project/drupal/-/raw/HEAD/core/assets/schemas/v1/metadata.schema.json
+name: Card
+status: experimental
+description: 'Image, heading with an optional link and free content. Plain Twig, no React.'
+group: Content
+props:
+  type: object
+  properties:
+    heading:
+      type: string
+      title: Heading
+      description: 'The title of the card. Tokens such as [node:title] work.'
+      examples:
+        - 'Card heading'
+    image:
+      type: string
+      title: Image
+      description: 'URL of an image, picked from the media library in the builder.'
+      contentMediaType: 'image/*'
+      # Filled by the page builder from the picked image and its image style. `image_picture` is the image as
+      # Drupal renders it, a <picture> or <img srcset> for a responsive image style; the others are its parts, for
+      # a template that writes the <img> itself.
+      x-builder-picture: image_picture
+      x-builder-srcset: image_srcset
+      x-builder-sizes: image_sizes
+      x-builder-alt: image_alt
+    image_picture:
+      type: string
+      title: Image markup
+      description: 'Filled by the page builder: the image as Drupal renders it.'
+      x-builder-widget: hidden
+    image_srcset:
+      type: string
+      title: Image srcset
+      description: 'Filled by the page builder for a responsive image style.'
+      x-builder-widget: hidden
+    image_sizes:
+      type: string
+      title: Image sizes
+      description: 'Filled by the page builder for a responsive image style.'
+      x-builder-widget: hidden
+    image_alt:
+      type: string
+      title: Image alternative text
+      description: 'Filled by the page builder from the media item.'
+      x-builder-widget: hidden
+    url:
+      type: string
+      title: Link
+      description: 'Where the heading links to.'
+      format: uri-reference
+  required:
+    - heading
+# Page builder: the icon in the list of blocks.
+thirdPartySettings:
+  react_scaffold_builder:
+    # A typical use, as a layout item: shown to the AI assistant.
+    example: { type: 'react_scaffold:card', props: { heading: 'Cook with a local chef', image: { media: 12 }, url: '/about', content: [ { type: 'react_scaffold:text', props: { text: '<p>Dough by hand, sauces from scratch.</p>' } } ] } }
+    icon: card
+slots:
+  content:
+    title: Content
+    description: 'Anything below the heading: text or other components.'

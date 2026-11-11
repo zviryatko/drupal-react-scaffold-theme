@@ -12,6 +12,9 @@ drush cr
 - Components live in `components/<name>/`, any folder with `index.jsx` is built automatically.
 - `components/hello-react` is a working example, copy it to start a new component.
 - Place it in Twig: `{% include 'react_scaffold_starterkit:hello-react' with { greeting: 'Hello' } only %}`
+- Design tokens (spacing, colours, font sizes) are declared once in `react_scaffold_starterkit.info.yml`. The page builder offers them to
+  editors and `scss/global.scss` reads them: `@use 'react-scaffold/tokens' as rs;` then `rs.space(m)`, `rs.color(dark)`,
+  `@include rs.breakpoint(tablet) { ... }`.
 - `npm test` runs Jest, `npm run watch` rebuilds on change.
 - There is no build configuration and nothing to install here: the scripts in `package.json` call the `react_scaffold` base theme, which has
   the Vite and Jest setup, React, the helpers and `apiClient`. The base theme needs `npm install` once. If it is moved, fix the path in `package.json`.

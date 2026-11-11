@@ -1,0 +1,47 @@
+$schema: https://git.drupalcode.org/project/drupal/-/raw/HEAD/core/assets/schemas/v1/metadata.schema.json
+name: Button
+status: experimental
+description: 'A link that looks like a button: the call to action of a section. Put one or two next to each other in a Flex.'
+group: Content
+props:
+  type: object
+  properties:
+    label:
+      type: string
+      title: Label
+      description: 'What the button says. A verb works best: "Sign up", "Read the recipe".'
+      examples: ['Read more']
+    url:
+      type: string
+      title: Link
+      format: uri-reference
+      description: 'Where it goes: content of the site, a path or an address.'
+      examples: ['/']
+    variant:
+      type: string
+      title: Style
+      description: 'Filled is the main action of a page or section; use one. Outline and Text are for the second choice.'
+      enum: [primary, outline, text]
+      meta:enum: { primary: Filled, outline: Outline, text: 'Text only' }
+      examples: [primary]
+    size:
+      type: string
+      title: Size
+      enum: [s, m, l]
+      meta:enum: { s: Small, m: Medium, l: Large }
+      examples: [m]
+    color:
+      type: string
+      title: Colour
+      description: 'A colour of the theme. Without one the accent colour of the theme is used.'
+      x-builder-widget: color
+    new_tab:
+      type: boolean
+      title: 'Open in a new tab'
+      description: 'For links that leave the site.'
+      examples: [false]
+  required: [label, url]
+thirdPartySettings:
+  react_scaffold_builder:
+    icon: button
+    example: { type: 'react_scaffold:button', props: { label: 'Sign up for the next class', url: '/contact', variant: primary, size: l } }

@@ -1,0 +1,23 @@
+$schema: https://git.drupalcode.org/project/drupal/-/raw/HEAD/core/assets/schemas/v1/metadata.schema.json
+name: 'Number with a label'
+status: experimental
+description: 'A big number or short fact with what it counts under it: "8 people per class", "3 hours". Put a few in Columns or a Flex.'
+group: Content
+props:
+  type: object
+  properties:
+    value:
+      type: string
+      title: Number
+      description: 'The number or short fact, with its unit: "8", "3 h", "98%".'
+      examples: ['98%']
+    label:
+      type: string
+      title: Label
+      description: 'What it counts.'
+      examples: ['of visitors come back']
+  required: [value]
+thirdPartySettings:
+  react_scaffold_builder:
+    icon: heading
+    example: { type: 'react_scaffold:stat', props: { value: '8', label: 'people per class at most', _align: center } }

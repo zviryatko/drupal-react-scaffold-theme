@@ -1,0 +1,31 @@
+$schema: https://git.drupalcode.org/project/drupal/-/raw/HEAD/core/assets/schemas/v1/metadata.schema.json
+name: Divider
+status: experimental
+description: 'A line between two parts of a page.'
+group: Layout
+props:
+  type: object
+  properties:
+    style:
+      type: string
+      title: Line
+      enum: [solid, dashed, dotted]
+      meta:enum: { solid: Solid, dashed: Dashed, dotted: Dotted }
+      examples: [solid]
+    width:
+      type: string
+      title: Width
+      enum: [full, half, short]
+      meta:enum: { full: 'Full width', half: Half, short: Short }
+      examples: [full]
+    space:
+      type: string
+      title: 'Space above and below'
+      description: 'A step of the spacing scale of the theme.'
+      x-builder-widget: length
+      examples: ['2rem']
+thirdPartySettings:
+  react_scaffold_builder:
+    icon: list
+    features: { background: false, align: false }
+    example: { type: 'react_scaffold:divider', props: { style: solid, width: full, space: { size: l } } }

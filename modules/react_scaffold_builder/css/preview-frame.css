@@ -1,0 +1,3 @@
+/* The preview inside the editor: the page without the admin toolbar, at the width of the frame. */
+#toolbar-administration, .toolbar, .contextual { display: none !important; }
+body { padding-top: 0 !important; }

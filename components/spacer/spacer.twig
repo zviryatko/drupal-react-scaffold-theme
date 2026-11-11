@@ -1,0 +1,7 @@
+{#
+/**
+ * @file
+ * Spacer: empty vertical space. `size` is a CSS length.
+ */
+#}
+<div {{ attributes.addClass('spacer') }} aria-hidden="true"{% if size %} style="height: {{ size }}"{% endif %}></div>

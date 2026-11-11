@@ -1,0 +1,14 @@
+<article {{ attributes.addClass('card') }}>
+  {% if image_picture %}
+    {# From the page builder: the image with its (responsive) image style, as Drupal renders it. #}
+    <div class="card__image">{{ image_picture }}</div>
+  {% elseif image %}
+    <img class="card__image" src="{{ image }}"{% if image_srcset %} srcset="{{ image_srcset }}" sizes="{{ image_sizes|default('100vw') }}"{% endif %} alt="{{ image_alt }}" loading="lazy">
+  {% endif %}
+  <div class="card__body">
+    <h3 class="card__heading">
+      {% if url %}<a href="{{ url }}">{{ heading }}</a>{% else %}{{ heading }}{% endif %}
+    </h3>
+    <div class="card__content">{% block content %}{% endblock %}</div>
+  </div>
+</article>

@@ -1,0 +1,41 @@
+views.style.react_scaffold_component:
+  type: views_style
+  label: 'React component (SDC)'
+  mapping:
+    component:
+      type: string
+      label: 'Component'
+    rest_display:
+      type: string
+      label: 'REST display'
+    props:
+      type: string
+      label: 'Extra props (JSON)'
+
+node.type.*.third_party.react_scaffold_builder:
+  type: mapping
+  label: 'Page builder'
+  mapping:
+    enabled:
+      type: boolean
+      label: 'Build pages of this type with the page builder'
+    translation_mode:
+      type: string
+      label: 'Translation mode'
+
+field.formatter.settings.react_scaffold_builder_media_responsive:
+  type: mapping
+  label: 'Responsive image of media'
+  mapping:
+    responsive_image_style:
+      type: string
+      label: 'Responsive image style'
+    image_link:
+      type: string
+      label: 'Link image to'
+    image_link_url:
+      type: string
+      label: 'Custom URL'
+    image_loading:
+      type: string
+      label: 'Image loading'

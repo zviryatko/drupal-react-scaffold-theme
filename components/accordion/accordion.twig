@@ -1,0 +1,9 @@
+{#
+/**
+ * @file
+ * Accordion: a group of accordion items.
+ */
+#}
+<div {{ attributes.addClass('accordion', bordered ? 'accordion--bordered' : 'accordion--lines') }}>
+  {%- block items %}{% endblock -%}
+</div>

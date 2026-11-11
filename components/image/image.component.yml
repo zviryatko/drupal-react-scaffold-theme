@@ -1,0 +1,36 @@
+$schema: https://git.drupalcode.org/project/drupal/-/raw/HEAD/core/assets/schemas/v1/metadata.schema.json
+name: Image
+status: experimental
+description: 'An image from the media library, with an image style or responsive image style, optional link and caption.'
+group: Content
+props:
+  type: object
+  properties:
+    image:
+      type: string
+      title: Image
+      description: 'Picked from the media library; choose an image style, how it loads and what it links to.'
+      contentMediaType: 'image/*'
+      # In the page builder: the image as Drupal renders it (image style, responsive image style, lazy or eager
+      # loading, link) arrives in `image_picture`.
+      x-builder-picture: image_picture
+    image_picture:
+      type: string
+      title: Image markup
+      description: 'Filled by the page builder: the image as Drupal renders it.'
+      x-builder-widget: hidden
+    alt:
+      type: string
+      title: Alternative text
+      description: 'Only used without the page builder, which takes it from the media item.'
+      x-builder-widget: hidden
+    caption:
+      type: string
+      title: Caption
+      description: 'Shown under the image.'
+# Page builder: the icon in the list of blocks.
+thirdPartySettings:
+  react_scaffold_builder:
+    # A typical use, as a layout item: shown to the AI assistant.
+    example: { type: 'react_scaffold:image', props: { image: { media: 12 }, caption: 'What you will cook on the first evening' } }
+    icon: image

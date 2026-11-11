@@ -12,6 +12,31 @@ hidden: true
 libraries:
   - react_scaffold_starterkit/global-styling
 
+# The design tokens of the theme, declared once. The page builder (the React Scaffold Builder module, inside the base
+# theme) offers them to editors, and scss/global.scss gets them with `@use 'react-scaffold/tokens' as rs;`.
+# Change them to your design; see "Tokens, features and styling" in the docs. Breakpoints come from the base theme
+# (mobile, tablet, desktop) until the theme has a <theme>.breakpoints.yml of its own.
+react_scaffold_builder:
+  uikit:
+    spacing:
+      xs: 0.25rem
+      s: 0.5rem
+      m: 1rem
+      l: 2rem
+      xl: 4rem
+    colors:
+      white: { label: 'White', value: '#ffffff' }
+      light: { label: 'Light grey', value: '#f3f4f9' }
+      dark: { label: 'Dark', value: '#232429' }
+    font_sizes:
+      xs: 0.75rem
+      s: 0.875rem
+      m: 1rem
+      l: 1.25rem
+      xl: 1.5rem
+      2xl: 2rem
+      3xl: 3rem
+
 # Drupal does not inherit regions from a base theme, so they are declared here. Keep this list equal to react_scaffold.info.yml,
 # the base theme's page.html.twig prints exactly these regions (a test checks it).
 regions:

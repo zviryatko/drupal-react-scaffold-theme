@@ -1,0 +1,40 @@
+$schema: https://git.drupalcode.org/project/drupal/-/raw/HEAD/core/assets/schemas/v1/metadata.schema.json
+name: Stack
+status: experimental
+description: 'Stacks its items one below the other with the same space between them, optionally with dividing lines.'
+group: Layout
+props:
+  type: object
+  properties:
+    gap:
+      type: string
+      title: Gap
+      description: 'Space between the items.'
+      x-builder-widget: length
+      examples: ['1rem']
+    align:
+      type: string
+      title: Alignment
+      description: 'Full width stretches the items; the others keep them as wide as their content.'
+      enum: [stretch, start, center, end]
+      meta:enum:
+        stretch: 'Full width'
+        start: 'At the start'
+        center: Centred
+        end: 'At the end'
+      examples: [stretch]
+    dividers:
+      type: boolean
+      title: 'Lines between the items'
+      description: 'A thin line between each two items.'
+      examples: [false]
+# Page builder: the icon in the list of blocks.
+thirdPartySettings:
+  react_scaffold_builder:
+    # A typical use, as a layout item: shown to the AI assistant.
+    example: { type: 'react_scaffold:stack', props: { gap: { size: m }, align: stretch, dividers: true, content: [ { type: 'react_scaffold:text', props: { text: '<p>First item.</p>' } }, { type: 'react_scaffold:text', props: { text: '<p>Second item.</p>' } } ] } }
+    icon: stack
+slots:
+  content:
+    title: Content
+    description: 'The items of the stack.'

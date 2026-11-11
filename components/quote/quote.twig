@@ -1,0 +1,18 @@
+{#
+/**
+ * @file
+ * Quote: a blockquote with its source.
+ */
+#}
+<figure {{ attributes.addClass('quote', 'quote--' ~ size|default('m')) }}>
+  <blockquote class="quote__text">{{ text|nl2br }}</blockquote>
+  {% if author or role or image %}
+    <figcaption class="quote__source">
+      {% if image %}<img class="quote__portrait" src="{{ image }}" alt="" loading="lazy">{% endif %}
+      <span>
+        {% if author %}<strong class="quote__author">{{ author }}</strong>{% endif %}
+        {% if role %}<span class="quote__role">{{ role }}</span>{% endif %}
+      </span>
+    </figcaption>
+  {% endif %}
+</figure>

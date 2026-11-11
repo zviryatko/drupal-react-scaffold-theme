@@ -1,0 +1,38 @@
+$schema: https://git.drupalcode.org/project/drupal/-/raw/HEAD/core/assets/schemas/v1/metadata.schema.json
+name: Quote
+status: experimental
+description: 'What someone said, with who said it: a testimonial or a pull quote.'
+group: Content
+props:
+  type: object
+  properties:
+    text:
+      type: string
+      title: Quote
+      description: 'The words, without quotation marks.'
+      x-builder-widget: textarea
+      examples: ['The best evening of our trip.']
+    author:
+      type: string
+      title: Name
+      description: 'Who said it.'
+    role:
+      type: string
+      title: 'Role or source'
+      description: 'A job title, a company, or where it was said.'
+    image:
+      type: string
+      title: Portrait
+      description: 'A small round picture of the person.'
+      contentMediaType: 'image/*'
+    size:
+      type: string
+      title: Size
+      enum: [m, l]
+      meta:enum: { m: Normal, l: Large }
+      examples: [m]
+  required: [text]
+thirdPartySettings:
+  react_scaffold_builder:
+    icon: quote
+    example: { type: 'react_scaffold:quote', props: { text: 'I came for the pasta and left with a new way of cooking at home.', author: 'Anna K.', role: 'Took the class in spring', size: l } }

@@ -4,7 +4,8 @@
   "type": "module",
   "scripts": {
     "capture": "node capture.mjs",
-    "smoke": "node smoke.mjs"
+    "smoke": "node smoke.mjs",
+    "builder-smoke": "node builder-smoke.mjs"
   },
   "devDependencies": {
     "playwright": "^1.63.0"

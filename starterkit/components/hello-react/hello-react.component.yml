@@ -11,12 +11,14 @@ props:
     greeting:
       type: string
       title: Greeting
+      description: 'The word before the name.'
       default: 'Hello'
       examples:
         - 'Hello'
     start:
       type: integer
       title: Start value
+      description: 'The number the counter starts at.'
       default: 0
 slots:
   name:

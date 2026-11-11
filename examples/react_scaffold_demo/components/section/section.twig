@@ -1,0 +1,4 @@
+<section {{ attributes.addClass('section', 'section--' ~ variant|default('plain')) }}>
+  {% if heading %}<h2 class="section__heading">{{ heading }}</h2>{% endif %}
+  <div class="section__content">{% block content %}{% endblock %}</div>
+</section>

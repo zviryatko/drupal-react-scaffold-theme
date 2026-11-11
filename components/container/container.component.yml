@@ -1,0 +1,23 @@
+$schema: https://git.drupalcode.org/project/drupal/-/raw/HEAD/core/assets/schemas/v1/metadata.schema.json
+name: Container
+status: experimental
+description: 'Keeps what is in it at a readable width, centred on the page. Put text-heavy parts in a narrow one.'
+group: Layout
+props:
+  type: object
+  properties:
+    width:
+      type: string
+      title: Width
+      description: 'Narrow suits long text; Wide suits cards and pictures.'
+      enum: [narrow, normal, wide, full]
+      meta:enum: { narrow: 'Narrow (text)', normal: Normal, wide: Wide, full: 'Full width' }
+      examples: [normal]
+slots:
+  content:
+    title: Content
+    description: 'What is kept at this width.'
+thirdPartySettings:
+  react_scaffold_builder:
+    icon: section
+    example: { type: 'react_scaffold:container', props: { width: narrow, content: [ { type: 'react_scaffold:text', props: { text: '<p>A long text reads best in a narrow column.</p>' } } ] } }

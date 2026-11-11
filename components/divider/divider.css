@@ -1,0 +1,5 @@
+.divider { width: 100%; height: 0; margin: var(--divider-space, 2rem) auto; border: 0; border-top: 1px solid rgb(0 0 0 / 20%); }
+.divider--dashed { border-top-style: dashed; }
+.divider--dotted { border-top-style: dotted; border-top-width: 2px; }
+.divider--half { width: 50%; }
+.divider--short { width: 5rem; border-top-width: 3px; border-top-color: var(--rs-accent, #1f4fd8); }

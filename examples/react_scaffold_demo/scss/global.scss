@@ -1,10 +1,17 @@
 // Look of the demo subtheme: palette and shapes of the Umami demo, system font stacks.
-$green: #008068;
+// The palette, scales and breakpoints come from react_scaffold_demo.info.yml and .breakpoints.yml (see the docs:
+// "Tokens in SCSS"), so the page builder and this file use the same values.
+@use 'react-scaffold/tokens' as rs;
+
+$green: rs.color(green);
 $green-dark: #025c4b;
-$green-light: #e6eee0;
-$cream: #fcf4ed;
-$ink: #333;
+$green-light: rs.color(green-light);
+$cream: rs.color(cream);
+$ink: rs.color(ink);
 $grey: #767775;
+
+// The tokens as custom properties and a utility class per choice of the builder (.rs-p-l, .rs-bg-cream, ...).
+@include rs.rules;
 
 :root {
   --page-max-width: 75rem;

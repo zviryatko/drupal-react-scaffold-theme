@@ -1,0 +1,11 @@
+{#
+/**
+ * @file
+ * Flex: a flex container. `gap` is a CSS length.
+ */
+#}
+<div {{ attributes.addClass('layout-flex', 'layout-flex--' ~ direction|default('row'), 'layout-flex--justify-' ~ justify|default('start'), 'layout-flex--align-' ~ align|default('center'), wrap is same as(false) ? 'layout-flex--nowrap' : 'layout-flex--wrap') }}>
+  <div class="layout-flex__items"{% if gap %} style="--layout-gap: {{ gap }}"{% endif %}>
+    {%- block content %}{% endblock -%}
+  </div>
+</div>

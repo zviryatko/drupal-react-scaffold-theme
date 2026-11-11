@@ -1,0 +1,8 @@
+name: 'React Scaffold page builder: everything'
+description: 'The page builder with all it supports: media and responsive images, paragraphs with the library and usage tracking, meta tags and the AI assistant.'
+type: 'Page builder'
+recipes:
+  - react_scaffold_builder
+  - react_scaffold_builder_paragraphs
+  - react_scaffold_builder_seo
+  - react_scaffold_builder_ai

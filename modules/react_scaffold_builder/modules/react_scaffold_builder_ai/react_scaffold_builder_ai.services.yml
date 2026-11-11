@@ -1,0 +1,10 @@
+services:
+  react_scaffold_builder_ai.sanitizer:
+    class: Drupal\react_scaffold_builder_ai\LayoutSanitizer
+    arguments: ['@current_user', '@react_scaffold_builder.media_items', '@entity_type.manager']
+  react_scaffold_builder_ai.meta_tags:
+    class: Drupal\react_scaffold_builder_ai\MetaTags
+    arguments: ['@module_handler', '@react_scaffold_builder.field_drafts']
+  react_scaffold_builder_ai.assistant:
+    class: Drupal\react_scaffold_builder_ai\PageAssistant
+    arguments: ['@ai.provider', '@react_scaffold_builder.catalog', '@react_scaffold_builder.theme_kit', '@react_scaffold_builder_ai.sanitizer', '@react_scaffold_builder.migrator', '@module_handler', '@react_scaffold_builder.renderer', '@renderer', '@react_scaffold_builder.media_items', '@entity_type.manager', '@current_user', '@react_scaffold_builder_ai.meta_tags', '@react_scaffold_builder.layouts', '@token']

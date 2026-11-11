@@ -1,0 +1,10 @@
+{#
+/**
+ * @file
+ * Notice: a highlighted note.
+ */
+#}
+<div {{ attributes.addClass('notice', 'notice--' ~ tone|default('info')) }} role="{{ tone in ['warning', 'error'] ? 'alert' : 'note' }}">
+  {% if title %}<p class="notice__title">{{ title }}</p>{% endif %}
+  <div class="notice__text">{{ text }}</div>
+</div>

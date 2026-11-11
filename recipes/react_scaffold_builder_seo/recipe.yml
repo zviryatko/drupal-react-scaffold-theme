@@ -1,0 +1,25 @@
+name: 'React Scaffold page builder: meta tags'
+description: 'Meta tags for landing pages: Metatag with Open Graph and a "Meta tags" field on the Landing page content type, which the AI assistant of the page builder can fill.'
+type: 'Page builder'
+recipes:
+  - react_scaffold_builder
+install:
+  - token
+  - metatag
+  - metatag_open_graph
+config:
+  strict: false
+  actions:
+    # The field is shown in the page settings of the builder (the node form).
+    core.entity_form_display.node.landing_page.default:
+      createIfNotExists:
+        targetEntityType: node
+        bundle: landing_page
+        mode: default
+        status: true
+      setComponent:
+        name: field_meta_tags
+        options:
+          type: metatag_firehose
+          region: content
+          weight: 40

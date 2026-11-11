@@ -1,0 +1,18 @@
+{#
+/**
+ * @file
+ * Hero: heading, text and actions over a picture or a plain background.
+ */
+#}
+<section {{ attributes.addClass('hero', 'hero--' ~ height|default('m'), 'hero--align-' ~ align|default('center'), image_picture or image ? 'hero--overlay-' ~ overlay|default('dark') : 'hero--plain') }}>
+  {% if image_picture %}
+    <div class="hero__media">{{ image_picture }}</div>
+  {% elseif image %}
+    <div class="hero__media"><img src="{{ image }}" alt=""></div>
+  {% endif %}
+  <div class="hero__inner">
+    <h1 class="hero__heading">{{ heading }}</h1>
+    {% if text %}<p class="hero__text">{{ text }}</p>{% endif %}
+    <div class="hero__actions">{% block actions %}{% endblock %}</div>
+  </div>
+</section>

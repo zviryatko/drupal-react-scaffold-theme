@@ -1,0 +1,66 @@
+$schema: https://git.drupalcode.org/project/drupal/-/raw/HEAD/core/assets/schemas/v1/metadata.schema.json
+name: Flex
+status: experimental
+description: 'A flex container: its items in a row or a column, each as large as its content, with control over direction, spreading, alignment, gap and wrapping.'
+group: Layout
+props:
+  type: object
+  properties:
+    direction:
+      type: string
+      title: Direction
+      description: 'A row follows the reading direction of the language.'
+      enum: [row, row-reverse, column, column-reverse]
+      meta:enum:
+        row: Row
+        row-reverse: 'Row, reversed'
+        column: Column
+        column-reverse: 'Column, reversed'
+      examples: [row]
+    justify:
+      type: string
+      title: 'Along the direction'
+      description: 'Where the items go on the line (justify-content).'
+      enum: [start, center, end, between, around, evenly, grow]
+      meta:enum:
+        start: 'At the start'
+        center: Centred
+        end: 'At the end'
+        between: 'Spread apart'
+        around: 'Space around each'
+        evenly: 'Equal space everywhere'
+        grow: 'Grow to fill it equally'
+      examples: [start]
+    align:
+      type: string
+      title: 'Across the direction'
+      description: 'How the items sit next to each other (align-items).'
+      enum: [stretch, start, center, end, baseline]
+      meta:enum:
+        stretch: Stretched
+        start: 'At the start'
+        center: Centred
+        end: 'At the end'
+        baseline: 'On the text baseline'
+      examples: [center]
+    gap:
+      type: string
+      title: Gap
+      description: 'Space between the items.'
+      x-builder-widget: length
+      examples: ['1rem']
+    wrap:
+      type: boolean
+      title: 'Wrap onto more lines when there is no room'
+      description: 'Without it the items shrink to stay on one line.'
+      examples: [true]
+# Page builder: the icon in the list of blocks.
+thirdPartySettings:
+  react_scaffold_builder:
+    # A typical use, as a layout item: shown to the AI assistant.
+    example: { type: 'react_scaffold:flex', props: { direction: row, justify: center, align: center, gap: { size: m }, wrap: true, content: [ { type: 'react_scaffold:button', props: { label: 'Sign up', url: '/contact', variant: primary } }, { type: 'react_scaffold:button', props: { label: 'See the menu', url: '/recipes', variant: outline } } ] } }
+    icon: flex
+slots:
+  content:
+    title: Content
+    description: 'The items.'

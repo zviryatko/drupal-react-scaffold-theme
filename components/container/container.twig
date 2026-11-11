@@ -1,0 +1,9 @@
+{#
+/**
+ * @file
+ * Container: limits the width of its content and centres it.
+ */
+#}
+<div {{ attributes.addClass('container-block', 'container-block--' ~ width|default('normal')) }}>
+  {%- block content %}{% endblock -%}
+</div>

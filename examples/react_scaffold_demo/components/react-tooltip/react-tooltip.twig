@@ -1,1 +1,6 @@
-<span {{ attributes.addClass('react-tooltip').setAttribute('data-text', text) }}>{% block content %}{% endblock %}</span>
+{# The icon and the label are printed by Twig too: the trigger is readable before React mounts and without JavaScript. #}
+<span {{ attributes.addClass('react-tooltip').setAttribute('data-text', text).setAttribute('data-icon', icon|default(false)) }}>
+  {%- if icon %}<i class="bi bi-{{ icon }}" aria-hidden="true"></i> {% endif -%}
+  {{- label -}}
+  {%- block content %}{% endblock -%}
+</span>

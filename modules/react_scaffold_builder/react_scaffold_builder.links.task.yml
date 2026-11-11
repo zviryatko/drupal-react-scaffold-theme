@@ -1,0 +1,6 @@
+# The library of saved blocks, as a tab of the Content page.
+react_scaffold_builder.library:
+  title: 'Page builder library'
+  route_name: entity.react_scaffold_saved.collection
+  base_route: system.admin_content
+  weight: 20

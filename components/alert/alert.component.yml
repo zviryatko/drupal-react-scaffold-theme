@@ -1,0 +1,30 @@
+$schema: https://git.drupalcode.org/project/drupal/-/raw/HEAD/core/assets/schemas/v1/metadata.schema.json
+name: Notice
+status: experimental
+description: 'A highlighted note the visitor should not miss: a tip, a warning, a confirmation.'
+group: Content
+props:
+  type: object
+  properties:
+    tone:
+      type: string
+      title: Kind
+      description: 'Sets the colour and the meaning for screen readers.'
+      enum: [info, success, warning, error]
+      meta:enum: { info: Information, success: Success, warning: Warning, error: Error }
+      examples: [info]
+    title:
+      type: string
+      title: Title
+      description: 'A short line in bold. Optional.'
+    text:
+      type: string
+      title: Text
+      contentMediaType: text/html
+      examples: ['<p>Something worth knowing.</p>']
+  required: [text]
+thirdPartySettings:
+  react_scaffold_builder:
+    icon: tooltip
+    features: { background: false }
+    example: { type: 'react_scaffold:alert', props: { tone: info, title: 'Good to know', text: '<p>Classes are held in English and Italian.</p>' } }

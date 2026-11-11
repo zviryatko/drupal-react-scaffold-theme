@@ -25,7 +25,7 @@ my_theme/
   my_theme.info.yml            base theme: react_scaffold, libraries, regions
   my_theme.libraries.yml       global-styling → assets/global.css
   package.json                 three scripts that call the base theme: build, watch, test. No dependencies
-  scss/global.scss             your global styles
+  scss/global.scss             your global styles; reads the design tokens of the info file (rs.space(m), rs.color(dark))
   components/hello-react/      working example: yml, twig, index.jsx, HelloReact.jsx, scss, test
   config/optional/             block placement: branding, main menu, page title, content, messages...
   logo.svg  README.md  .gitignore

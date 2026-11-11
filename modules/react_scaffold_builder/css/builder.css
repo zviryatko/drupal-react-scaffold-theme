@@ -1,0 +1,402 @@
+/*
+ * The editor covers the page it is served on: the theme's CSS and JS stay loaded, so components look and behave as on
+ * the site. Fields, buttons, messages and dialogs follow Drupal's Claro admin theme.
+ */
+#react-scaffold-builder {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  background: #fff;
+}
+/* CKEditor 5 balloons and dropdowns live in <body>: keep them above the editor. */
+.ck-body-wrapper { --ck-z-panel: 2100; --ck-z-dialog: 2200; }
+
+/* The preview is the page: no gutter of its own, a thin one from the editor around it. */
+.rsb-root { min-height: 100%; }
+#react-scaffold-builder [class*="PuckCanvas_"] { padding: 8px; }
+/* The admin page around the editor already shows the title: the spot holds a short note about translations, if any. */
+#react-scaffold-builder:not([data-note]) [class*="PuckHeader-title"] { visibility: hidden; }
+#react-scaffold-builder[data-note] [class*="PuckHeader-title"] { display: flex; align-items: center; justify-content: center; cursor: help; }
+#react-scaffold-builder[data-note] [class*="PuckHeader-title"] * { font: 13px/1.3 system-ui, sans-serif; font-weight: 400; color: #55565b; }
+#react-scaffold-builder[data-note] [class*="PuckHeader-title"]::before { content: ""; flex: none; width: 8px; height: 8px; margin-right: 6px; border-radius: 50%; background: #003ecc; }
+.rsb-loading, .rsb-error { padding: 12px; font: 13px/1.4 system-ui, sans-serif; color: #55565b; }
+.rsb-error { color: #dc2323; border: 1px dashed #dc2323; }
+.rsb-placeholder { padding: 12px; border: 1px dashed #8e929c; color: #55565b; font: 13px/1.4 system-ui, sans-serif; }
+/* Slot markers must not collapse when empty. */
+[data-rsb-slot] { display: block; min-height: 24px; }
+
+/* Form items */
+.rsb-form-item, .rsb-dialog, .rsb-messages { font: 14px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; color: #232429; }
+.rsb-form-item { display: flex; flex-direction: column; gap: 6px; }
+.rsb-form-item--inline { display: grid; grid-template-columns: auto 1fr; column-gap: 8px; align-items: start; }
+.rsb-form-item--inline .rsb-description { grid-column: 2; }
+.rsb-label { font-size: 14px; font-weight: 700; line-height: 1.3; color: #232429; }
+.rsb-form-item--inline .rsb-label { font-weight: 400; cursor: pointer; }
+.rsb-label--required::after { content: "*"; margin-left: 4px; color: #dc2323; font-weight: 700; }
+.rsb-description, .rsb-muted { font-size: 12.5px; line-height: 1.45; color: #55565b; }
+.rsb-muted { margin: 0 0 8px; }
+
+.rsb-input, .rsb-select {
+  box-sizing: border-box; width: 100%; min-height: 40px; margin: 0; padding: 7px 11px;
+  border: 1px solid #8e929c; border-radius: 2px; background: #fff; color: #232429;
+  font: inherit; font-size: 14px; line-height: 1.5; appearance: none;
+}
+.rsb-input--textarea { min-height: 96px; resize: vertical; }
+.rsb-input--number { max-width: 140px; }
+.rsb-select {
+  padding-right: 36px; cursor: pointer;
+  background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='9'%3E%3Cpath fill='none' stroke='%23545560' stroke-width='1.5' d='M1 1l6 6 6-6'/%3E%3C/svg%3E") no-repeat right 12px center;
+}
+.rsb-select--small { min-height: 32px; padding: 3px 24px 3px 8px; background-position: right 8px center; background-size: 11px 7px; font-size: 13px; width: auto; max-width: 100%; }
+.rsb-input:hover, .rsb-select:hover { border-color: #232429; box-shadow: inset 0 0 0 1px #232429; }
+.rsb-input:focus, .rsb-select:focus, .rsb-checkbox:focus-visible, .rsb-button:focus-visible, .rsb-link:focus-visible {
+  outline: 0; box-shadow: 0 0 0 2px #fff, 0 0 0 5px #26a769;
+}
+.rsb-input[readonly], .rsb-select:disabled, .rsb-checkbox:disabled { background-color: #f2f2f3; border-color: #bababf; color: #828388; cursor: not-allowed; box-shadow: none; }
+.rsb-checkbox { width: 18px; height: 18px; margin: 2px 0 0; accent-color: #003ecc; cursor: pointer; }
+.rsb-datetime { display: grid; grid-template-columns: minmax(0, 11fr) minmax(0, 9fr); gap: 6px; }
+.rsb-datetime .rsb-input { min-width: 0; padding-left: 8px; padding-right: 4px; font-size: 13px; }
+
+/* Buttons and links */
+.rsb-button {
+  display: inline-block; align-self: flex-start; margin: 0; padding: 9px 16px; border: 1px solid transparent; border-radius: 2px;
+  background: #d3d4d9; color: #232429; font: 700 14px/1.2 system-ui, sans-serif; text-decoration: none; cursor: pointer;
+}
+.rsb-button:hover { background: #c2c3ca; color: #232429; }
+.rsb-button--small { padding: 6px 12px; font-size: 13px; }
+.rsb-link { padding: 0; border: 0; background: none; color: #003ecc; font: inherit; text-decoration: underline; cursor: pointer; text-align: left; }
+.rsb-link:hover { color: #0036b1; }
+.rsb-token-link { align-self: flex-start; font-size: 12.5px; }
+
+/* Autocomplete (tokens and URLs) */
+.rsb-combo { position: relative; display: flex; flex-direction: column; gap: 6px; }
+.rsb-autocomplete {
+  position: absolute; z-index: 5; top: 41px; left: 0; right: 0; margin: 0; padding: 0; list-style: none;
+  max-height: 260px; overflow: auto; border: 1px solid #8e929c; border-radius: 0 0 2px 2px; background: #fff;
+  box-shadow: 0 2px 8px rgb(0 0 0 / 20%);
+}
+.rsb-autocomplete li { display: flex; flex-direction: column; gap: 1px; margin: 0; padding: 6px 11px; cursor: pointer; }
+.rsb-autocomplete li.is-active, .rsb-autocomplete li:hover { background: #003ecc; color: #fff; }
+.rsb-autocomplete li.is-active code, .rsb-autocomplete li:hover code { color: #dbe5ff; }
+.rsb-autocomplete__label { font-size: 13.5px; }
+.rsb-autocomplete code { font: 11.5px/1.3 ui-monospace, SFMono-Regular, Menlo, monospace; color: #55565b; word-break: break-all; }
+.rsb-throbber {
+  position: absolute; top: 12px; right: 10px; width: 14px; height: 14px; border: 2px solid #d3d4d9; border-top-color: #003ecc;
+  border-radius: 50%; animation: rsb-spin 0.7s linear infinite;
+}
+@keyframes rsb-spin { to { transform: rotate(360deg); } }
+
+/* Media */
+.rsb-media-item { display: grid; grid-template-columns: 72px 1fr; gap: 4px 10px; align-items: center; padding: 8px; border: 1px solid #d3d4d9; border-radius: 2px; background: #fff; }
+.rsb-media-item img { grid-row: span 2; width: 72px; height: 54px; object-fit: cover; border-radius: 2px; }
+.rsb-media-item .rsb-button { justify-self: start; }
+.rsb-media-item__name { font-size: 12.5px; word-break: break-all; }
+.rsb-media-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; margin-top: 12px; }
+.rsb-media-grid button { display: flex; flex-direction: column; gap: 4px; padding: 4px; border: 2px solid #d3d4d9; border-radius: 2px; background: #fff; cursor: pointer; font: 12.5px/1.3 system-ui, sans-serif; color: #232429; text-align: left; }
+.rsb-media-grid button:hover, .rsb-media-grid button.is-selected { border-color: #003ecc; }
+.rsb-media-grid img { display: block; width: 100%; aspect-ratio: 4 / 3; object-fit: cover; }
+
+/* Formatted text */
+.rsb-editor .ck-editor__editable { min-height: 140px; max-height: 360px; font-size: 14px; }
+.rsb-editor .ck.ck-toolbar { border-radius: 2px 2px 0 0; }
+.rsb-format { display: flex; align-items: center; gap: 8px; }
+.rsb-format .rsb-label { font-weight: 400; font-size: 12.5px; }
+
+/* Dialog */
+.rsb-overlay { position: fixed; inset: 0; z-index: 2050; display: flex; align-items: center; justify-content: center; padding: 24px; background: rgb(0 0 0 / 60%); }
+.rsb-dialog { display: flex; flex-direction: column; width: min(560px, 100%); max-height: 100%; border-radius: 4px; background: #fff; box-shadow: 0 16px 48px rgb(0 0 0 / 40%); outline: 0; }
+.rsb-dialog--wide { width: min(900px, 100%); }
+.rsb-dialog__titlebar { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px 12px 24px; border-radius: 4px 4px 0 0; background: #232429; color: #fff; }
+.rsb-dialog__title { font-size: 18px; font-weight: 700; }
+.rsb-dialog__close { width: 32px; height: 32px; border: 0; border-radius: 2px; background: none; color: #fff; font-size: 24px; line-height: 1; cursor: pointer; }
+.rsb-dialog__close:hover { background: #55565b; }
+.rsb-dialog__content { padding: 16px 24px 24px; overflow: auto; }
+
+/* Table (token tree) */
+.rsb-table { width: 100%; margin-top: 12px; border-collapse: collapse; font-size: 13.5px; }
+.rsb-table th { padding: 10px 12px; border-bottom: 2px solid #d3d4d9; background: #f3f4f9; text-align: left; font-weight: 700; }
+.rsb-table td { padding: 7px 12px; border-bottom: 1px solid #d3d4d9; vertical-align: top; }
+.rsb-table tr:hover td { background: #f0f5fd; }
+.rsb-table__group td { font-weight: 700; }
+.rsb-table .rsb-muted { margin: 0; font-weight: 400; }
+.rsb-table .rsb-link { font: 12.5px/1.4 ui-monospace, SFMono-Regular, Menlo, monospace; word-break: break-all; }
+.rsb-tree-toggle { display: inline-block; width: 20px; padding: 0; border: 0; background: none; color: #55565b; cursor: pointer; font-size: 13px; }
+.rsb-tree-name { padding: 0; border: 0; background: none; font: inherit; color: inherit; cursor: pointer; }
+
+/* Messages */
+.rsb-messages { position: relative; padding: 12px 40px 12px 16px; border-left: 6px solid #26a769; border-radius: 2px; background: #353641; color: #fff; }
+.rsb-messages--error { border-left-color: #e34f4f; }
+.rsb-messages--busy { border-left-color: #8e929c; }
+.rsb-messages--floating { position: fixed; z-index: 2040; top: 76px; left: 50%; transform: translateX(-50%); width: min(560px, calc(100% - 32px)); box-shadow: 0 8px 24px rgb(0 0 0 / 30%); }
+.rsb-messages__title { font-weight: 700; }
+.rsb-messages ul { margin: 4px 0 0; padding-left: 18px; }
+.rsb-messages__close { position: absolute; top: 6px; right: 8px; border: 0; background: none; color: #fff; font-size: 20px; cursor: pointer; }
+
+/* Drupal's media library, in a frame */
+.rsb-dialog__content--flush { padding: 0; overflow: hidden; }
+.rsb-media-frame { display: block; width: 100%; height: min(72vh, 760px); border: 0; }
+
+/* Token list at the caret of the rich text editor */
+.rsb-autocomplete--caret { position: fixed; z-index: 2300; right: auto; width: 280px; font: 14px/1.5 system-ui, sans-serif; color: #232429; border-radius: 2px; }
+
+/* Link to site content */
+.rsb-chip { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; padding: 8px 10px; border: 1px solid #d3d4d9; border-radius: 2px; background: #f3f4f9; }
+.rsb-chip__label { font-weight: 700; }
+.rsb-chip__label small { font-weight: 400; color: #55565b; }
+.rsb-chip code { font: 11.5px/1.3 ui-monospace, SFMono-Regular, Menlo, monospace; color: #55565b; word-break: break-all; }
+
+/* Icon picker */
+.rsb-icon-current { display: flex; align-items: center; gap: 8px; min-height: 32px; font-size: 13px; }
+.rsb-icon-current i { font-size: 22px; line-height: 1; }
+.rsb-icon-current .rsb-muted { margin: 0; }
+.rsb-icon-current .rsb-button { margin-left: auto; }
+.rsb-icon-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 4px; max-height: 180px; overflow: auto; padding: 4px; border: 1px solid #d3d4d9; border-radius: 2px; }
+.rsb-icon-grid button { display: grid; place-items: center; aspect-ratio: 1; padding: 0; border: 2px solid transparent; border-radius: 2px; background: #fff; color: #232429; font-size: 18px; cursor: pointer; }
+.rsb-icon-grid button:hover { background: #f0f5fd; border-color: #8e929c; }
+.rsb-icon-grid button.is-selected { border-color: #003ecc; background: #f0f5fd; color: #003ecc; }
+
+/* Translation notice at the top of the preview */
+.rsb-messages--info { border-left-color: #003ecc; }
+
+/* Content panel: the node's field form, in a frame laid over the panel */
+.rsb-content-panel { width: 100%; height: 100%; min-height: 320px; }
+.rsb-content-frame { position: fixed; z-index: 2010; border: 0; background: #fff; }
+
+/* Header actions */
+.rsb-unsaved { margin-right: 4px; font: 13px/1.2 system-ui, sans-serif; color: #55565b; white-space: nowrap; }
+.rsb-unsaved::before { content: ""; display: inline-block; width: 8px; height: 8px; margin-right: 6px; border-radius: 50%; background: #e6a700; }
+.rsb-button--danger { background: none; color: #d72222; border-color: transparent; }
+.rsb-button--danger:hover { background: #fdf5f5; color: #a51b00; }
+.rsb-messages__action { display: block; margin-top: 6px; color: #fff; }
+.rsb-messages__action:hover { color: #dbe5ff; }
+
+/* Formatter settings */
+.rsb-summary { margin: 0; padding-left: 18px; font-size: 12.5px; line-height: 1.45; color: #55565b; }
+.rsb-media-frame--short { height: min(60vh, 520px); }
+
+/*
+ * Formatter settings loaded inline (HTMX): a Drupal form rendered by the front-end theme, dressed like the other
+ * fields of the sidebar.
+ */
+.rsb-subform { display: flex; flex-direction: column; gap: 8px; padding: 12px; border: 1px solid #d3d4d9; border-radius: 2px; background: #f9f9fb; }
+.rsb-subform__form, .rsb-subform__form form { display: flex; flex-direction: column; gap: 10px; margin: 0; font: 14px/1.5 system-ui, sans-serif; color: #232429; }
+.rsb-subform__form .form-item, .rsb-subform__form .js-form-item { margin: 0; }
+.rsb-subform__form label { display: block; margin: 0 0 4px; font-size: 13px; font-weight: 700; line-height: 1.3; }
+.rsb-subform__form input[type="checkbox"] + label, .rsb-subform__form input[type="radio"] + label { display: inline; margin-left: 6px; font-weight: 400; }
+.rsb-subform__form input:not([type="checkbox"], [type="radio"], [type="submit"], [type="hidden"]), .rsb-subform__form select, .rsb-subform__form textarea {
+  box-sizing: border-box; width: 100%; min-height: 36px; margin: 0; padding: 5px 9px; border: 1px solid #8e929c; border-radius: 2px;
+  background-color: #fff; color: #232429; font: inherit; font-size: 13.5px;
+}
+.rsb-subform__form input:focus, .rsb-subform__form select:focus, .rsb-subform__form textarea:focus { outline: 0; box-shadow: 0 0 0 2px #fff, 0 0 0 5px #26a769; }
+.rsb-subform__form .description { margin-top: 4px; font-size: 12.5px; line-height: 1.45; color: #55565b; }
+.rsb-subform__form a { color: #003ecc; }
+.rsb-subform__form details { padding: 6px 10px; border: 1px solid #d3d4d9; border-radius: 2px; background: #fff; }
+.rsb-subform__form summary { font-weight: 700; font-size: 13px; cursor: pointer; }
+.rsb-subform__form fieldset { margin: 0; padding: 0; border: 0; }
+.rsb-subform__form legend { padding: 0; font-size: 13px; font-weight: 700; }
+.rsb-subform__form input[type="submit"], .rsb-subform__form button[type="submit"] {
+  align-self: flex-start; margin: 0; padding: 7px 14px; border: 0; border-radius: 2px; background: #003ecc; color: #fff;
+  font: 700 13px/1.2 system-ui, sans-serif; cursor: pointer;
+}
+.rsb-subform__form input[type="submit"]:hover { background: #0036b1; }
+.rsb-subform__form.htmx-request, .rsb-subform__form .htmx-request { opacity: 0.6; }
+
+/* Feature fields: spacing, position, background */
+.rsb-input--small { min-height: 32px; padding-top: 3px; padding-bottom: 3px; font-size: 13px; }
+.rsb-input[aria-invalid="true"] { border-color: #dc2323; box-shadow: inset 0 0 0 1px #dc2323; }
+.rsb-length { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.rsb-length .rsb-select { width: 100%; }
+.rsb-spacing { display: flex; flex-direction: column; gap: 8px; }
+.rsb-spacing__row { display: grid; grid-template-columns: 54px minmax(0, 1fr) 104px; gap: 6px; align-items: start; }
+.rsb-spacing__row > .rsb-select { width: 100%; }
+.rsb-spacing__name { padding-top: 6px; font-size: 13px; }
+
+.rsb-position { display: flex; gap: 12px; align-items: flex-start; }
+.rsb-position__options { display: flex; flex-direction: column; gap: 6px; min-width: 0; flex: 1; }
+.rsb-position__options .rsb-label { font-weight: 400; font-size: 12.5px; }
+.rsb-check { display: flex; gap: 6px; align-items: flex-start; font-size: 12.5px; cursor: pointer; }
+/* The parent component as a box, with a button in each corner. */
+.rsb-corners { position: relative; flex: 0 0 84px; width: 84px; height: 64px; border: 1px solid #8e929c; border-radius: 2px; background: #f3f4f9; }
+.rsb-corners__parent { position: absolute; inset: 0; display: grid; place-items: center; font-size: 11px; color: #55565b; pointer-events: none; }
+.rsb-corners__corner { position: absolute; width: 20px; height: 20px; padding: 0; border: 1px solid #8e929c; border-radius: 2px; background: #fff; cursor: pointer; }
+.rsb-corners__corner:hover { border-color: #003ecc; }
+.rsb-corners__corner.is-selected { border-color: #003ecc; background: #003ecc; }
+.rsb-corners__corner--top-left { top: 3px; left: 3px; }
+.rsb-corners__corner--top-right { top: 3px; right: 3px; }
+.rsb-corners__corner--bottom-left { bottom: 3px; left: 3px; }
+.rsb-corners__corner--bottom-right { bottom: 3px; right: 3px; }
+
+.rsb-background { display: flex; flex-direction: column; gap: 8px; }
+.rsb-swatches { display: flex; flex-wrap: wrap; gap: 6px; }
+.rsb-swatch { width: 28px; height: 28px; padding: 0; border: 1px solid #8e929c; border-radius: 50%; cursor: pointer; }
+.rsb-swatch.is-selected { box-shadow: 0 0 0 2px #fff, 0 0 0 4px #003ecc; }
+.rsb-swatch--none { background: linear-gradient(to top right, #fff calc(50% - 1px), #dc2323 calc(50% - 1px), #dc2323 calc(50% + 1px), #fff calc(50% + 1px)); }
+.rsb-focus { display: flex; flex-direction: column; gap: 4px; }
+.rsb-focus__image { position: relative; width: 100%; max-height: 200px; margin: 0 auto; overflow: hidden; border: 1px solid #8e929c; border-radius: 2px; cursor: crosshair; touch-action: none; user-select: none; }
+.rsb-focus__image img { display: block; width: 100%; height: 100%; object-fit: fill; pointer-events: none; }
+/* The visible part: what is outside the frame is washed out. */
+.rsb-focus__frame { position: absolute; box-sizing: border-box; border: 2px solid #003ecc; box-shadow: 0 0 0 999px rgb(255 255 255 / 65%); pointer-events: none; }
+.rsb-focus__point { position: absolute; width: 14px; height: 14px; margin: -7px 0 0 -7px; border: 2px solid #fff; border-radius: 50%; background: #003ecc; box-shadow: 0 0 0 1px #003ecc; pointer-events: none; }
+
+/* Consistency of the editor's own UI on a front-end theme page: the theme's heading fonts stay in the preview. */
+#react-scaffold-builder :is(h1, h2, h3, h4, h5, h6):not(.rsb-root *) { font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; letter-spacing: 0; }
+.rsb-form-heading { margin: 0 0 10px; padding-bottom: 6px; border-bottom: 1px solid #d3d4d9; font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: #55565b; }
+.rsb-format .rsb-select { flex: 1; min-width: 0; }
+
+/* Header actions: one size, the main one in the admin theme's blue, a line after Preview / View */
+.rsb-button--primary { background: #003ecc; color: #fff; }
+.rsb-button--primary:hover { background: #0036b1; color: #fff; }
+.rsb-divider { align-self: stretch; width: 1px; margin: 2px 4px; background: #c1c2c7; }
+.rsb-button.is-active { background: #232429; color: #fff; }
+
+/* Page settings in the right panel: a frame laid over this placeholder */
+.rsb-content-panel--page { height: calc(100vh - 150px); min-height: 320px; margin: -16px; }
+
+/* Preview dialog with the widths of the theme's breakpoints */
+.rsb-dialog--full { width: 100%; height: 100%; }
+.rsb-dialog--full .rsb-dialog__content { flex: 1; min-height: 0; }
+.rsb-preview { display: flex; flex-direction: column; height: 100%; }
+.rsb-preview__bar { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; padding: 8px 16px; border-bottom: 1px solid #d3d4d9; background: #f3f4f9; }
+.rsb-preview__open { margin-left: auto; font-size: 13px; }
+.rsb-preview__stage { flex: 1; min-height: 0; overflow: auto; background: #d3d4d9; text-align: center; }
+.rsb-preview__frame { display: block; height: 100%; max-width: none; margin: 0 auto; border: 0; background: #fff; box-shadow: 0 0 0 1px #8e929c; }
+
+/*
+ * A feature (spacing, alignment, background, position, library) as a section that folds, looking like the details
+ * elements of Drupal's forms in Claro: a box with a border, a bold title and the fold mark before it. Puck gives every
+ * field a padded block with a line above; for these sections the line goes and the boxes sit under each other.
+ */
+#react-scaffold-builder [class*="PuckFields-field"]:has(.rsb-feature) { padding-block: 0 12px; border-top: 0; }
+#react-scaffold-builder [class*="PuckFields-field"]:has(.rsb-form-heading) { padding-top: 16px; border-top: 1px solid #d3d4d9; }
+.rsb-form-item:has(> .rsb-feature) { gap: 0; }
+.rsb-form-item:has(> .rsb-feature) > .rsb-form-heading { margin-bottom: 12px; }
+.rsb-feature { border: 1px solid #d3d4d9; border-radius: 2px; background: #fff; box-shadow: 0 2px 4px rgb(0 0 0 / 10%); }
+.rsb-feature__title { position: relative; display: flex; align-items: center; gap: 8px; margin: 0; padding: 14px 16px 14px 40px; font: 700 16px/1.3 system-ui, sans-serif; color: #55565b; cursor: pointer; list-style: none; border-radius: 2px; }
+.rsb-feature__title::-webkit-details-marker { display: none; }
+/* The fold mark of Claro: an arrowhead before the title, pointing right when closed and down when open. */
+.rsb-feature__title::before { content: ""; position: absolute; left: 16px; top: 50%; width: 7px; height: 7px; margin-top: -4px; border-right: 2px solid #55565b; border-bottom: 2px solid #55565b; transform: rotate(-45deg); transition: transform 0.12s ease-in; }
+.rsb-feature[open] > .rsb-feature__title::before { margin-top: -6px; transform: rotate(45deg); }
+.rsb-feature__title:hover { color: #003ecc; background: #f0f5fd; }
+.rsb-feature__title:hover::before { border-color: #003ecc; }
+.rsb-feature__title:focus-visible { outline: 2px solid #26a769; outline-offset: -2px; }
+.rsb-feature[open] > .rsb-feature__title { color: #232429; }
+.rsb-feature__summary { margin-left: auto; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; font-weight: 400; color: #75767b; }
+.rsb-feature__title > span:first-child { flex: none; }
+/* Something is set in it. */
+.rsb-feature.is-changed > .rsb-feature__title > span:first-child::after { content: ""; display: inline-block; width: 6px; height: 6px; margin-left: 6px; border-radius: 50%; background: #003ecc; vertical-align: middle; }
+.rsb-feature__body { display: flex; flex-direction: column; gap: 12px; padding: 4px 16px 16px; border-top: 0; }
+.rsb-feature__field { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.rsb-feature .rsb-label, .rsb-label--sub { font-size: 13px; font-weight: 600; }
+.rsb-pair { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 6px; align-items: start; }
+.rsb-pair .rsb-length .rsb-select, .rsb-pair > .rsb-select { width: 100%; }
+.rsb-description--error { color: #dc2323; }
+/* Inline formatter settings apply by themselves: no button. */
+.rsb-subform__form input[type="submit"], .rsb-subform__form button[type="submit"], .rsb-subform__form .form-actions { display: none; }
+
+/*
+ * Room to drop into a slot that already has content. A drop goes to the innermost drop zone under the pointer, and a
+ * child with a slot of its own fills its parent's zone completely: without a strip of the parent's zone around the
+ * children there is no place to drop next to them. Editor only; the page has no such gaps.
+ */
+#react-scaffold-builder [data-rsb-slot] > [data-puck-dropzone] { padding-block: 12px; }
+
+/* An Image component without an image yet: something to see and select in the editor. */
+#react-scaffold-builder .image-block--empty { min-height: 96px; margin: 0; border: 1px dashed #8e929c; display: grid; place-items: center; }
+#react-scaffold-builder .image-block--empty::before { content: "Image: add media in the sidebar"; font: 13px/1.4 system-ui, sans-serif; color: #55565b; }
+
+/* Alignment: a segmented control */
+.rsb-segments { display: flex; align-items: center; gap: 0; }
+.rsb-segments__item { display: grid; place-items: center; width: 40px; height: 36px; margin: 0 -1px 0 0; padding: 0; border: 1px solid #8e929c; background: #fff; color: #232429; cursor: pointer; }
+.rsb-segments__item:first-child { border-radius: 2px 0 0 2px; }
+.rsb-segments__item:nth-child(3) { border-radius: 0 2px 2px 0; }
+.rsb-segments__item:hover { background: #f0f5fd; }
+.rsb-segments__item.is-selected { position: relative; border-color: #003ecc; background: #003ecc; color: #fff; }
+.rsb-segments .rsb-description { margin-left: 12px; }
+
+/* Blocks panel: search, groups, items with an icon */
+.rsb-blocks { display: flex; flex-direction: column; height: 100%; font: 14px/1.4 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; color: #232429; }
+.rsb-blocks__search { position: sticky; top: 0; z-index: 1; padding: 12px 12px 8px; background: #fff; }
+.rsb-blocks__note { margin: 4px 12px 8px; }
+.rsb-blocks__group { padding: 0 12px; border-top: 1px solid #e6e7eb; }
+.rsb-blocks__group > summary { display: flex; align-items: center; padding: 10px 0; font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: #55565b; cursor: pointer; list-style: none; }
+.rsb-blocks__group > summary::-webkit-details-marker { display: none; }
+.rsb-blocks__group > summary span { margin-left: auto; padding: 1px 7px; border-radius: 10px; background: #f3f4f9; font-weight: 400; letter-spacing: 0; }
+/* The fold mark, after the count: down when closed, up when open. */
+.rsb-blocks__group > summary::after { content: ""; flex: none; width: 6px; height: 6px; margin: -3px 2px 0 10px; border-right: 1.5px solid #75767b; border-bottom: 1.5px solid #75767b; transform: rotate(45deg); }
+.rsb-blocks__group[open] > summary::after { margin-top: 3px; transform: rotate(-135deg); }
+.rsb-blocks__group[open] > summary { padding-bottom: 6px; }
+.rsb-blocks__group[open] { padding-bottom: 8px; }
+.rsb-block { display: grid; grid-template-columns: 20px minmax(0, 1fr) 8px; gap: 10px; align-items: center; margin: 0 0 6px; padding: 9px 10px; border: 1px solid #d3d4d9; border-radius: 4px; background: #fff; cursor: grab; }
+.rsb-blocks > div > .rsb-block, .rsb-blocks [class*="Drawer"] > .rsb-block { margin-inline: 12px; }
+.rsb-block:hover { border-color: #003ecc; background: #f0f5fd; }
+.rsb-block.is-disabled { opacity: 0.5; cursor: not-allowed; }
+.rsb-block-icon { display: block; width: 20px; height: 20px; font-size: 18px; line-height: 20px; text-align: center; color: #55565b; }
+.rsb-block:hover .rsb-block-icon { color: #003ecc; }
+.rsb-block__label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 14px; }
+.rsb-block__label small { margin-left: 8px; font-size: 11px; color: #75767b; }
+.rsb-block__grip { color: #a8a9ae; }
+
+/* Position: kind (text segments), nine places, four corners */
+.rsb-segments--text .rsb-segments__item { width: auto; flex: 1; padding: 0 8px; font: 13px/1.2 system-ui, sans-serif; }
+.rsb-places { flex: 0 0 84px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 3px; width: 84px; height: 64px; padding: 3px; box-sizing: border-box; border: 1px solid #8e929c; border-radius: 2px; background: #f3f4f9; }
+.rsb-places__place { padding: 0; border: 1px solid #8e929c; border-radius: 2px; background: #fff; cursor: pointer; }
+.rsb-places__place:hover { border-color: #003ecc; }
+.rsb-places__place.is-selected { border-color: #003ecc; background: #003ecc; }
+.rsb-position .rsb-description { text-transform: none; }
+
+/* History: button next to undo / redo, timeline in the right column in place of the fields */
+.rsb-history-button { display: inline-flex; align-items: center; gap: 4px; padding: 6px 8px; }
+.rsb-history-button__count { min-width: 16px; padding: 0 4px; border-radius: 8px; background: #e6a700; color: #232429; font-size: 11px; line-height: 16px; text-align: center; }
+.rsb-history { display: flex; flex-direction: column; min-height: 100%; background: #fff; font: 14px/1.4 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; color: #232429; }
+.rsb-history__header { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 12px 16px; border-bottom: 1px solid #d3d4d9; font-size: 15px; }
+.rsb-history__intro { margin: 12px 16px 4px; }
+.rsb-timeline { flex: 1; margin: 0; padding: 8px 16px 24px; overflow: auto; list-style: none; }
+.rsb-timeline__step { position: relative; margin: 0; }
+/* The line of the timeline, through the dots. */
+.rsb-timeline__step::before { content: ""; position: absolute; left: 11px; top: 0; bottom: 0; width: 2px; background: #d3d4d9; }
+.rsb-timeline__step:first-child::before { top: 18px; }
+.rsb-timeline__step:last-child::before { bottom: calc(100% - 18px); }
+.rsb-timeline__step button { position: relative; display: grid; grid-template-columns: 24px minmax(0, 1fr); gap: 2px 10px; width: 100%; padding: 6px 6px 6px 0; border: 0; border-radius: 4px; background: none; color: inherit; font: inherit; text-align: left; cursor: pointer; }
+.rsb-timeline__step button:hover { background: #f0f5fd; }
+.rsb-timeline__dot { grid-row: span 2; display: grid; place-items: center; width: 24px; height: 24px; border: 2px solid #8e929c; border-radius: 50%; background: #fff; color: #55565b; }
+.rsb-timeline__dot--add { border-color: #26a769; color: #26a769; }
+.rsb-timeline__dot--remove { border-color: #d72222; color: #d72222; }
+.rsb-timeline__step.is-current .rsb-timeline__dot { border-color: #003ecc; background: #003ecc; color: #fff; }
+.rsb-timeline__text { align-self: end; }
+.rsb-timeline__step.is-current .rsb-timeline__text { font-weight: 700; }
+.rsb-timeline__meta { display: flex; gap: 8px; font-size: 12px; color: #75767b; }
+.rsb-timeline__meta em { font-style: normal; padding: 0 6px; border-radius: 8px; background: #f3f4f9; }
+.rsb-timeline__meta .rsb-timeline__now { background: #003ecc; color: #fff; }
+.rsb-timeline__step.is-undone .rsb-timeline__text, .rsb-timeline__step.is-undone .rsb-timeline__dot { opacity: 0.5; }
+
+/* The Library section of a component: actions under a short note. */
+.rsb-actions { display: flex; flex-wrap: wrap; gap: 6px; }
+.rsb-feature__body .rsb-muted { margin: 0; font-size: 13px; line-height: 1.45; color: #55565b; }
+.rsb-form-error { font-size: 13px; color: #a51b00; }
+
+/* The form of a paragraph, in the right column: as wide as the column, as tall as the form. */
+.rsb-paragraph-frame { display: block; width: calc(100% + 32px); margin: -8px -16px 0; border: 0; background: #fff; }
+
+/* The AI panel: a conversation, the newest message at the bottom, the input under it. */
+.rsb-ai { display: flex; flex-direction: column; height: 100%; min-height: 0; font: 14px/1.45 system-ui, sans-serif; color: #232429; }
+.rsb-ai__messages { flex: 1; min-height: 0; overflow: auto; display: flex; flex-direction: column; gap: 8px; padding: 12px 16px; }
+.rsb-ai__note { padding: 12px 16px; }
+.rsb-ai__intro { display: flex; flex-direction: column; gap: 8px; }
+.rsb-ai__example { padding: 8px 10px; border: 1px solid #d3d4d9; border-radius: 4px; background: #fff; font: inherit; font-size: 13px; text-align: start; color: #003ecc; cursor: pointer; }
+.rsb-ai__example:hover { border-color: #003ecc; background: #f0f5fd; }
+.rsb-ai__message { max-width: 92%; padding: 8px 10px; border-radius: 8px; white-space: pre-wrap; overflow-wrap: anywhere; }
+.rsb-ai__message--user { align-self: flex-end; background: #003ecc; color: #fff; }
+.rsb-ai__message--assistant { align-self: flex-start; background: #f3f4f9; }
+.rsb-ai__message--error { align-self: flex-start; background: #fdf5f5; color: #a51b00; }
+.rsb-ai__message--busy { color: #55565b; font-style: italic; }
+.rsb-ai__applied { display: block; margin-top: 4px; font-size: 12px; color: #55565b; }
+.rsb-ai__form { display: flex; flex-direction: column; gap: 6px; padding: 10px 16px 14px; border-top: 1px solid #d3d4d9; }
+.rsb-ai__form textarea { resize: vertical; min-height: 64px; }
+.rsb-ai__actions { display: flex; justify-content: flex-end; align-items: center; gap: 12px; }
+
+.rsb-ai__message--auto { align-self: center; padding: 2px 8px; background: none; font-size: 12px; color: #75767b; }
+.rsb-ai__look { display: flex; align-items: center; gap: 6px; font-size: 12.5px; color: #55565b; cursor: pointer; }
+
+/* Two selects next to each other inside a section, each with its label. */
+.rsb-feature__body .rsb-pair > .rsb-feature__field { flex: 1; min-width: 0; }
+.rsb-checkbox { display: flex; align-items: center; gap: 6px; font-size: 14px; cursor: pointer; }

@@ -1,0 +1,9 @@
+{#
+/**
+ * @file
+ * Button: a link styled as a button. `color` is a CSS colour (the page builder passes one of the theme's palette).
+ */
+#}
+<a {{ attributes.addClass('button-link', 'button-link--' ~ variant|default('primary'), 'button-link--' ~ size|default('m')) }} href="{{ url|default('#') }}"
+  {%- if color %} style="--button-color: {{ color }}"{% endif %}
+  {%- if new_tab %} target="_blank" rel="noopener"{% endif %}>{{ label }}</a>

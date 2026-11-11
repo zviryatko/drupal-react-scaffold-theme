@@ -13,6 +13,7 @@ import react from '@vitejs/plugin-react';
 import { createRequire } from 'node:module';
 import autoprefixer from 'autoprefixer';
 import { vitePluginCopyReact } from './vite-plugin-copy-react.js';
+import { tokensImporter, tokensWatch } from './tokens.js';
 
 const here = import.meta.dirname;
 const require = createRequire(import.meta.url);
@@ -78,6 +79,9 @@ export function createViteConfig({ root, mode = 'production', runtime = false, e
 
   return {
     root,
+    // Relative URLs for files referenced from CSS (fonts, images): the bundles are served from the theme folder,
+    // not from the web root.
+    base: './',
     build: {
       lib: false,
       outDir,
@@ -99,13 +103,15 @@ export function createViteConfig({ root, mode = 'production', runtime = false, e
     },
     css: {
       postcss: { plugins: [autoprefixer] },
-      preprocessorOptions: { scss: { api: 'modern-compiler' } },
+      // `@use 'react-scaffold/tokens'`: the theme's tokens from its YAML, see tokens.js.
+      preprocessorOptions: { scss: { api: 'modern-compiler', importers: [tokensImporter(root)] } },
     },
     define: { global: 'globalThis' },
     esbuild: { jsxInject: `import React from 'react'`, loader: 'jsx' },
     plugins: [
       react({ jsxRuntime: 'classic' }),
       reactFromGlobals(),
+      tokensWatch(root),
       ...(runtime ? [vitePluginCopyReact({ root, outDir, mode })] : []),
     ],
   };

@@ -1,0 +1,19 @@
+$schema: https://git.drupalcode.org/project/drupal/-/raw/HEAD/core/assets/schemas/v1/metadata.schema.json
+name: Spacer
+status: experimental
+description: 'Empty space between two blocks, where the spacing of the blocks themselves is not enough.'
+group: Layout
+props:
+  type: object
+  properties:
+    size:
+      type: string
+      title: Height
+      description: 'A step of the spacing scale of the theme, or a custom length.'
+      x-builder-widget: length
+      examples: ['2rem']
+thirdPartySettings:
+  react_scaffold_builder:
+    icon: stack
+    features: { background: false, align: false, position: false, spacing: false }
+    example: { type: 'react_scaffold:spacer', props: { size: { size: xl } } }

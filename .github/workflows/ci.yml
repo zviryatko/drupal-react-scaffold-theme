@@ -19,6 +19,19 @@ jobs:
       - run: npm test
       - run: npm run dist
 
+  builder:
+    name: Page builder editor
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      # Its unit tests run with the base theme's Jest (job "Base theme"); here it must build.
+      - run: npm run builder:install
+      - run: npm run builder:build
+      - run: test -s modules/react_scaffold_builder/js/editor.js && test -s modules/react_scaffold_builder/js/frame-tokens.js
+
   example:
     name: Example subtheme
     runs-on: ubuntu-latest
@@ -56,6 +69,8 @@ jobs:
           test ! -e node_modules && test ! -e vite.config.js
           npm run build && npm test
           test -s assets/hello-react.js && test -s assets/global.css
+          # The tokens of the theme's YAML reached its CSS.
+          grep -q -- '--rs-space-m' assets/global.css
         working-directory: ${{ runner.temp }}
 
   drupal:
@@ -111,5 +126,14 @@ jobs:
             echo "== $theme"
             BASE_URL=http://127.0.0.1:8080 npm --prefix demo run smoke
           done
+      - name: Page builder on the last subtheme
+        run: |
+          (cd "$SITE/web/themes/contrib/react_scaffold" && npm run builder:install && npm run builder:build)
+          # The recipe installs the module with media, breakpoints and responsive images, and keeps the theme.
+          "$SITE/vendor/bin/drush" recipe themes/contrib/react_scaffold/recipes/react_scaffold_builder --input=react_scaffold_builder.theme=core_theme -y
+          "$SITE/vendor/bin/drush" config:get responsive_image.styles.react_scaffold_hero id
+          "$SITE/vendor/bin/drush" user:password admin admin
+          "$SITE/vendor/bin/drush" cr
+          BASE_URL=http://127.0.0.1:8080 npm --prefix demo run builder-smoke
       - if: failure()
         run: cat "$RUNNER_TEMP/php.log" || true

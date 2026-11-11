@@ -1,0 +1,13 @@
+{#
+/**
+ * @file
+ * Call to action: heading, text and buttons in a highlighted band.
+ */
+#}
+<section {{ attributes.addClass('cta', 'cta--' ~ layout|default('stacked'), 'cta--' ~ tone|default('soft')) }}>
+  <div class="cta__body">
+    <h2 class="cta__heading">{{ heading }}</h2>
+    {% if text %}<p class="cta__text">{{ text }}</p>{% endif %}
+  </div>
+  <div class="cta__actions">{% block actions %}{% endblock %}</div>
+</section>

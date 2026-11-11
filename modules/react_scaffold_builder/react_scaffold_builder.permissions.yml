@@ -1,0 +1,3 @@
+use react scaffold builder:
+  title: 'Use the React Scaffold page builder'
+  description: 'Edit the builder layout of content the user can already edit.'

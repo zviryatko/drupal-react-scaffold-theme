@@ -1,0 +1,21 @@
+/* The second selector of each pair is the same element in the page builder (the drop zone of the slot). */
+.layout-stack { --layout-align: stretch; }
+.layout-stack--align-start { --layout-align: flex-start; }
+.layout-stack--align-center { --layout-align: center; }
+.layout-stack--align-end { --layout-align: flex-end; }
+
+.layout-stack__items,
+.layout-stack__items > [data-rsb-slot] > [data-puck-dropzone] {
+  display: flex;
+  flex-direction: column;
+  align-items: var(--layout-align);
+  gap: var(--layout-gap, 1rem);
+}
+.layout-stack__items:has(> [data-rsb-slot]) { display: block; }
+.layout-stack__items > *,
+.layout-stack__items > [data-rsb-slot] > [data-puck-dropzone] > * > :first-child > * { margin-block: 0; }
+.layout-stack--dividers > .layout-stack__items > * + *,
+.layout-stack--dividers > .layout-stack__items > [data-rsb-slot] > [data-puck-dropzone] > * + * {
+  padding-top: var(--layout-gap, 1rem);
+  border-top: 1px solid rgb(0 0 0 / 15%);
+}

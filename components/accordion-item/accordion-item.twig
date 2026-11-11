@@ -1,0 +1,10 @@
+{#
+/**
+ * @file
+ * Accordion item: a details element. In the page builder it is always open, so its content can be edited.
+ */
+#}
+<details {{ attributes.addClass('accordion-item') }}{% if open %} open{% endif %}>
+  <summary class="accordion-item__title">{{ title }}</summary>
+  <div class="accordion-item__content">{% block content %}{% endblock %}</div>
+</details>

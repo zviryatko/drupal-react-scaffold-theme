@@ -1,0 +1,10 @@
+{#
+/**
+ * @file
+ * Stat: a large value with a label.
+ */
+#}
+<div {{ attributes.addClass('stat') }}>
+  <div class="stat__value">{{ value }}</div>
+  {% if label %}<div class="stat__label">{{ label }}</div>{% endif %}
+</div>

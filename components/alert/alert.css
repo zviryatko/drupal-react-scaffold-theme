@@ -1,0 +1,7 @@
+.notice { --notice-color: #1f4fd8; margin: 0 0 1rem; padding: 0.9rem 1.1rem; border-inline-start: 4px solid var(--notice-color); border-radius: var(--rs-radius, 0.375rem); background: color-mix(in srgb, var(--notice-color) 9%, #fff); }
+.notice--success { --notice-color: #1c7c3c; }
+.notice--warning { --notice-color: #b86e00; }
+.notice--error { --notice-color: #c2261d; }
+.notice__title { margin: 0 0 0.25rem; font-weight: 700; }
+.notice__text > :first-child { margin-top: 0; }
+.notice__text > :last-child { margin-bottom: 0; }

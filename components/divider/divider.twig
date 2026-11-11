@@ -1,0 +1,7 @@
+{#
+/**
+ * @file
+ * Divider: a horizontal rule. `space` is a CSS length.
+ */
+#}
+<hr {{ attributes.addClass('divider', 'divider--' ~ style|default('solid'), 'divider--' ~ width|default('full')) }}{% if space %} style="--divider-space: {{ space }}"{% endif %}>

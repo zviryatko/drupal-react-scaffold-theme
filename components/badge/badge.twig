@@ -1,0 +1,7 @@
+{#
+/**
+ * @file
+ * Badge: a short label. `color` is a CSS colour.
+ */
+#}
+<span {{ attributes.addClass('badge', 'badge--' ~ shape|default('pill')) }}{% if color %} style="--badge-color: {{ color }}"{% endif %}>{{ text }}</span>

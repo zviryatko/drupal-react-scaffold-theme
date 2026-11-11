@@ -1,0 +1,40 @@
+$schema: https://git.drupalcode.org/project/drupal/-/raw/HEAD/core/assets/schemas/v1/metadata.schema.json
+name: 'Call to action'
+status: experimental
+description: 'A highlighted band with a heading, a line of text and buttons: what you want the visitor to do next. Usually near the end of a page.'
+group: Content
+props:
+  type: object
+  properties:
+    heading:
+      type: string
+      title: Heading
+      examples: ['Ready to start?']
+    text:
+      type: string
+      title: Text
+      description: 'One sentence that removes the last doubt.'
+      x-builder-widget: textarea
+    layout:
+      type: string
+      title: Arrangement
+      description: 'Stacked puts the buttons under the text, centred; Side by side puts them next to it.'
+      enum: [stacked, row]
+      meta:enum: { stacked: Stacked, row: 'Side by side' }
+      examples: [stacked]
+    tone:
+      type: string
+      title: Look
+      description: 'Accent fills it with the accent colour of the theme; Soft is a light panel; Plain has only a border.'
+      enum: [accent, soft, plain]
+      meta:enum: { accent: Accent, soft: Soft, plain: Plain }
+      examples: [soft]
+  required: [heading]
+slots:
+  actions:
+    title: Actions
+    description: 'One or two buttons.'
+thirdPartySettings:
+  react_scaffold_builder:
+    icon: button
+    example: { type: 'react_scaffold:cta', props: { heading: 'Ready to tie on an apron?', text: 'Classes run every Tuesday and Saturday evening.', layout: stacked, tone: accent, actions: [ { type: 'react_scaffold:button', props: { label: 'Sign up', url: '/contact', variant: primary, size: l } } ] } }

@@ -1,0 +1,30 @@
+$schema: https://git.drupalcode.org/project/drupal/-/raw/HEAD/core/assets/schemas/v1/metadata.schema.json
+name: Badge
+status: experimental
+description: 'A small label: "New", a category, a price. Pin it on a corner of a card or an image with Position.'
+group: Content
+props:
+  type: object
+  properties:
+    text:
+      type: string
+      title: Text
+      description: 'One or two words.'
+      examples: ['New']
+    color:
+      type: string
+      title: Colour
+      description: 'A colour of the theme. Without one the accent colour of the theme is used.'
+      x-builder-widget: color
+    shape:
+      type: string
+      title: Shape
+      enum: [pill, square]
+      meta:enum: { pill: Rounded, square: Square }
+      examples: [pill]
+  required: [text]
+thirdPartySettings:
+  react_scaffold_builder:
+    icon: tooltip
+    features: { background: false }
+    example: { type: 'react_scaffold:badge', props: { text: 'New', shape: pill, _position: { mode: absolute, corner: top-right, offset: { size: s } } } }

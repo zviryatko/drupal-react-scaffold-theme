@@ -1,0 +1,3 @@
+.rich-text { margin: 0 0 16px; }
+.rich-text > :first-child { margin-top: 0; }
+.rich-text > :last-child { margin-bottom: 0; }

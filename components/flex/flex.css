@@ -1,0 +1,30 @@
+/* The second selector of each pair is the same element in the page builder (the drop zone of the slot). */
+.layout-flex { --layout-direction: row; --layout-justify: flex-start; --layout-align: center; --layout-wrap: wrap; }
+.layout-flex--row-reverse { --layout-direction: row-reverse; }
+.layout-flex--column { --layout-direction: column; }
+.layout-flex--column-reverse { --layout-direction: column-reverse; }
+.layout-flex--justify-around { --layout-justify: space-around; }
+.layout-flex--justify-evenly { --layout-justify: space-evenly; }
+.layout-flex--justify-center { --layout-justify: center; }
+.layout-flex--justify-end { --layout-justify: flex-end; }
+.layout-flex--justify-between { --layout-justify: space-between; }
+.layout-flex--align-stretch { --layout-align: stretch; }
+.layout-flex--align-start { --layout-align: flex-start; }
+.layout-flex--align-end { --layout-align: flex-end; }
+.layout-flex--align-baseline { --layout-align: baseline; }
+.layout-flex--nowrap { --layout-wrap: nowrap; }
+
+.layout-flex__items,
+.layout-flex__items > [data-rsb-slot] > [data-puck-dropzone] {
+  display: flex;
+  flex-direction: var(--layout-direction);
+  flex-wrap: var(--layout-wrap);
+  justify-content: var(--layout-justify);
+  align-items: var(--layout-align);
+  gap: var(--layout-gap, 1rem);
+}
+.layout-flex__items:has(> [data-rsb-slot]) { display: block; }
+.layout-flex--justify-grow > .layout-flex__items > *,
+.layout-flex--justify-grow > .layout-flex__items > [data-rsb-slot] > [data-puck-dropzone] > * { flex: 1 1 0; min-width: 0; }
+.layout-flex__items > *,
+.layout-flex__items > [data-rsb-slot] > [data-puck-dropzone] > * > :first-child > * { margin-block: 0; }
