@@ -1,3 +1,10 @@
 /* The preview inside the editor: the page without the admin toolbar, at the width of the frame. */
 #toolbar-administration, .toolbar, .contextual { display: none !important; }
-body { padding-top: 0 !important; }
+/* Core's Navigation module: its sidebar, its top bar and the space they reserve. */
+.admin-toolbar, .admin-toolbar-control-bar, .top-bar, [data-drupal-admin-styles] { display: none !important; }
+html {
+  --drupal-displace-offset-top: 0px !important;
+  --drupal-displace-offset-left: 0px !important;
+  --drupal-displace-offset-right: 0px !important;
+}
+body { padding-top: 0 !important; padding-inline: 0 !important; margin-inline: 0 !important; }

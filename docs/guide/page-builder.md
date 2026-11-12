@@ -12,6 +12,7 @@ or one of its subthemes (the status report says so otherwise). It was developed 
 | Read | For |
 |---|---|
 | this page | switching it on, and a tour of the editor |
+| [Gallery](/builder/gallery) | every feature in a screenshot |
 | [Build a site](/guide/build-a-site) | the whole way, from an empty Drupal to a page |
 | [Recipes](/builder/recipes) | setting a site up in one command: media, responsive images, paragraphs, meta tags, AI |
 | [Components](/builder/components) | making your components work in the builder: props, slots, images, icons |

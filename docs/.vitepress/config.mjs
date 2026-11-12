@@ -39,6 +39,7 @@ export default defineConfig({
         text: 'Page builder',
         items: [
           { text: 'Overview', link: '/guide/page-builder' },
+          { text: 'Gallery', link: '/builder/gallery' },
           { text: 'Recipes', link: '/builder/recipes' },
           { text: 'Components', link: '/builder/components' },
           { text: 'Views', link: '/builder/views' },

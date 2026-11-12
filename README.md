@@ -55,6 +55,17 @@ for composer and git installs.
 
 ## Page builder
 
+[![The page builder: the AI assistant builds a page, parameters are changed by hand, a paragraph is added](docs/public/media/page-builder-ai.gif)](https://zviryatko.github.io/drupal-react-scaffold-theme/demos)
+
+*The assistant composes a page from the theme's components, then parameters are changed by hand and a paragraph is added (sped up).*
+[Full video (mp4)](docs/public/media/page-builder-ai.mp4) · [Gallery of features](https://zviryatko.github.io/drupal-react-scaffold-theme/builder/gallery)
+
+| | | |
+|---|---|---|
+| [![Fields of a component](docs/public/media/builder/component-fields.png)](https://zviryatko.github.io/drupal-react-scaffold-theme/builder/gallery) Fields of a component | [![Layout and style from the theme's tokens](docs/public/media/builder/layout-and-style.png)](https://zviryatko.github.io/drupal-react-scaffold-theme/builder/gallery) Spacing, alignment and text from the theme's tokens | [![A paragraph edited with its own form](docs/public/media/builder/paragraph.png)](https://zviryatko.github.io/drupal-react-scaffold-theme/builder/gallery) A paragraph, edited with its own form |
+| [![Blocks](docs/public/media/builder/blocks.png)](https://zviryatko.github.io/drupal-react-scaffold-theme/builder/gallery) Components, fields, views, blocks | [![Preview at a breakpoint](docs/public/media/builder/preview.png)](https://zviryatko.github.io/drupal-react-scaffold-theme/builder/gallery) Preview at the theme's breakpoints | [![The published page](docs/public/media/builder/published-page.png)](https://zviryatko.github.io/drupal-react-scaffold-theme/builder/gallery) The page, rendered by Drupal |
+
+
 ```bash
 drush en react_scaffold_builder      # the module is inside the theme folder
 ```
