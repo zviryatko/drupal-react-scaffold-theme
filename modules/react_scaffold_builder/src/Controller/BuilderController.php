@@ -592,18 +592,35 @@ class BuilderController extends ControllerBase {
         }
       }
     }
-    if (!$saved) {
-      $saved = $library->create(mb_substr($label, 0, 255), $item);
+    // The page the item is on: the paragraphs in it may have values that
+    // are not saved yet, kept for this user and page.
+    $node = !empty($input['node']) ? $this->entityTypeManager()->getStorage('node')->load($input['node']) : NULL;
+    if ($node instanceof NodeInterface && $node->access('update')) {
+      $langcode = (string) ($input['langcode'] ?? '');
+      $node = $this->latest($node->hasTranslation($langcode) ? $node->getTranslation($langcode) : $node);
     }
     else {
-      if ($item) {
-        $library->setItem($saved, $item);
-      }
-      if ($label !== '') {
-        $saved->set('label', mb_substr($label, 0, 255));
-      }
-      $saved->save();
+      $node = NULL;
     }
+    $new = !$saved;
+    if ($new) {
+      // Saved first: its paragraphs belong to it.
+      $saved = $library->create(mb_substr($label, 0, 255), $item);
+    }
+    if ($item) {
+      if ($errors = \Drupal::service('react_scaffold_builder.paragraphs')->persistForLibrary($item, $saved, $node)) {
+        if ($new) {
+          $saved->delete();
+        }
+        return new JsonResponse(['errors' => $errors], 422);
+      }
+      $library->setItem($saved, $item);
+    }
+    if (!$new && $label !== '') {
+      $saved->set('label', mb_substr($label, 0, 255));
+    }
+    $library->record($saved, (string) ($input['message'] ?? ''));
+    $saved->save();
     return new JsonResponse(['component' => $this->catalog->savedComponent($saved) + ['fields' => []], 'uuid' => $saved->uuid()]);
   }
 

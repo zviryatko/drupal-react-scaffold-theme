@@ -249,7 +249,13 @@ class ComponentCatalog {
     // Every component can be saved to the library, and tells when it is a
     // copy of a saved block.
     foreach ($config as &$component) {
-      $component['fields'][] = self::libraryField();
+      // A paragraph is content of its own: where it is kept comes first.
+      if (self::parse($component['id'])[0] === self::PARAGRAPH) {
+        array_unshift($component['fields'], self::libraryField());
+      }
+      else {
+        $component['fields'][] = self::libraryField();
+      }
     }
     return $config;
   }
@@ -285,9 +291,11 @@ class ComponentCatalog {
       'icon' => 'library',
       'group' => 'Library',
       'description' => 'A saved block. It is shown as it is saved now, on every page that uses it.',
-      'fields' => array_merge($this->features->fields([]), [self::libraryField()]),
+      // What the block is comes first: it has no fields of its own.
+      'fields' => array_merge([self::libraryField()], $this->features->fields([])),
       'slots' => [],
       'saved' => $saved->uuid(),
+      'info' => $this->library->info($saved),
     ];
   }
 

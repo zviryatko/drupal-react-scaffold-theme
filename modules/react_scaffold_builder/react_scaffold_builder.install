@@ -54,3 +54,14 @@ function react_scaffold_builder_update_11001() {
 function react_scaffold_builder_update_11002() {
   react_scaffold_builder_install_paragraphs_field();
 }
+
+/**
+ * Adds the log of a saved block: who saved it, when, and why.
+ */
+function react_scaffold_builder_update_11003() {
+  $manager = \Drupal::entityDefinitionUpdateManager();
+  if ($manager->getEntityType('react_scaffold_saved') && !$manager->getFieldStorageDefinition('log', 'react_scaffold_saved')) {
+    $definition = \Drupal::service('entity_field.manager')->getBaseFieldDefinitions('react_scaffold_saved')['log'];
+    $manager->installFieldStorageDefinition('log', 'react_scaffold_saved', 'react_scaffold_builder', $definition);
+  }
+}

@@ -62,6 +62,9 @@ class SavedBlock extends ContentEntityBase implements EntityChangedInterface {
     $fields[LayoutStorage::FIELD] = BaseFieldDefinition::create('string_long')
       ->setLabel(new TranslatableMarkup('Builder layout'))
       ->setDescription(new TranslatableMarkup('The saved component tree.'));
+    $fields['log'] = BaseFieldDefinition::create('string_long')
+      ->setLabel(new TranslatableMarkup('Log'))
+      ->setDescription(new TranslatableMarkup('Who saved the block, when, and their revision log messages (JSON).'));
     $fields['changed'] = BaseFieldDefinition::create('changed')
       ->setLabel(new TranslatableMarkup('Changed'));
     return $fields;

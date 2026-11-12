@@ -20,6 +20,11 @@ use Drupal\react_scaffold_builder\Entity\SavedBlock;
  */
 class Library {
 
+  /**
+   * How many entries of its log a saved block keeps.
+   */
+  protected const LOG_LENGTH = 50;
+
   public function __construct(
     protected EntityTypeManagerInterface $entityTypeManager,
     protected LayoutMigrator $migrator,
@@ -88,6 +93,42 @@ class Library {
     $item = $this->clean($item, $saved->uuid());
     $data = $this->migrator->migrate(['content' => [$item]], TRUE);
     $saved->set(LayoutStorage::FIELD, Json::encode($data));
+  }
+
+  /**
+   * Notes that the block was saved now, by the current user, with their
+   * revision log message. The caller saves.
+   */
+  public function record(SavedBlock $saved, string $message): void {
+    $log = $this->log($saved);
+    $log[] = ['time' => \Drupal::time()->getRequestTime(), 'uid' => (int) \Drupal::currentUser()->id(), 'message' => mb_substr(trim($message), 0, 2000)];
+    // The newest entries: the log is a note for editors, not an archive.
+    $saved->set('log', Json::encode(array_slice($log, -self::LOG_LENGTH)));
+  }
+
+  /**
+   * The log of a saved block, oldest first: 'time', 'uid', 'message'.
+   */
+  public function log(SavedBlock $saved): array {
+    $log = $saved->hasField('log') ? Json::decode((string) $saved->get('log')->value) : NULL;
+    return is_array($log) ? array_values(array_filter($log, 'is_array')) : [];
+  }
+
+  /**
+   * When a saved block was last saved, by whom and with what message, for
+   * the editor.
+   */
+  public function info(SavedBlock $saved): array {
+    $log = $this->log($saved);
+    $last = end($log) ?: [];
+    $time = (int) ($last['time'] ?? $saved->getChangedTime());
+    $user = !empty($last['uid']) ? $this->entityTypeManager->getStorage('user')->load($last['uid']) : NULL;
+    return [
+      'saved' => $time ? (string) \Drupal::service('date.formatter')->format($time, 'short') : '',
+      'author' => $user ? (string) $user->getDisplayName() : '',
+      'message' => (string) ($last['message'] ?? ''),
+      'revisions' => count($log),
+    ];
   }
 
   /**

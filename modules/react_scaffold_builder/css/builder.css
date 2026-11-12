@@ -262,29 +262,46 @@
 .rsb-preview__frame { display: block; height: 100%; max-width: none; margin: 0 auto; border: 0; background: #fff; box-shadow: 0 0 0 1px #8e929c; }
 
 /*
- * A feature (spacing, alignment, background, position, library) as a section that folds, looking like the details
- * elements of Drupal's forms in Claro: a box with a border, a bold title and the fold mark before it. Puck gives every
- * field a padded block with a line above; for these sections the line goes and the boxes sit under each other.
+ * A feature (spacing, alignment, background, position, library) as a section that folds. Together they are the
+ * accordion of Claro, the one beside Drupal's node form (URL alias, Authoring information...), with its measures and
+ * colours (claro/css/components/details.css, the "accordion-item" variant): boxes that share their borders, a bold
+ * title with the chevron before it, what is set in a line under the title, a blue title and a blue bar on the left
+ * when open, and the content on a grey background. Puck gives every field a padded block with a line above; here
+ * the line and the padding go, so the boxes join.
  */
-#react-scaffold-builder [class*="PuckFields-field"]:has(.rsb-feature) { padding-block: 0 12px; border-top: 0; }
+#react-scaffold-builder [class*="PuckFields-field"]:has(.rsb-feature) { padding-block: 0; border-top: 0; }
 #react-scaffold-builder [class*="PuckFields-field"]:has(.rsb-form-heading) { padding-top: 16px; border-top: 1px solid #d3d4d9; }
+/* Room under the last one. */
+#react-scaffold-builder [class*="PuckFields-field"]:has(.rsb-feature):not(:has(+ [class*="PuckFields-field"] .rsb-feature)) { padding-bottom: 16px; }
 .rsb-form-item:has(> .rsb-feature) { gap: 0; }
 .rsb-form-item:has(> .rsb-feature) > .rsb-form-heading { margin-bottom: 12px; }
-.rsb-feature { border: 1px solid #d3d4d9; border-radius: 2px; background: #fff; box-shadow: 0 2px 4px rgb(0 0 0 / 10%); }
-.rsb-feature__title { position: relative; display: flex; align-items: center; gap: 8px; margin: 0; padding: 14px 16px 14px 40px; font: 700 16px/1.3 system-ui, sans-serif; color: #55565b; cursor: pointer; list-style: none; border-radius: 2px; }
+.rsb-feature { display: block; margin: -1px 0 0; color: #232429; border: 1px solid #dedfe4; border-radius: 0; background: #fff; box-shadow: 0 2px 4px rgb(0 0 0 / 10%); font-family: BlinkMacSystemFont, -apple-system, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif; }
+.rsb-form-heading + .rsb-feature { margin-top: 0; border-top-left-radius: 2px; border-top-right-radius: 2px; }
+[class*="PuckFields-field"]:not(:has(+ [class*="PuckFields-field"] .rsb-feature)) .rsb-feature { border-bottom-right-radius: 2px; border-bottom-left-radius: 2px; }
+.rsb-feature__title {
+  position: relative; display: block; box-sizing: border-box; margin: 0; padding: 20px 24px 20px 36px;
+  font-size: 16px; font-weight: 700; line-height: 24px; color: #55565b; background: #fff; cursor: pointer; list-style: none;
+  border-radius: 0; transition: background-color 0.12s ease-in-out;
+}
 .rsb-feature__title::-webkit-details-marker { display: none; }
-/* The fold mark of Claro: an arrowhead before the title, pointing right when closed and down when open. */
-.rsb-feature__title::before { content: ""; position: absolute; left: 16px; top: 50%; width: 7px; height: 7px; margin-top: -4px; border-right: 2px solid #55565b; border-bottom: 2px solid #55565b; transform: rotate(-45deg); transition: transform 0.12s ease-in; }
-.rsb-feature[open] > .rsb-feature__title::before { margin-top: -6px; transform: rotate(45deg); }
-.rsb-feature__title:hover { color: #003ecc; background: #f0f5fd; }
-.rsb-feature__title:hover::before { border-color: #003ecc; }
-.rsb-feature__title:focus-visible { outline: 2px solid #26a769; outline-offset: -2px; }
-.rsb-feature[open] > .rsb-feature__title { color: #232429; }
-.rsb-feature__summary { margin-left: auto; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; font-weight: 400; color: #75767b; }
-.rsb-feature__title > span:first-child { flex: none; }
-/* Something is set in it. */
-.rsb-feature.is-changed > .rsb-feature__title > span:first-child::after { content: ""; display: inline-block; width: 6px; height: 6px; margin-left: 6px; border-radius: 50%; background: #003ecc; vertical-align: middle; }
-.rsb-feature__body { display: flex; flex-direction: column; gap: 12px; padding: 4px 16px 16px; border-top: 0; }
+/* The chevron: down when closed, up when open; blue on hover and when open. */
+.rsb-feature__title::before {
+  content: ""; position: absolute; top: 50%; left: 12px; display: inline-block; width: 16px; height: 16px; margin-top: -8px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16'%3E%3Cpath d='M5.21 1.314L3.79 2.723l5.302 5.353-5.303 5.354 1.422 1.408 6.697-6.762z' fill='%23545560'/%3E%3C/svg%3E") no-repeat center / contain; transform: rotate(90deg); transition: transform 0.12s ease-in 0s;
+}
+.rsb-feature__title:hover::before, .rsb-feature[open] > .rsb-feature__title::before { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16'%3E%3Cpath d='M5.21 1.314L3.79 2.723l5.302 5.353-5.303 5.354 1.422 1.408 6.697-6.762z' fill='%230036B1'/%3E%3C/svg%3E"); }
+.rsb-feature[open] > .rsb-feature__title::before { transform: rotate(-90deg); }
+.rsb-feature__title:hover { color: #003ecc; background-color: #f5f8ff; }
+.rsb-feature[open] > .rsb-feature__title { color: #003ecc; box-shadow: 0 2px 4px rgb(0 0 0 / 10%); }
+/* The focus ring, inside the box; an open section that has no focus shows a blue bar on its left instead. */
+.rsb-feature__title:focus { outline: 0; box-shadow: none; }
+.rsb-feature__title::after { content: ""; position: absolute; inset: -1px; pointer-events: none; opacity: 0; box-shadow: inset 0 0 0 3px #26a769; transition: opacity 0.2s ease-in-out; }
+.rsb-feature__title:focus-visible::after { opacity: 1; }
+.rsb-feature[open] > .rsb-feature__title:not(:focus-visible)::after { opacity: 1; border: solid #003ecc; border-width: 0 0 0 3px; box-shadow: none; }
+@media (prefers-reduced-motion: reduce) { .rsb-feature__title::before { transition: none; } }
+/* What is set, under the title (Claro's "summary of the summary": "No alias", "Not published"). */
+.rsb-feature__summary { display: block; overflow-wrap: anywhere; font-size: 14.22px; font-weight: 400; color: #55565b; }
+.rsb-feature__body { display: flex; flex-direction: column; gap: 12px; padding: 16px 16px 24px; border-top: 1px solid #dedfe4; background: rgb(243 244 249 / 40%); }
 .rsb-feature__field { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
 .rsb-feature .rsb-label, .rsb-label--sub { font-size: 13px; font-weight: 600; }
 .rsb-pair { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 6px; align-items: start; }
@@ -369,9 +386,24 @@
 .rsb-timeline__meta .rsb-timeline__now { background: #003ecc; color: #fff; }
 .rsb-timeline__step.is-undone .rsb-timeline__text, .rsb-timeline__step.is-undone .rsb-timeline__dot { opacity: 0.5; }
 
-/* The Library section of a component: actions under a short note. */
+/*
+ * The Library box of a component: what it is to the library, when it was saved and by whom, the revision log message
+ * and the actions. It is the box at the top of the sidebar of Drupal's node form in Claro ("Published", Last saved,
+ * Author, Revision log message: claro/css/components/entity-meta.css), with its measures and colours.
+ */
 .rsb-actions { display: flex; flex-wrap: wrap; gap: 6px; }
 .rsb-feature__body .rsb-muted { margin: 0; font-size: 13px; line-height: 1.45; color: #55565b; }
+.rsb-meta { padding: 8px 16px 16px; color: #232429; border: 1px solid #dedfe4; border-radius: 2px; background-color: #f3f4f9; font-family: BlinkMacSystemFont, -apple-system, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif; font-size: 16px; line-height: 1.5; }
+.rsb-meta__title { margin: 0.25em 0; text-shadow: 0 1px 0 #fff; font-size: 1.231em; font-weight: 700; line-height: 1.5; color: inherit; }
+.rsb-meta__item { margin-block: 8px; overflow-wrap: anywhere; }
+.rsb-meta__note { margin: 8px 0; font-size: 12.64px; line-height: 17px; color: #55565b; }
+.rsb-meta__revision { display: flex; flex-direction: column; gap: 6px; margin-block: 16px 8px; }
+.rsb-meta__revision .rsb-label { font-size: 14.22px; font-weight: 700; }
+.rsb-meta__revision .rsb-description { font-size: 12.64px; line-height: 17px; }
+.rsb-meta .rsb-textarea { width: 100%; min-height: 0; resize: vertical; }
+.rsb-meta .rsb-actions { margin-top: 12px; }
+/* Under the sections of "Layout and style" (it is above them for a paragraph and for a saved block). */
+#react-scaffold-builder [class*="PuckFields-field"]:has(.rsb-meta) { border-top: 0; }
 .rsb-form-error { font-size: 13px; color: #a51b00; }
 
 /* The form of a paragraph, in the right column: as wide as the column, as tall as the form. */

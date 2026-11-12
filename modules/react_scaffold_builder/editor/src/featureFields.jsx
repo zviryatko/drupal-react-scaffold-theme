@@ -10,7 +10,7 @@ import { toDrupalType } from './types';
 /**
  * A feature as a section that folds: closed while nothing is set in it, open when something is, so a component
  * shows at a glance what was changed. `heading` is the divider above the first feature, where the component's own
- * fields end. `summary` says in a few words what is set.
+ * fields end. `summary` says in a few words what is set; it is the line under the title.
  */
 function Feature({ field, changed, summary, children }) {
   // Starts open when it has a value; after that the user decides. (A widget is made anew for every component.)
@@ -20,7 +20,7 @@ function Feature({ field, changed, summary, children }) {
       {field.heading && <div className="rsb-form-heading">{field.heading}</div>}
       <details className={`rsb-feature${changed ? ' is-changed' : ''}`} open={open} onToggle={(event) => setOpen(event.currentTarget.open)}>
         <summary className="rsb-feature__title">
-          <span>{field.label}</span>
+          {field.label}
           {changed && <span className="rsb-feature__summary">{summary}</span>}
         </summary>
         <div className="rsb-feature__body">
@@ -309,16 +309,22 @@ export function ColorWidget({ id, value, onChange, readOnly, field }) {
 const usePuck = createUsePuck();
 
 /**
- * The library of saved blocks, for the selected component. Three situations:
+ * The library of saved blocks, for the selected component. Not a section that folds: a box that says what the
+ * component is to the library, like the box of Drupal's node form that says "Published", when it was last saved and
+ * by whom, and takes a revision log message. Three situations:
  * - an ordinary component: it can be saved to the library, and then follows the saved block;
  * - a saved block (linked): shown as it is saved, on every page. To change it here, a copy is made;
  * - a copy of a saved block: the page's own. It can become the new saved block, or be dropped for the saved one.
+ *
+ * Saving and updating send the page along: paragraphs in the component may have values that are not saved yet, and
+ * Drupal gives the saved block paragraphs of its own with those values.
  */
-export function LibraryWidget({ id, value, readOnly, field }) {
+export function LibraryWidget({ id, value, readOnly }) {
   const selected = usePuck((state) => state.selectedItem);
   const selector = usePuck((state) => state.appState.ui.itemSelector);
   const dispatch = usePuck((state) => state.dispatch);
   const [name, setName] = useState('');
+  const [message, setMessage] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState(null);
   const [confirming, setConfirming] = useState(false);
@@ -335,19 +341,19 @@ export function LibraryWidget({ id, value, readOnly, field }) {
     setBusy(false);
   };
   const send = async (body) => {
-    const { ok, body: answer } = await postJson(settings.endpoints.library, body);
+    const { ok, body: answer } = await postJson(settings.endpoints.library, { ...body, node: settings.node, langcode: settings.langcode });
     if (!ok) throw new Error(answer?.errors?.join(' ') || 'The library could not be changed.');
     return answer;
   };
   const withoutOrigin = () => ({ ...selected, props: Object.fromEntries(Object.entries(selected.props).filter(([key]) => key !== '_library')) });
 
   const save = () => run(async () => {
-    const answer = await send({ label: name.trim(), item: toSavedItem(withoutOrigin()) });
+    const answer = await send({ label: name.trim(), message, item: toSavedItem(withoutOrigin()) });
     putSavedBlock(answer.component);
     replace(linkedItem(answer.uuid, selected.props.id));
   });
   const update = () => run(async () => {
-    const answer = await send({ uuid: origin.uuid, item: toSavedItem(withoutOrigin()) });
+    const answer = await send({ uuid: origin.uuid, message, item: toSavedItem(withoutOrigin()) });
     putSavedBlock(answer.component);
     replace(linkedItem(origin.uuid, selected.props.id));
   });
@@ -363,13 +369,21 @@ export function LibraryWidget({ id, value, readOnly, field }) {
     setConfirming(false);
   });
 
-  let summary = '';
-  let body;
+  const log = (label) => !readOnly && (
+    <div className="rsb-meta__revision">
+      <label className="rsb-label" htmlFor={`${id}-log`}>Revision log message</label>
+      <textarea id={`${id}-log`} className="rsb-input rsb-textarea" rows={3} value={message} disabled={busy} onChange={(event) => setMessage(event.target.value)} />
+      <div className="rsb-description">{label}</div>
+    </div>
+  );
+  const info = saved?.info;
+  let title = 'Not in the library';
+  let body = null;
   if (linkedUuid) {
-    summary = saved ? 'saved block' : 'deleted';
+    title = saved ? 'Saved block' : 'Deleted saved block';
     body = saved ? (
       <>
-        <p className="rsb-muted">Shows the saved block <strong>{saved.label}</strong> as it is saved now. A change to the saved block changes every page that uses it.</p>
+        <p className="rsb-meta__note">Shown as it is saved now. A change to the saved block changes every page that uses it.</p>
         {!readOnly && (
           <div className="rsb-actions">
             <button id={id} type="button" className="rsb-button rsb-button--small" disabled={busy} onClick={copy} title="Replaces this with a copy that you can change on this page">Edit a copy here</button>
@@ -379,44 +393,51 @@ export function LibraryWidget({ id, value, readOnly, field }) {
           </div>
         )}
       </>
-    ) : <p className="rsb-muted">This saved block was deleted from the library. Nothing is shown in its place; remove it.</p>;
+    ) : <p className="rsb-meta__note">This saved block was deleted from the library. Nothing is shown in its place; remove it.</p>;
   }
   else if (origin) {
-    summary = 'changed copy';
+    title = 'Copy of a saved block';
     body = (
       <>
-        <p className="rsb-muted">A copy of the saved block <strong>{saved?.label || origin.label}</strong>, changed on this page. It no longer follows the saved block{saved ? '' : ', which was deleted'}.</p>
+        <p className="rsb-meta__note">The page's own: it no longer follows the saved block{saved ? '' : ', which was deleted'}.</p>
         {!readOnly && saved && (
-          <div className="rsb-actions">
-            <button id={id} type="button" className="rsb-button rsb-button--small" disabled={busy} onClick={update} title="The saved block becomes what is here, on every page that uses it">Update the saved block</button>
-            <button type="button" className="rsb-button rsb-button--small" disabled={busy} onClick={() => replace(linkedItem(origin.uuid, selected.props.id))} title="Drops what was changed here">Use the saved block again</button>
-          </div>
-        )}
-      </>
-    );
-  }
-  if (!body || (origin && !saved)) {
-    body = (
-      <>
-        {body}
-        {!readOnly && (
           <>
-            <label className="rsb-label" htmlFor={id}>Save to library as</label>
-            <div className="rsb-pair">
-              <input id={id} className="rsb-input" type="text" placeholder="Name of the saved block" value={name} onChange={(event) => setName(event.target.value)} />
-              <button type="button" className="rsb-button rsb-button--small" disabled={busy || !name.trim()} onClick={save}>Save</button>
+            {log('Briefly describe what you changed, when you update the saved block.')}
+            <div className="rsb-actions">
+              <button id={id} type="button" className="rsb-button rsb-button--small rsb-button--primary" disabled={busy} onClick={update} title="The saved block becomes what is here, on every page that uses it">Update the saved block</button>
+              <button type="button" className="rsb-button rsb-button--small" disabled={busy} onClick={() => replace(linkedItem(origin.uuid, selected.props.id))} title="Drops what was changed here">Use the saved block again</button>
             </div>
-            <div className="rsb-description">Saves this component with everything in it, to use on other pages. Here it then follows the saved block.</div>
           </>
         )}
       </>
     );
   }
+  const savable = !readOnly && (!linkedUuid && (!origin || !saved));
   return (
-    <Feature field={field} changed={Boolean(linkedUuid || origin)} summary={summary}>
-      {body}
-      {error && <div className="rsb-form-error" role="alert">{error}</div>}
-    </Feature>
+    <div className="rsb-form-item">
+      <div className="rsb-meta">
+        <h3 className="rsb-meta__title">{title}</h3>
+        {(linkedUuid || origin) && <div className="rsb-meta__item"><strong>Name:</strong> {saved?.label || origin?.label || 'unknown'}</div>}
+        {info?.saved && <div className="rsb-meta__item"><strong>Last saved:</strong> {info.saved}</div>}
+        {info?.author && <div className="rsb-meta__item"><strong>Author:</strong> {info.author}</div>}
+        {info?.message && <div className="rsb-meta__item"><strong>Log:</strong> {info.message}</div>}
+        {body}
+        {savable && (
+          <>
+            <p className="rsb-meta__note">Saves this component with everything in it, to use on other pages. Here it then follows the saved block.</p>
+            <div className="rsb-meta__revision">
+              <label className="rsb-label" htmlFor={id}>Save to library as</label>
+              <input id={id} className="rsb-input" type="text" placeholder="Name of the saved block" value={name} disabled={busy} onChange={(event) => setName(event.target.value)} />
+            </div>
+            {log('Optional: a note about this saved block.')}
+            <div className="rsb-actions">
+              <button type="button" className="rsb-button rsb-button--small rsb-button--primary" disabled={busy || !name.trim()} onClick={save}>Save to library</button>
+            </div>
+          </>
+        )}
+        {error && <div className="rsb-form-error" role="alert">{error}</div>}
+      </div>
+    </div>
   );
 }
 

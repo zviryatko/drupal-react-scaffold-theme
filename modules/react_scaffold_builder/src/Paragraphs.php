@@ -87,7 +87,9 @@ class Paragraphs {
   /**
    * Saves the paragraphs of a layout that have unsaved values: a new
    * paragraph, or a new revision of the one the block names, belonging to
-   * the page. The layout gets the saved revisions.
+   * the page. A block that names a paragraph of something else (a copy of
+   * a saved block) gets a paragraph of its own. The layout gets the saved
+   * revisions.
    *
    * @param array $data
    *   The layout sent by the editor.
@@ -124,36 +126,113 @@ class Paragraphs {
   }
 
   /**
-   * Finds the Paragraph blocks with unsaved values and prepares their
-   * paragraphs.
+   * Saves the paragraphs of an item that goes to the library: the library
+   * gets paragraphs of its own, with the unsaved values the user has for
+   * them on the page the item comes from. A paragraph that is the saved
+   * block's already gets a new revision.
+   *
+   * Without this a block saved to the library before its page was saved
+   * would have no paragraph at all: the values exist only as a draft, and
+   * the page itself no longer has the block (it links to the saved one).
+   *
+   * @param array $item
+   *   The item sent by the editor. Gets the saved revisions.
+   * @param \Drupal\Core\Entity\ContentEntityInterface $saved
+   *   The saved block, saved already: the paragraphs belong to it.
+   * @param \Drupal\node\NodeInterface|null $node
+   *   The page (translation) the item is on, when known.
+   *
+   * @return array
+   *   Messages of values that are not valid. Nothing is saved when there
+   *   are any.
    */
-  protected function collect(array $items, NodeInterface $node, array &$pending, array &$errors): void {
-    $langcode = $node->language()->getId();
+  public function persistForLibrary(array &$item, ContentEntityInterface $saved, ?NodeInterface $node): array {
+    if (!$this->available()) {
+      return [];
+    }
+    $pending = [];
+    $errors = [];
+    $this->collect([$item], $node, $pending, $errors, $saved);
+    if ($errors) {
+      return $errors;
+    }
+    $references = [];
+    foreach ($pending as $block => $paragraph) {
+      if (!$paragraph->isNew()) {
+        $paragraph->setNewRevision(TRUE);
+      }
+      $paragraph->setParentEntity($saved, LayoutStorage::FIELD);
+      $paragraph->save();
+      $references[$block] = self::reference($paragraph);
+      if ($node) {
+        $this->drafts->forget($node, $block);
+      }
+    }
+    $items = [$item];
+    $this->replace($items, $references);
+    $item = $items[0];
+    return [];
+  }
+
+  /**
+   * Finds the Paragraph blocks whose paragraph is to be saved and prepares
+   * their paragraphs: the ones with unsaved values, and the ones whose
+   * paragraph belongs to something else.
+   *
+   * A paragraph belongs to one owner, a page or a saved block. A block that
+   * names the paragraph of another owner (a copy of a saved block, an item
+   * that goes to the library) gets a duplicate; so does the second of two
+   * blocks that name the same paragraph (a block that was duplicated).
+   *
+   * @param \Drupal\Core\Entity\ContentEntityInterface|null $owner
+   *   What the paragraphs will belong to; the page by default.
+   */
+  protected function collect(array $items, ?NodeInterface $node, array &$pending, array &$errors, ?ContentEntityInterface $owner = NULL, array &$seen = []): void {
+    $owner ??= $node;
+    $langcode = $node?->language()->getId() ?? $owner->language()->getId();
     foreach ($items as $item) {
       $props = is_array($item['props'] ?? NULL) ? $item['props'] : [];
       [$kind, $bundle] = ComponentCatalog::parse((string) ($item['type'] ?? ''));
       $block = (string) ($props['id'] ?? '');
-      if ($kind === ComponentCatalog::PARAGRAPH && ($values = $this->drafts->get($node, $block)) !== NULL && isset($this->types()[$bundle])) {
-        $paragraph = $this->load($props['paragraph'] ?? NULL, $bundle)
-          ?? $this->entityTypeManager->getStorage('paragraph')->create(['type' => $bundle, 'langcode' => $langcode]);
-        if ($paragraph->hasTranslation($langcode)) {
-          $paragraph = $paragraph->getTranslation($langcode);
+      if ($kind === ComponentCatalog::PARAGRAPH && $block !== '' && isset($this->types()[$bundle])) {
+        $values = $node ? $this->drafts->get($node, $block) : NULL;
+        $paragraph = $this->load($props['paragraph'] ?? NULL, $bundle);
+        $foreign = $paragraph && (!$this->belongsTo($paragraph, $owner) || isset($seen[$paragraph->id()]));
+        if ($paragraph && !$foreign) {
+          $seen[$paragraph->id()] = TRUE;
         }
-        elseif (!$paragraph->isNew() && $paragraph->isTranslatable()) {
-          $paragraph = $paragraph->addTranslation($langcode, $paragraph->toArray());
+        if ($values !== NULL || $foreign) {
+          $paragraph = $foreign ? $paragraph->createDuplicate() : $paragraph;
+          $paragraph ??= $this->entityTypeManager->getStorage('paragraph')->create(['type' => $bundle, 'langcode' => $langcode]);
+          if ($paragraph->hasTranslation($langcode)) {
+            $paragraph = $paragraph->getTranslation($langcode);
+          }
+          elseif (!$paragraph->isNew() && $paragraph->isTranslatable()) {
+            $paragraph = $paragraph->addTranslation($langcode, $paragraph->toArray());
+          }
+          if ($values !== NULL) {
+            ParagraphDrafts::apply($paragraph, $values);
+          }
+          foreach ($paragraph->validate() as $violation) {
+            $errors[] = trim($paragraph->type->entity?->label() . ': ' . strip_tags((string) $violation->getMessage()));
+          }
+          $pending[$block] = $paragraph;
         }
-        ParagraphDrafts::apply($paragraph, $values);
-        foreach ($paragraph->validate() as $violation) {
-          $errors[] = trim($paragraph->type->entity?->label() . ': ' . strip_tags((string) $violation->getMessage()));
-        }
-        $pending[$block] = $paragraph;
       }
       foreach ($props as $value) {
         if (LayoutMigrator::isItems($value)) {
-          $this->collect($value, $node, $pending, $errors);
+          $this->collect($value, $node, $pending, $errors, $owner, $seen);
         }
       }
     }
+  }
+
+  /**
+   * Whether a paragraph is the one of this page or saved block.
+   */
+  protected function belongsTo(ContentEntityInterface $paragraph, ContentEntityInterface $owner): bool {
+    return $paragraph->get('parent_type')->value === $owner->getEntityTypeId()
+      && (string) $paragraph->get('parent_id')->value === (string) $owner->id();
   }
 
   /**
