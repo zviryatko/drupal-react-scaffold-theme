@@ -66,6 +66,9 @@ For such a content type:
 | Right | The selected component: its fields, then **Layout and style** (spacing, alignment, background, position). With nothing selected: the **page settings** (title, state, URL alias, authoring…), also Drupal's node form. |
 | Top | Undo, redo and **History** (a timeline of the changes since the page was opened or saved; click a step to go to it), **Preview** (or **View** when nothing is unsaved), **Publish**, **Draft**, **Delete**. |
 
+Links inside the editor's forms and inside the preview (help links of a field, links of the page) open in a new tab,
+so the editor keeps its place.
+
 While you edit, nothing is saved to the page. Changes to the layout and to the forms are kept per user in the background,
 so the canvas follows what you type, a reload brings everything back, and **Preview** shows the page with them at the
 widths of the theme's breakpoints. **Publish** and **Draft** save.

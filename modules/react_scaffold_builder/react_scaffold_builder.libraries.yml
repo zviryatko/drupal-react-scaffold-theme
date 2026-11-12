@@ -6,9 +6,15 @@ editor:
       js/editor.css: { minified: true }
       css/builder.css: {}
   dependencies:
+    - react_scaffold_builder/frame_links
     - core/drupal
     - core/drupalSettings
     - core/once
+
+# Loaded in every frame of the builder: links open in a new tab instead of loading a page of the site in the frame.
+frame_links:
+  js:
+    js-static/frame-links.js: {}
 
 # Loaded in the media library frame (admin theme).
 media_frame:
@@ -18,6 +24,7 @@ media_frame:
     theme:
       css/media-frame.css: {}
   dependencies:
+    - react_scaffold_builder/frame_links
     - core/drupal.ajax
 
 # The admin page that holds the editor frame.
@@ -41,6 +48,7 @@ content_frame:
     theme:
       css/content-frame.css: {}
   dependencies:
+    - react_scaffold_builder/frame_links
     - core/drupal
     - core/drupalSettings
     - core/once
@@ -53,6 +61,7 @@ paragraph_frame:
     theme:
       css/paragraph-frame.css: {}
   dependencies:
+    - react_scaffold_builder/frame_links
     - core/drupal
     - core/drupalSettings
     - core/once
@@ -71,6 +80,7 @@ formatter_frame:
     theme:
       css/media-frame.css: {}
   dependencies:
+    - react_scaffold_builder/frame_links
     - core/drupal
     - core/drupalSettings
     - core/once
@@ -80,3 +90,5 @@ preview_frame:
   css:
     theme:
       css/preview-frame.css: {}
+  dependencies:
+    - react_scaffold_builder/frame_links
