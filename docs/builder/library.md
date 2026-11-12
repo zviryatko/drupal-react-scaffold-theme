@@ -6,14 +6,15 @@ it is one drag away everywhere.
 
 ## In the editor
 
-Every component has a **Library** box in the right column: under *Layout and style*, and at the top for a Paragraph
-block and for a saved block. Like the box of Drupal's node form that says *Published*, it tells what the component is to
-the library (*Not in the library*, *Saved block*, *Copy of a saved block*), the name of the saved block, when it was
-last saved and by whom, and the last revision log message.
+A [Paragraph block](/builder/paragraphs) has a **Library** box in the right column, under its form and above *Layout
+and style*. Like the box of Drupal's node form that says *Published*, it tells whether the block is a saved block or a
+copy of one, the name of the saved block, when it was last saved and by whom, and the last revision log message. A
+saved block, and a copy of one, show the box too, whatever component they are; other components are not offered the
+library.
 
 | You have | You can |
 |---|---|
-| an ordinary component | **Save to library as…**: give it a name. It is saved with everything in it, and here it becomes a *saved block* |
+| a Paragraph block | **Save to library as…**: give it a name. It is saved with everything in it, and here it becomes a *saved block* |
 | a **saved block** (it is in the **Library** group of the Blocks panel, drag it in like any block) | **Edit a copy here**: replace it with a copy you can change on this page. **Delete from library** |
 | a **copy** of a saved block | **Update the saved block**: what is here becomes the saved block, on every page. **Use the saved block again**: drop the changes |
 
@@ -23,7 +24,7 @@ The two ways a page can use a saved block:
   block and every page that links to it changes, without being saved again. On the canvas a linked block is one item;
   what is in it cannot be selected.
 - **A copy.** Made with *Edit a copy here*. The items are the page's own: it no longer follows the saved block. The
-  first item remembers where it came from, and its Library box says *Copy of a saved block*.
+  first item remembers where it came from, and its Library box says *Status: Copy of a saved block*.
 
 So to change a saved block: make a copy where you see it, change it, *Update the saved block*. The copy becomes a link
 again. **Revision log message**, above the button, is where you say what you changed; it is kept with the saved block

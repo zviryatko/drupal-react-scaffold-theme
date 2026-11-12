@@ -51,7 +51,7 @@ layout options:
 
 Save the Paragraph block, or a component that contains it, to the [library](/builder/library). Pages that link to the
 saved block show the same paragraph, in the revision the saved block names; updating the saved block updates them all.
-For a Paragraph block the Library box is at the top of the right column, above the form: with *Update the saved block*
+The Library box is under the form of the paragraph, above *Layout and style*: with *Update the saved block*
 it takes a revision log message. The saved block has a paragraph of its own, so it can be saved to the library before
 the page was ever saved, and a copy on a page becomes the page's own paragraph when the page is saved.
 

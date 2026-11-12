@@ -16,9 +16,10 @@ The public API of the base theme, which follows semantic versioning:
 - Page builder: a Paragraph block saved to the library before its page was saved, or updated in the library, lost what
   was typed: the saved block now gets a paragraph of its own with those values (and a new revision on update); a copy on
   a page, and a duplicated block, get their own paragraph when the page is saved.
-- Page builder: the **Library** part of the right column is a box like the one of Drupal's node form (what it is, name,
+- Page builder: the **Library** part of the right column is a box like the one of Drupal's node form (status, name,
   last saved, author), not a section that folds, with a **Revision log message** for saving and updating a saved block.
-  It is at the top for Paragraph blocks and saved blocks. Run `drush updb` (a new field on saved blocks).
+  It is above *Layout and style*, and offered for Paragraph blocks only: other components show it when they are a saved
+  block or a copy of one. Run `drush updb` (a new field on saved blocks).
 - Page builder: the sections of *Layout and style* look like Claro's accordion beside the node form; what is set shows
   on a line under the title.
 - **Tokens in SCSS**: a theme's design tokens (`react_scaffold_builder: uikit:` in its `.info.yml`, and its `.breakpoints.yml`) are a

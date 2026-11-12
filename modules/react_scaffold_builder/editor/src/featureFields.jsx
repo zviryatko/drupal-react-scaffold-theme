@@ -312,14 +312,15 @@ const usePuck = createUsePuck();
  * The library of saved blocks, for the selected component. Not a section that folds: a box that says what the
  * component is to the library, like the box of Drupal's node form that says "Published", when it was last saved and
  * by whom, and takes a revision log message. Three situations:
- * - an ordinary component: it can be saved to the library, and then follows the saved block;
+ * - a Paragraph block: it can be saved to the library, and then follows the saved block (other components are not
+ *   offered this: the box is not shown for them);
  * - a saved block (linked): shown as it is saved, on every page. To change it here, a copy is made;
  * - a copy of a saved block: the page's own. It can become the new saved block, or be dropped for the saved one.
  *
  * Saving and updating send the page along: paragraphs in the component may have values that are not saved yet, and
  * Drupal gives the saved block paragraphs of its own with those values.
  */
-export function LibraryWidget({ id, value, readOnly }) {
+export function LibraryWidget({ id, value, readOnly, field }) {
   const selected = usePuck((state) => state.selectedItem);
   const selector = usePuck((state) => state.appState.ui.itemSelector);
   const dispatch = usePuck((state) => state.dispatch);
@@ -376,11 +377,13 @@ export function LibraryWidget({ id, value, readOnly }) {
       <div className="rsb-description">{label}</div>
     </div>
   );
+  // Offered for Paragraph blocks. Anything else has the box only when it is, or is a copy of, a saved block.
+  if (!linkedUuid && !origin && !field.offer) return <div className="rsb-none" />;
   const info = saved?.info;
-  let title = 'Not in the library';
+  let status = '';
   let body = null;
   if (linkedUuid) {
-    title = saved ? 'Saved block' : 'Deleted saved block';
+    status = saved ? 'Saved block' : 'Deleted saved block';
     body = saved ? (
       <>
         <p className="rsb-meta__note">Shown as it is saved now. A change to the saved block changes every page that uses it.</p>
@@ -396,7 +399,7 @@ export function LibraryWidget({ id, value, readOnly }) {
     ) : <p className="rsb-meta__note">This saved block was deleted from the library. Nothing is shown in its place; remove it.</p>;
   }
   else if (origin) {
-    title = 'Copy of a saved block';
+    status = 'Copy of a saved block';
     body = (
       <>
         <p className="rsb-meta__note">The page's own: it no longer follows the saved block{saved ? '' : ', which was deleted'}.</p>
@@ -416,7 +419,8 @@ export function LibraryWidget({ id, value, readOnly }) {
   return (
     <div className="rsb-form-item">
       <div className="rsb-meta">
-        <h3 className="rsb-meta__title">{title}</h3>
+        <h3 className="rsb-meta__title">Library</h3>
+        {status && <div className="rsb-meta__item"><strong>Status:</strong> {status}</div>}
         {(linkedUuid || origin) && <div className="rsb-meta__item"><strong>Name:</strong> {saved?.label || origin?.label || 'unknown'}</div>}
         {info?.saved && <div className="rsb-meta__item"><strong>Last saved:</strong> {info.saved}</div>}
         {info?.author && <div className="rsb-meta__item"><strong>Author:</strong> {info.author}</div>}

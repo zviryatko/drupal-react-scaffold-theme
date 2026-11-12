@@ -246,16 +246,19 @@ class ComponentCatalog {
     }
     unset($component);
     $config = array_merge($config, $drupal);
-    // Every component can be saved to the library, and tells when it is a
-    // copy of a saved block.
     foreach ($config as &$component) {
-      // A paragraph is content of its own: where it is kept comes first.
-      if (self::parse($component['id'])[0] === self::PARAGRAPH) {
-        array_unshift($component['fields'], self::libraryField());
+      // After the component's own fields, before "Layout and style".
+      $at = count($component['fields']);
+      foreach ($component['fields'] as $index => $field) {
+        if (isset($field['heading'])) {
+          $at = $index;
+          break;
+        }
       }
-      else {
-        $component['fields'][] = self::libraryField();
-      }
+      // Paragraph blocks are what is saved to the library. Other components
+      // show the box only when they are a copy of a saved block.
+      $field = self::libraryField() + ['offer' => self::parse($component['id'])[0] === self::PARAGRAPH];
+      array_splice($component['fields'], $at, 0, [$field]);
     }
     return $config;
   }

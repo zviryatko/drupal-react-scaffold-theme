@@ -393,7 +393,7 @@
  */
 .rsb-actions { display: flex; flex-wrap: wrap; gap: 6px; }
 .rsb-feature__body .rsb-muted { margin: 0; font-size: 13px; line-height: 1.45; color: #55565b; }
-.rsb-meta { padding: 8px 16px 16px; color: #232429; border: 1px solid #dedfe4; border-radius: 2px; background-color: #f3f4f9; font-family: BlinkMacSystemFont, -apple-system, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif; font-size: 16px; line-height: 1.5; }
+.rsb-meta { padding: 16px 24px 24px; color: #232429; border: 1px solid #dedfe4; border-radius: 2px; background-color: #fff; font-family: BlinkMacSystemFont, -apple-system, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif; font-size: 16px; line-height: 1.5; }
 .rsb-meta__title { margin: 0.25em 0; text-shadow: 0 1px 0 #fff; font-size: 1.231em; font-weight: 700; line-height: 1.5; color: inherit; }
 .rsb-meta__item { margin-block: 8px; overflow-wrap: anywhere; }
 .rsb-meta__note { margin: 8px 0; font-size: 12.64px; line-height: 17px; color: #55565b; }
@@ -402,8 +402,9 @@
 .rsb-meta__revision .rsb-description { font-size: 12.64px; line-height: 17px; }
 .rsb-meta .rsb-textarea { width: 100%; min-height: 0; resize: vertical; }
 .rsb-meta .rsb-actions { margin-top: 12px; }
-/* Under the sections of "Layout and style" (it is above them for a paragraph and for a saved block). */
+/* Above "Layout and style". A component the library is not offered for has no box, and no room for one. */
 #react-scaffold-builder [class*="PuckFields-field"]:has(.rsb-meta) { border-top: 0; }
+#react-scaffold-builder [class*="PuckFields-field"]:has(.rsb-none) { display: none; }
 .rsb-form-error { font-size: 13px; color: #a51b00; }
 
 /* The form of a paragraph, in the right column: as wide as the column, as tall as the form. */
