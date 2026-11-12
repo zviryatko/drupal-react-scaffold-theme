@@ -25,9 +25,11 @@ use Drupal\Core\Theme\ThemeManagerInterface;
  *     image_styles: [large, 'responsive:wide']
  *     # Type scale: name => CSS length. Sizes an editor can give text.
  *     font_sizes: { s: 0.875rem, m: 1rem, l: 1.25rem, xl: 1.5rem }
+ *     # Sizes: name => CSS length. How wide and how tall a component can be.
+ *     sizes: { s: 30rem, m: 45rem, l: 60rem, xl: 75rem, full: 100% }
  *   # Features offered on every component (a component.yml can override,
  *   # see ComponentFeatures).
- *   features: { spacing: true, align: true, text: true, background: true, position: true }
+ *   features: { spacing: true, size: true, align: true, text: true, background: true, position: true }
  * @endcode
  *
  * Editors never type free values for colours; lengths are a token, or a
@@ -43,8 +45,9 @@ class ThemeKit {
       'spacing' => ['xs' => '0.25rem', 's' => '0.5rem', 'm' => '1rem', 'l' => '2rem', 'xl' => '4rem'],
       'colors' => [],
       'font_sizes' => ['xs' => '0.75rem', 's' => '0.875rem', 'm' => '1rem', 'l' => '1.25rem', 'xl' => '1.5rem', '2xl' => '2rem', '3xl' => '3rem'],
+      'sizes' => ['xs' => '20rem', 's' => '30rem', 'm' => '45rem', 'l' => '60rem', 'xl' => '75rem', 'full' => '100%'],
     ],
-    'features' => ['spacing' => TRUE, 'align' => TRUE, 'text' => TRUE, 'background' => TRUE, 'position' => TRUE],
+    'features' => ['spacing' => TRUE, 'size' => TRUE, 'align' => TRUE, 'text' => TRUE, 'background' => TRUE, 'position' => TRUE],
   ];
 
   public function __construct(
@@ -92,7 +95,7 @@ class ThemeKit {
     foreach ($extensions as $extension) {
       $own = $extension->info['react_scaffold_builder'] ?? [];
       // A scale or palette is replaced as a whole: it is an ordered set.
-      foreach (['spacing', 'colors', 'image_styles', 'font_sizes'] as $key) {
+      foreach (['spacing', 'colors', 'image_styles', 'font_sizes', 'sizes'] as $key) {
         if (isset($own['uikit'][$key]) && is_array($own['uikit'][$key])) {
           $settings['uikit'][$key] = $own['uikit'][$key];
         }
@@ -114,6 +117,26 @@ class ThemeKit {
    */
   public function fontSizes(): array {
     return array_filter(array_map(fn ($value) => $this->cssLength((string) $value), $this->settings()['uikit']['font_sizes']));
+  }
+
+  /**
+   * The sizes a component can have: name => CSS length, smallest first as
+   * declared.
+   */
+  public function sizes(): array {
+    return array_filter(array_map(fn ($value) => $this->cssLength((string) $value), $this->settings()['uikit']['sizes']));
+  }
+
+  /**
+   * A size as the editor stores a choice: one of the theme's sizes or a
+   * custom length, as a CSS length. NULL when it is neither.
+   */
+  public function size(mixed $value): ?string {
+    $size = is_array($value) ? (string) ($value['size'] ?? '') : (string) $value;
+    if ($size === 'custom') {
+      return $this->cssLength((string) ($value['custom'] ?? ''));
+    }
+    return $this->sizes()[$size] ?? NULL;
   }
 
   /**

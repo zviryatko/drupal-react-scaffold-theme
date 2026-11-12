@@ -47,6 +47,7 @@ react_scaffold_builder:
       ink: { label: 'Ink', value: '#1b1f29' }
       paper: { label: 'Paper', value: '#ffffff' }
     font_sizes: { s: 0.875rem, m: 1rem, l: 1.25rem, xl: 1.5rem, 2xl: 2rem }
+    sizes: { s: 30rem, m: 45rem, l: 60rem, xl: 75rem, full: 100% }
 ```
 
 Editors pick from these in the builder, and your SCSS reads the same file:

@@ -101,7 +101,7 @@ class LayoutRenderer {
     if (in_array($kind, [ComponentCatalog::FIELD, ComponentCatalog::VIEW, ComponentCatalog::BLOCK, ComponentCatalog::SAVED, ComponentCatalog::PARAGRAPH], TRUE)) {
       $build = match ($kind) {
         ComponentCatalog::PARAGRAPH => $this->buildParagraph($name, $values, $entity),
-        ComponentCatalog::SAVED => $this->buildSaved($name, $entity),
+        ComponentCatalog::SAVED => $this->buildSaved($name, $entity, $values),
         ComponentCatalog::FIELD => $this->buildField($name, $values, $entity),
         ComponentCatalog::VIEW => $this->buildView($name),
         ComponentCatalog::BLOCK => $this->buildBlock($name, $values, $entity),
@@ -214,7 +214,17 @@ class LayoutRenderer {
   /**
    * A block of the library, as it is saved now.
    */
-  protected function buildSaved(string $uuid, ?ContentEntityInterface $entity): array {
+  protected function buildSaved(string $uuid, ?ContentEntityInterface $entity, array $values = []): array {
+    // A paragraph of the Paragraphs Library: shown by a "From library"
+    // paragraph, as the module itself shows it.
+    if ($library = $this->paragraphs->libraryItem($uuid)) {
+      if (!$library->access('view', $this->currentUser)) {
+        return [];
+      }
+      $wrapper = $this->paragraphs->wrapperForDisplay($values, $library);
+      $build = \Drupal::entityTypeManager()->getViewBuilder('paragraph')->view($wrapper, 'default');
+      return ['content' => $build, '#cache' => ['tags' => $library->getCacheTags()]];
+    }
     // A saved block inside itself, however deep, is shown once.
     if (isset($this->building[$uuid]) || !($saved = $this->library->load($uuid)) || !($item = $this->library->item($saved))) {
       return [];

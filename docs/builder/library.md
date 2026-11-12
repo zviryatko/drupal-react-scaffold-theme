@@ -6,8 +6,8 @@ that must read the same everywhere. Change it once, and every page that uses it 
 ## In the editor
 
 A [Paragraph block](/builder/paragraphs) has a **Library** box in the right column, under its form and above *Layout
-and style*. Like the box of Drupal's node form that says *Published*, it tells whether the block is a saved block or a
-copy of one, the name of the saved block, when it was last saved and by whom, and the last revision log message. A
+and style*. Like the box of Drupal's node form that says *Published*, it tells the type of the paragraph, whether it is used from the library or is a copy,
+the name of the saved block, when it was last saved and by whom, and the last revision log message. A
 saved block, and a copy of one, show the box too, whatever component they are; other components are not offered the
 library.
 
@@ -23,7 +23,7 @@ The two ways a page can use a saved block:
   block and every page that links to it changes, without being saved again. On the canvas a linked block is one item;
   what is in it cannot be selected.
 - **A copy.** Made with *Edit a copy here*. The items are the page's own: it no longer follows the saved block. The
-  first item remembers where it came from, and its Library box says *Status: Copy of a saved block*.
+  first item remembers where it came from, and its Library box says it is a copy.
 
 So to change a saved block: make a copy where you see it, change it, *Update the saved block*. The copy becomes a link
 again. **Revision log message**, above the button, is where you say what you changed; it is kept with the saved block
@@ -64,6 +64,9 @@ The first is a link, the second a copy.
 - Paragraphs in a saved block are the saved block's own. Saving or updating gives it its own paragraph, with what
   was typed in the form even when the page was never saved; an update is a new revision of it. A copy on a page gets
   a paragraph of its own when the page is saved. So a page and the library never write to the same paragraph.
+- With the Paragraphs Library module, a paragraph saved from the builder is an item of that library, not a
+  `react_scaffold_saved` entity; a layout links to it the same way, `drupal_saved:<uuid of the item>`, and also names
+  the page's *From library* paragraph. See [Reusing a paragraph](/builder/paragraphs#reusing-a-paragraph).
 - A saved block may contain other saved blocks; one that would contain itself is shown once.
 - With [Entity Usage](/builder/architecture#what-a-layout-uses), pages are listed as using the saved blocks they link
   to, and a saved block as using its media and links.

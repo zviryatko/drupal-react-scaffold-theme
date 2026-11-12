@@ -587,6 +587,7 @@ NOTE;
     $tokens = [
       'spacing_sizes' => $this->themeKit->spacing(),
       'font_sizes' => $this->themeKit->fontSizes(),
+      'sizes' => $this->themeKit->sizes(),
       'colors' => array_map(static fn (array $color): string => $color['label'] . ' ' . $color['value'], $this->themeKit->colors()),
       'image_styles' => array_values($this->themeKit->imageStyles()),
       'features_on_every_item' => array_keys(array_filter(array_combine(ComponentFeatures::FEATURES, array_map(fn (string $feature): bool => $this->themeKit->featureDefault($feature), ComponentFeatures::FEATURES)))),
@@ -619,6 +620,8 @@ A layout is a list of items. An item is {"type": "<component type>", "props": {.
   of it (its images, settings) stays; give a new item a new short id of your own.
 - Every item may also have these optional props:
   "_spacing": {"margin": {"size": "<size or auto>", "sides": "all|horizontal|vertical"}, "padding": {...}}
+  "_size": {"width": {"size": "<a size name>"}, "height": {"size": "<a size name>"}}: the item is at most that wide
+    and at least that tall; either can be left out
   "_align": "start" | "center" | "end"
   "_background": {"color": "<a background colour name>"}
   "_text": {"size": "<a font size name>", "weight": "normal|medium|bold", "italic": true, "transform":

@@ -50,6 +50,14 @@ react_scaffold_builder:
       xl: 1.5rem
       2xl: 2rem
       3xl: 3rem
+    # How wide a component may be and how tall it is at least ("Size" in the builder).
+    sizes:
+      xs: 20rem
+      s: 30rem
+      m: 45rem
+      l: 60rem
+      xl: 75rem
+      full: 100%
     # Image styles offered for images: an image style, or "responsive:<responsive image style>".
     image_styles:
       - large
@@ -59,6 +67,7 @@ react_scaffold_builder:
   # Offered on every component; a component.yml can change it (thirdPartySettings.react_scaffold_builder.features).
   features:
     spacing: true
+    size: true
     align: true
     text: true
     background: true

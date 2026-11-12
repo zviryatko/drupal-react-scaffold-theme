@@ -36,6 +36,18 @@ class Paragraphs {
    */
   public const FIELD = 'react_scaffold_paragraphs';
 
+  /**
+   * The paragraph type of the Paragraphs Library module that shows an item
+   * of its library. The builder makes such paragraphs itself, for the pages
+   * that use a paragraph of the library; it is not offered as a block.
+   */
+  public const LIBRARY_TYPE = 'from_library';
+
+  /**
+   * The field of that paragraph type that names the item of the library.
+   */
+  public const LIBRARY_FIELD = 'field_reusable_paragraph';
+
   public function __construct(
     protected EntityTypeManagerInterface $entityTypeManager,
     protected ModuleHandlerInterface $moduleHandler,
@@ -194,6 +206,20 @@ class Paragraphs {
       $props = is_array($item['props'] ?? NULL) ? $item['props'] : [];
       [$kind, $bundle] = ComponentCatalog::parse((string) ($item['type'] ?? ''));
       $block = (string) ($props['id'] ?? '');
+      // A paragraph of the library that the page links to: the page gets a
+      // "From library" paragraph of its own that names it.
+      if ($kind === ComponentCatalog::SAVED && $block !== '' && $owner === $node && ($library = $this->libraryItem($bundle))) {
+        $wrapper = $this->load($props['paragraph'] ?? NULL, self::LIBRARY_TYPE);
+        $own = $wrapper && $this->belongsTo($wrapper, $owner) && !isset($seen[$wrapper->id()])
+          && (string) $wrapper->get(self::LIBRARY_FIELD)->target_id === (string) $library->id();
+        if ($own) {
+          $seen[$wrapper->id()] = TRUE;
+        }
+        else {
+          $pending[$block] = $this->wrapper($library);
+        }
+        continue;
+      }
       if ($kind === ComponentCatalog::PARAGRAPH && $block !== '' && isset($this->types()[$bundle])) {
         $values = $node ? $this->drafts->get($node, $block) : NULL;
         $paragraph = $this->load($props['paragraph'] ?? NULL, $bundle);
@@ -231,7 +257,7 @@ class Paragraphs {
    * Whether a paragraph is the one of this page or saved block.
    */
   protected function belongsTo(ContentEntityInterface $paragraph, ContentEntityInterface $owner): bool {
-    return $paragraph->get('parent_type')->value === $owner->getEntityTypeId()
+    return !$owner->isNew() && $paragraph->get('parent_type')->value === $owner->getEntityTypeId()
       && (string) $paragraph->get('parent_id')->value === (string) $owner->id();
   }
 
@@ -244,12 +270,12 @@ class Paragraphs {
       if (!is_array($item['props'] ?? NULL)) {
         continue;
       }
-      if (ComponentCatalog::parse((string) ($item['type'] ?? ''))[0] === ComponentCatalog::PARAGRAPH) {
-        $block = (string) ($item['props']['id'] ?? '');
-        if (isset($saved[$block])) {
-          $item['props']['paragraph'] = $saved[$block];
-        }
-        elseif (is_array($item['props']['paragraph'] ?? NULL)) {
+      $block = (string) ($item['props']['id'] ?? '');
+      if (isset($saved[$block])) {
+        $item['props']['paragraph'] = $saved[$block];
+      }
+      elseif (ComponentCatalog::parse((string) ($item['type'] ?? ''))[0] === ComponentCatalog::PARAGRAPH) {
+        if (is_array($item['props']['paragraph'] ?? NULL)) {
           unset($item['props']['paragraph']['draft']);
           if (empty($item['props']['paragraph']['id'])) {
             unset($item['props']['paragraph']);
@@ -262,6 +288,126 @@ class Paragraphs {
         }
       }
     }
+  }
+
+  /**
+   * Whether paragraphs are saved to the library of the Paragraphs Library
+   * module: it is installed and has its "From library" paragraph type.
+   */
+  public function libraryAvailable(): bool {
+    return $this->available()
+      && $this->moduleHandler->moduleExists('paragraphs_library')
+      && $this->entityTypeManager->hasDefinition('paragraphs_library_item')
+      && isset($this->types()[self::LIBRARY_TYPE]);
+  }
+
+  /**
+   * An item of the Paragraphs Library by UUID.
+   */
+  public function libraryItem(string $uuid): ?ContentEntityInterface {
+    if ($uuid === '' || !$this->libraryAvailable()) {
+      return NULL;
+    }
+    $found = $this->entityTypeManager->getStorage('paragraphs_library_item')->loadByProperties(['uuid' => $uuid]);
+    return $found ? reset($found) : NULL;
+  }
+
+  /**
+   * The items of the Paragraphs Library, by name.
+   */
+  public function libraryItems(): array {
+    if (!$this->libraryAvailable()) {
+      return [];
+    }
+    $storage = $this->entityTypeManager->getStorage('paragraphs_library_item');
+    return $storage->loadMultiple($storage->getQuery()->accessCheck(FALSE)->sort('label')->execute());
+  }
+
+  /**
+   * The paragraph an item of the library holds.
+   */
+  public function libraryParagraph(ContentEntityInterface $library): ?ContentEntityInterface {
+    $paragraph = $library->get('paragraphs')->entity;
+    return $paragraph instanceof ContentEntityInterface ? $paragraph : NULL;
+  }
+
+  /**
+   * A new "From library" paragraph that names an item of the library.
+   */
+  protected function wrapper(ContentEntityInterface $library): ContentEntityInterface {
+    return $this->entityTypeManager->getStorage('paragraph')->create([
+      'type' => self::LIBRARY_TYPE,
+      self::LIBRARY_FIELD => ['target_id' => $library->id()],
+    ]);
+  }
+
+  /**
+   * The "From library" paragraph to show for a block that links to an item
+   * of the library: the page's own once the page was saved, else a new one.
+   */
+  public function wrapperForDisplay(array $props, ContentEntityInterface $library): ContentEntityInterface {
+    $wrapper = $this->load($props['paragraph'] ?? NULL, self::LIBRARY_TYPE);
+    if ($wrapper && (string) $wrapper->get(self::LIBRARY_FIELD)->target_id === (string) $library->id()) {
+      return $wrapper;
+    }
+    return $this->wrapper($library);
+  }
+
+  /**
+   * Saves a Paragraph block to the Paragraphs Library: a new item, or a new
+   * revision of one, with a paragraph of its own that has the values the
+   * user typed in the block's form.
+   *
+   * @param \Drupal\Core\Entity\ContentEntityInterface|null $library
+   *   The item to update; NULL makes a new one.
+   * @param string $label
+   *   Its name; empty keeps the name it has.
+   * @param array $block
+   *   The Paragraph block sent by the editor.
+   * @param \Drupal\node\NodeInterface|null $node
+   *   The page (translation) the block is on, when known.
+   * @param string $message
+   *   The revision log message.
+   * @param array $errors
+   *   Filled with messages when nothing was saved.
+   */
+  public function saveToLibrary(?ContentEntityInterface $library, string $label, array $block, ?NodeInterface $node, string $message, array &$errors): ?ContentEntityInterface {
+    $library ??= $this->entityTypeManager->getStorage('paragraphs_library_item')->create(['label' => $label]);
+    [$kind, $bundle] = ComponentCatalog::parse((string) ($block['type'] ?? ''));
+    $id = (string) ($block['props']['id'] ?? '');
+    if ($kind !== ComponentCatalog::PARAGRAPH || $bundle === self::LIBRARY_TYPE || !isset($this->types()[$bundle])) {
+      $errors[] = 'Only a paragraph can be saved to the library.';
+      return NULL;
+    }
+    $pending = [];
+    $this->collect([$block], $node, $pending, $errors, $library);
+    if ($errors) {
+      return NULL;
+    }
+    $paragraph = $pending[$id] ?? $this->load($block['props']['paragraph'] ?? NULL, $bundle);
+    if (!$paragraph) {
+      $errors[] = 'The paragraph is empty: fill in its form first.';
+      return NULL;
+    }
+    if (isset($pending[$id]) && !$paragraph->isNew()) {
+      $paragraph->setNewRevision(TRUE);
+      $paragraph->setNeedsSave(TRUE);
+    }
+    $library->set('paragraphs', $paragraph);
+    if ($label !== '') {
+      $library->set('label', $label);
+    }
+    if (!$library->isNew()) {
+      $library->setNewRevision(TRUE);
+    }
+    $library->setRevisionLogMessage($message);
+    $library->setRevisionUserId(\Drupal::currentUser()->id());
+    $library->setRevisionCreationTime(\Drupal::time()->getRequestTime());
+    $library->save();
+    if ($node) {
+      $this->drafts->forget($node, $id);
+    }
+    return $library;
   }
 
   /**

@@ -13,6 +13,14 @@ The public API of the base theme, which follows semantic versioning:
 
 ## Unreleased
 
+- Page builder: a new feature **Size** in *Layout and style*: how wide a component may be (`max-width`) and how tall it
+  is at least (`min-height`), one of the theme's sizes or a custom length. Sizes are a new token, `uikit: sizes:` in the
+  theme's `.info.yml` (defaults `xs` 20rem to `xl` 75rem and `full`), with `features: size:`; in the Sass module
+  `rs.size()`, `rs.$sizes`, `--rs-size-*` and the classes `.rs-w-<size>`, `.rs-h-<size>`. Stored as `_size`.
+- Page builder: with the **Paragraphs Library** module a Paragraph block saved to the library is an item of that
+  library, with its revisions and log messages; a page that uses it gets a *From library* paragraph, made and dropped
+  by the builder. *From library* is no longer offered in the Blocks panel (blocks of it on existing pages keep working).
+  The Library box shows the type of the paragraph in place of a status.
 - Page builder: a Paragraph block saved to the library before its page was saved, or updated in the library, lost what
   was typed: the saved block now gets a paragraph of its own with those values (and a new revision on update); a copy on
   a page, and a duplicated block, get their own paragraph when the page is saved.

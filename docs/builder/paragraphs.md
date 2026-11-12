@@ -49,14 +49,19 @@ layout options:
 
 ## Reusing a paragraph
 
-Save the Paragraph block to the [library](/builder/library). Pages that link to the
-saved block show the same paragraph, in the revision the saved block names; updating the saved block updates them all.
-The Library box is under the form of the paragraph, above *Layout and style*: with *Update the saved block*
-it takes a revision log message. The saved block has a paragraph of its own, so it can be saved to the library before
-the page was ever saved, and a copy on a page becomes the page's own paragraph when the page is saved.
+Save the Paragraph block to the [library](/builder/library): the **Library** box is under the form of the paragraph,
+above *Layout and style*. Pages that use the saved paragraph show it as it is saved now; updating it, with a revision
+log message, updates them all.
 
-With the **Paragraphs Library** module there is a second way: the block **From library** shows an item of
-*Content → Paragraphs*, maintained outside the builder and usable in paragraph fields of other content types too.
+With the **Paragraphs Library** module the library is that module's: *Save to library* makes an item of
+*Content → Paragraphs*, which is also usable in paragraph fields of other content types, and has revisions with their
+log messages. A page that uses it gets a paragraph of the type **From library** that names the item. The builder
+makes that paragraph when the page is saved and drops it when you choose *Edit a copy here*; it is not a block to add
+by hand, so it is not in the Blocks panel. Items made in *Content → Paragraphs* are in the **Library** group of the
+Blocks panel like the ones saved in the builder. Saving and updating need the module's permissions *Create* and *Edit
+paragraph library item*, deleting *Administer Paragraphs library*.
+
+Without the module a saved paragraph is a saved block of the builder's own, with a paragraph that belongs to it.
 The [recipe](/builder/recipes) `react_scaffold_builder_paragraphs` installs it, with Entity Usage and a starter
 paragraph type.
 

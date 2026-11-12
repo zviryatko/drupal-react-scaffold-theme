@@ -28,7 +28,7 @@ export function BlocksPanel({ disabled }) {
   const [query, setQuery] = useState('');
   // Blocks saved to, or deleted from, the library since the editor was opened.
   const library = useLibraryVersion();
-  const offered = useMemo(() => settings.components.filter((component) => !component.deleted), [library]);
+  const offered = useMemo(() => settings.components.filter((component) => !component.deleted && !component.hidden), [library]);
   const groups = useMemo(() => {
     const byGroup = new Map();
     offered.forEach((component) => {

@@ -6,6 +6,7 @@ use Drupal\Component\Serialization\Json;
 use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Access\CsrfRequestHeaderAccessCheck;
 use Drupal\Core\Controller\ControllerBase;
+use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\Plugin\Validation\Constraint\EntityChangedConstraint;
 use Drupal\Core\Render\HtmlResponse;
 use Drupal\Core\Render\RendererInterface;
@@ -19,6 +20,7 @@ use Drupal\react_scaffold_builder\LayoutRenderer;
 use Drupal\react_scaffold_builder\LayoutStorage;
 use Drupal\react_scaffold_builder\MediaItems;
 use Drupal\react_scaffold_builder\NodeProperties;
+use Drupal\react_scaffold_builder\Paragraphs;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -558,16 +560,39 @@ class BuilderController extends ControllerBase {
    *   nothing in its place; copies stay.
    *
    * Answers with the editor's description of the block as a component.
+   *
+   * With the Paragraphs Library module a Paragraph block is saved as an item
+   * of that library, and the UUID is the item's (paragraphsLibrary()). A
+   * saved block of the builder's own (SavedBlock) is what other sites, and
+   * blocks saved before, have.
    */
   public function library(Request $request): JsonResponse {
     /** @var \Drupal\react_scaffold_builder\Library $library */
     $library = \Drupal::service('react_scaffold_builder.library');
+    /** @var \Drupal\react_scaffold_builder\Paragraphs $paragraphs */
+    $paragraphs = \Drupal::service('react_scaffold_builder.paragraphs');
     if ($request->isMethod('GET')) {
-      $saved = $library->load((string) $request->query->get('uuid'));
+      $uuid = (string) $request->query->get('uuid');
+      // A paragraph of the Paragraphs Library: the copy is a Paragraph block
+      // that names its paragraph. Saving the page gives the page its own.
+      if (($entry = $paragraphs->libraryItem($uuid)) && ($paragraph = $paragraphs->libraryParagraph($entry))) {
+        $item = ['type' => ComponentCatalog::PARAGRAPH . ':' . $paragraph->bundle(), 'props' => ['id' => 'copy', 'paragraph' => $paragraphs::reference($paragraph)]];
+        $item = \Drupal::service('react_scaffold_builder.migrator')->migrate(['content' => [$item]])['content'][0];
+        return new JsonResponse(['item' => $item, 'label' => $entry->label()]);
+      }
+      $saved = $library->load($uuid);
       $item = $saved ? $library->item($saved) : NULL;
       return $item ? new JsonResponse(['item' => $item, 'label' => $saved->label()]) : new JsonResponse(['errors' => ['This saved block no longer exists.']], 404);
     }
     $input = Json::decode($request->getContent()) ?: [];
+    $entry = isset($input['uuid']) ? $paragraphs->libraryItem((string) $input['uuid']) : NULL;
+    $block = is_array($input['item'] ?? NULL) && is_string($input['item']['type'] ?? NULL) ? $input['item'] : NULL;
+    // Paragraphs go to the Paragraphs Library when the site has it.
+    $to_paragraphs_library = !isset($input['uuid']) && $block && $paragraphs->libraryAvailable()
+      && ComponentCatalog::parse($block['type'])[0] === ComponentCatalog::PARAGRAPH;
+    if ($entry || $to_paragraphs_library) {
+      return $this->paragraphsLibrary($entry, $input, $block, $paragraphs);
+    }
     $saved = isset($input['uuid']) ? $library->load((string) $input['uuid']) : NULL;
     if (isset($input['uuid']) && !$saved) {
       return new JsonResponse(['errors' => ['This saved block no longer exists.']], 404);
@@ -592,16 +617,7 @@ class BuilderController extends ControllerBase {
         }
       }
     }
-    // The page the item is on: the paragraphs in it may have values that
-    // are not saved yet, kept for this user and page.
-    $node = !empty($input['node']) ? $this->entityTypeManager()->getStorage('node')->load($input['node']) : NULL;
-    if ($node instanceof NodeInterface && $node->access('update')) {
-      $langcode = (string) ($input['langcode'] ?? '');
-      $node = $this->latest($node->hasTranslation($langcode) ? $node->getTranslation($langcode) : $node);
-    }
-    else {
-      $node = NULL;
-    }
+    $node = $this->libraryNode($input);
     $new = !$saved;
     if ($new) {
       // Saved first: its paragraphs belong to it.
@@ -622,6 +638,50 @@ class BuilderController extends ControllerBase {
     $library->record($saved, (string) ($input['message'] ?? ''));
     $saved->save();
     return new JsonResponse(['component' => $this->catalog->savedComponent($saved) + ['fields' => []], 'uuid' => $saved->uuid()]);
+  }
+
+  /**
+   * The library of the Paragraphs Library module: saves, updates or deletes
+   * an item for the editor, with the permissions of that module.
+   */
+  protected function paragraphsLibrary(?ContentEntityInterface $entry, array $input, ?array $block, Paragraphs $paragraphs): JsonResponse {
+    if ($entry && !empty($input['delete'])) {
+      if (!$entry->access('delete')) {
+        return new JsonResponse(['errors' => ['You may not delete items of the paragraphs library.']], 403);
+      }
+      $entry->delete();
+      return new JsonResponse(['deleted' => TRUE]);
+    }
+    $allowed = $entry
+      ? $entry->access('update')
+      : $this->entityTypeManager()->getAccessControlHandler('paragraphs_library_item')->createAccess();
+    if (!$allowed) {
+      return new JsonResponse(['errors' => ['You may not change the paragraphs library.']], 403);
+    }
+    $label = mb_substr(trim((string) ($input['label'] ?? '')), 0, 255);
+    if (!$block || (!$entry && $label === '')) {
+      return new JsonResponse(['errors' => ['A name and a paragraph are needed.']], 400);
+    }
+    $node = $this->libraryNode($input);
+    $errors = [];
+    $entry = $paragraphs->saveToLibrary($entry, $label, $block, $node, trim((string) ($input['message'] ?? '')), $errors);
+    if (!$entry) {
+      return new JsonResponse(['errors' => $errors], 422);
+    }
+    return new JsonResponse(['component' => $this->catalog->libraryComponent($entry) + ['fields' => []], 'uuid' => $entry->uuid()]);
+  }
+
+  /**
+   * The page an item sent to the library is on: the paragraphs in it may
+   * have values that are not saved yet, kept for this user and page.
+   */
+  protected function libraryNode(array $input): ?NodeInterface {
+    $node = !empty($input['node']) ? $this->entityTypeManager()->getStorage('node')->load($input['node']) : NULL;
+    if (!$node instanceof NodeInterface || !$node->access('update')) {
+      return NULL;
+    }
+    $langcode = (string) ($input['langcode'] ?? '');
+    return $this->latest($node->hasTranslation($langcode) ? $node->getTranslation($langcode) : $node);
   }
 
   /**

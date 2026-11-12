@@ -9,6 +9,8 @@ use Drupal\Component\Utility\UrlHelper;
  *
  * - spacing: margin and padding, from the theme's spacing scale or a custom
  *   length, on all sides, left and right, or top and bottom.
+ * - size: how wide the component may be and how tall it is at least, one of
+ *   the theme's sizes or a custom length.
  * - align: the content at the start, in the centre or at the end of the
  *   line. Start and end, not left and right: they swap in right-to-left
  *   languages.
@@ -28,7 +30,7 @@ use Drupal\Component\Utility\UrlHelper;
  *     features: { position: true, background: false }
  * @endcode
  *
- * Values are stored in the layout next to the props, under "_spacing",
+ * Values are stored in the layout next to the props, under "_spacing", "_size",
  * "_align", "_background" and "_position", and become inline styles on the root
  * element of the component (through its `attributes`), so a component needs
  * no code for them. Everything printed is a token of the theme or a checked
@@ -36,7 +38,7 @@ use Drupal\Component\Utility\UrlHelper;
  */
 class ComponentFeatures {
 
-  public const FEATURES = ['spacing', 'align', 'text', 'background', 'position'];
+  public const FEATURES = ['spacing', 'size', 'align', 'text', 'background', 'position'];
 
   protected const CORNERS = [
     'top-left' => ['top', 'left', '-50%', '-50%'],
@@ -75,6 +77,14 @@ class ComponentFeatures {
     foreach ($this->enabled($definition) as $feature) {
       $fields[] = match ($feature) {
         'spacing' => ['name' => '_spacing', 'label' => 'Spacing', 'widget' => 'spacing', 'sizes' => $sizes],
+        'size' => ['name' => '_size', 'label' => 'Size', 'widget' => 'size',
+          'sizes' => array_map(
+            static fn (string $name, string $value): array => ['value' => $name, 'label' => strtoupper($name) . " ($value)"],
+            array_keys($this->kit->sizes()),
+            $this->kit->sizes(),
+          ),
+          'description' => 'Width: the component is at most this wide. Height: it is at least this tall.',
+        ],
         'align' => ['name' => '_align', 'label' => 'Alignment', 'widget' => 'align'],
         'text' => ['name' => '_text', 'label' => 'Text'] + $this->textStyleField()
           + ['description' => 'For the text in this component. Text that the component gives a size of its own (most headings) keeps that size.'],
@@ -196,6 +206,16 @@ class ComponentFeatures {
           $suffix = ['horizontal' => '-inline', 'vertical' => '-block'][$values['_spacing'][$property]['sides'] ?? ''] ?? '';
           $style[$property . $suffix] = $length;
         }
+      }
+    }
+    if (in_array('size', $enabled, TRUE) && is_array($values['_size'] ?? NULL)) {
+      // A limit, not a fixed width: on a narrow screen the component is as
+      // wide as its place.
+      if ($width = $this->kit->size($values['_size']['width'] ?? NULL)) {
+        $style['max-width'] = $width;
+      }
+      if ($height = $this->kit->size($values['_size']['height'] ?? NULL)) {
+        $style['min-height'] = $height;
       }
     }
     if (in_array('align', $enabled, TRUE) && in_array($values['_align'] ?? '', ['start', 'center', 'end'], TRUE)) {

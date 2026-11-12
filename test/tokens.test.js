@@ -73,6 +73,9 @@ my_theme.wide:
     expect(css).toMatch(/\.rs-px-m \{\s*padding-inline: 1rem;/);
     expect(css).toMatch(/\.rs-bg-brand \{\s*background-color: #123456;/);
     expect(css).toMatch(/\.rs-text-2xl \{\s*font-size: 2rem;/);
+    // Sizes: the defaults, as the theme declares none.
+    expect(css).toMatch(/\.rs-w-l \{\s*max-width: 60rem;/);
+    expect(css).toMatch(/--rs-size-full: 100%/);
     expect(css).toContain('.rs-m-s\\@wide');
     // The theme switched the position feature off.
     expect(css).not.toContain('.rs-pin-');

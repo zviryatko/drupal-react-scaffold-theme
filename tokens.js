@@ -24,7 +24,8 @@ export const DEFAULTS = {
   spacing: { xs: '0.25rem', s: '0.5rem', m: '1rem', l: '2rem', xl: '4rem' },
   colors: {},
   font_sizes: { xs: '0.75rem', s: '0.875rem', m: '1rem', l: '1.25rem', xl: '1.5rem', '2xl': '2rem', '3xl': '3rem' },
-  features: { spacing: true, align: true, text: true, background: true, position: true },
+  sizes: { xs: '20rem', s: '30rem', m: '45rem', l: '60rem', xl: '75rem', full: '100%' },
+  features: { spacing: true, size: true, align: true, text: true, background: true, position: true },
 };
 
 const LENGTH = /^-?\d+(\.\d+)?(px|rem|em|%|vw|vh|ch)$/;
@@ -70,7 +71,7 @@ function themeChain(root) {
  * The tokens of the theme in `root`, merged over its base themes as ThemeKit does: a scale or the palette is replaced
  * as a whole by the nearest theme that declares it, features are merged one by one.
  *
- * @returns {{theme: string, spacing: object, colors: object, fontSizes: object, features: object, breakpoints: object, files: string[]}}
+ * @returns {{theme: string, spacing: object, colors: object, fontSizes: object, sizes: object, features: object, breakpoints: object, files: string[]}}
  *   `breakpoints`: name => media query, smallest first; `files`: the YAML files read (for a watcher).
  */
 export function readTokens(root) {
@@ -80,7 +81,7 @@ export function readTokens(root) {
   for (const { name, dir, info } of [...chain].reverse()) {
     files.push(join(dir, `${name}.info.yml`));
     const own = isMap(info.react_scaffold_builder) ? info.react_scaffold_builder : {};
-    for (const key of ['spacing', 'colors', 'font_sizes']) {
+    for (const key of ['spacing', 'colors', 'font_sizes', 'sizes']) {
       if (isMap(own.uikit) && isMap(own.uikit[key])) settings[key] = own.uikit[key];
     }
     if (isMap(own.features)) Object.assign(settings.features, own.features);
@@ -118,6 +119,7 @@ export function readTokens(root) {
     spacing: lengths(settings.spacing),
     colors,
     fontSizes: lengths(settings.font_sizes),
+    sizes: lengths(settings.sizes),
     features: Object.fromEntries(Object.keys(DEFAULTS.features).map((feature) => [feature, Boolean(settings.features[feature])])),
     breakpoints,
     files,
@@ -141,6 +143,8 @@ $spacing: ${map(tokens.spacing)};
 $colors: ${map(tokens.colors)};
 // Type scale.
 $font-sizes: ${map(tokens.fontSizes)};
+// Sizes: how wide and how tall a component can be.
+$sizes: ${map(tokens.sizes)};
 // Breakpoints: name => media query ('' for the smallest screens), smallest first.
 $breakpoints: ${map(tokens.breakpoints, quoted)};
 // Builder features offered on components by default.
@@ -172,6 +176,11 @@ $line-heights: ('tight': 1.2, 'normal': 1.5, 'loose': 1.8);
   @return -token($font-sizes, $name, 'font size');
 }
 
+/// One of the theme's sizes: \`max-width: rs.size(l)\`.
+@function size($name) {
+  @return -token($sizes, $name, 'size');
+}
+
 /// Styles from a breakpoint of the theme up: \`@include rs.breakpoint(tablet) { ... }\`.
 @mixin breakpoint($name) {
   $query: -token($breakpoints, $name, 'breakpoint');
@@ -196,6 +205,9 @@ $line-heights: ('tight': 1.2, 'normal': 1.5, 'loose': 1.8);
     }
     @each $name, $value in $colors {
       --rs-color-#{$name}: #{$value};
+    }
+    @each $name, $value in $sizes {
+      --rs-size-#{$name}: #{$value};
     }
     @if map.has-key($colors, 'accent') {
       --rs-accent: #{map.get($colors, 'accent')};
@@ -223,6 +235,13 @@ $line-heights: ('tight': 1.2, 'normal': 1.5, 'loose': 1.8);
     }
     @each $name, $value in $spacing {
       .#{$prefix}-gap-#{$name}#{$at} { gap: $value; }
+    }
+  }
+
+  @if map.get($features, 'size') {
+    @each $name, $value in $sizes {
+      .#{$prefix}-w-#{$name}#{$at} { max-width: $value; }
+      .#{$prefix}-h-#{$name}#{$at} { min-height: $value; }
     }
   }
 

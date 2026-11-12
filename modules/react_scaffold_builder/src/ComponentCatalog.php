@@ -2,6 +2,7 @@
 
 namespace Drupal\react_scaffold_builder;
 
+use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Block\BlockManagerInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
@@ -257,7 +258,7 @@ class ComponentCatalog {
       }
       // Paragraph blocks are what is saved to the library. Other components
       // show the box only when they are a copy of a saved block.
-      $field = self::libraryField() + ['offer' => self::parse($component['id'])[0] === self::PARAGRAPH];
+      $field = self::libraryField() + ['offer' => self::parse($component['id'])[0] === self::PARAGRAPH && empty($component['hidden'])];
       array_splice($component['fields'], $at, 0, [$field]);
     }
     return $config;
@@ -303,6 +304,31 @@ class ComponentCatalog {
   }
 
   /**
+   * The editor's description of one item of the Paragraphs Library, as a
+   * component: the same as a saved block.
+   */
+  public function libraryComponent(ContentEntityInterface $library): array {
+    $paragraph = $this->paragraphs->libraryParagraph($library);
+    $user = $library->getRevisionUser();
+    return [
+      'id' => self::SAVED . ':' . $library->uuid(),
+      'label' => (string) $library->label(),
+      'icon' => 'library',
+      'group' => 'Library',
+      'description' => 'A paragraph of the library. It is shown as it is saved now, on every page that uses it.',
+      'fields' => array_merge([self::libraryField()], $this->features->fields([])),
+      'slots' => [],
+      'saved' => $library->uuid(),
+      'info' => [
+        'type' => $paragraph ? (string) $paragraph->type->entity?->label() : '',
+        'saved' => (string) \Drupal::service('date.formatter')->format((int) $library->getChangedTime(), 'short'),
+        'author' => $user ? (string) $user->getDisplayName() : '',
+        'message' => (string) $library->getRevisionLogMessage(),
+      ],
+    ];
+  }
+
+  /**
    * One component per paragraph type (Paragraphs module).
    */
   protected function paragraphComponents(): array {
@@ -325,6 +351,12 @@ class ComponentCatalog {
         ]],
         'slots' => [],
       ];
+      // Made by the builder itself, for pages that use a paragraph of the
+      // library: not something to add by hand. Blocks of this type that
+      // pages already have keep working.
+      if ($id === Paragraphs::LIBRARY_TYPE && $this->paragraphs->libraryAvailable()) {
+        $components[count($components) - 1]['hidden'] = TRUE;
+      }
     }
     return $components;
   }
@@ -333,7 +365,11 @@ class ComponentCatalog {
    * One component per block of the library.
    */
   protected function savedComponents(): array {
-    return array_values(array_map(fn (Entity\SavedBlock $saved): array => ['fields' => []] + $this->savedComponent($saved), $this->library->all()));
+    $components = array_map(fn (Entity\SavedBlock $saved): array => ['fields' => []] + $this->savedComponent($saved), $this->library->all());
+    foreach ($this->paragraphs->libraryItems() as $library) {
+      $components[] = ['fields' => []] + $this->libraryComponent($library);
+    }
+    return array_values($components);
   }
 
   /**

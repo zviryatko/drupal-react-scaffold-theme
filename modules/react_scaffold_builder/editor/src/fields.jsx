@@ -7,7 +7,7 @@ import { FormItem, Modal } from './ui';
 import { TokenInput } from './TokenInput';
 import { TokenBrowser } from './TokenBrowser';
 import { attachTokenAutocomplete } from './ckeditorTokens';
-import { AlignWidget, BackgroundWidget, LengthPicker, PositionWidget, SpacingWidget, LibraryWidget, ColorWidget, TextStyleWidget } from './featureFields';
+import { AlignWidget, BackgroundWidget, LengthPicker, PositionWidget, SpacingWidget, SizeWidget, LibraryWidget, ColorWidget, TextStyleWidget } from './featureFields';
 
 /** Calls `callback(value)` after `delay` ms without a new value. */
 function useDebounced(value, delay, callback) {
@@ -554,6 +554,7 @@ const widgets = {
   formatter: FormatterWidget,
   length: LengthWidget,
   spacing: SpacingWidget,
+  size: SizeWidget,
   align: AlignWidget,
   position: PositionWidget,
   background: BackgroundWidget,

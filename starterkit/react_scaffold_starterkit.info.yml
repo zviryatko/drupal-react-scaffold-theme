@@ -36,6 +36,14 @@ react_scaffold_builder:
       xl: 1.5rem
       2xl: 2rem
       3xl: 3rem
+    # How wide a component may be and how tall it is at least ("Size" in the builder).
+    sizes:
+      xs: 20rem
+      s: 30rem
+      m: 45rem
+      l: 60rem
+      xl: 75rem
+      full: 100%
 
 # Drupal does not inherit regions from a base theme, so they are declared here. Keep this list equal to react_scaffold.info.yml,
 # the base theme's page.html.twig prints exactly these regions (a test checks it).

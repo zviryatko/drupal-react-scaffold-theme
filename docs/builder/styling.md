@@ -38,6 +38,13 @@ react_scaffold_builder:
       m: 1rem
       l: 1.25rem
       xl: 1.5rem
+    # Sizes: name => CSS length. How wide a component may be, how tall it is at least.
+    sizes:
+      s: 30rem
+      m: 45rem
+      l: 60rem
+      xl: 75rem
+      full: 100%
     # Palette: the only colours an editor can pick.
     colors:
       green: { label: 'Green', value: '#008068' }
@@ -50,6 +57,7 @@ react_scaffold_builder:
   # Offered on every component (see below).
   features:
     spacing: true
+    size: true
     align: true
     text: true
     background: true
@@ -92,9 +100,9 @@ So "padding M" chosen by an editor and `rs.space(m)` in a component are the same
 
 | In the module | Is |
 |---|---|
-| `rs.space($name)`, `rs.color($name)`, `rs.font-size($name)` | a value of the spacing scale, the palette, the type scale |
+| `rs.space($name)`, `rs.color($name)`, `rs.font-size($name)`, `rs.size($name)` | a value of the spacing scale, the palette, the type scale, the sizes |
 | `@include rs.breakpoint($name) { … }` | the media query of a breakpoint of `<theme>.breakpoints.yml`; the name is the part after the theme (`my_theme.tablet` is `tablet`). A breakpoint without a media query applies always |
-| `rs.$spacing`, `rs.$colors`, `rs.$font-sizes`, `rs.$breakpoints`, `rs.$features` | the same as maps, to loop over |
+| `rs.$spacing`, `rs.$colors`, `rs.$font-sizes`, `rs.$sizes`, `rs.$breakpoints`, `rs.$features` | the same as maps, to loop over |
 | `@include rs.custom-properties;` | `:root { --rs-space-m: 1rem; … }`: the custom properties the module prints, for pages and tools that load only your CSS |
 | `@include rs.utilities;` | a class for every choice an editor has (below) |
 | `@include rs.rules;` | both of the above |
@@ -111,6 +119,7 @@ can use what editors use in the builder:
 | Feature | Classes (prefix `rs`) |
 |---|---|
 | spacing | `.rs-m-<step>`, `.rs-p-<step>`; a side with `x`, `y`, `t`, `b`, `s`, `e` (`.rs-px-m`, `.rs-mt-l`); `-0` and, for margin, `-auto` (`.rs-mx-auto`); `.rs-gap-<step>` |
+| size | `.rs-w-<size>` (`max-width`), `.rs-h-<size>` (`min-height`) |
 | align | `.rs-align-start`, `-center`, `-end` |
 | text | `.rs-text-<size>`, `.rs-weight-normal`/`-medium`/`-bold`, `.rs-leading-tight`/`-normal`/`-loose`, `.rs-italic`, `.rs-uppercase`/`-lowercase`/`-capitalize`, `.rs-color-<colour>` |
 | background | `.rs-bg-<colour>`, `.rs-bg-cover`/`-contain`/`-stretch`/`-auto` |
@@ -148,6 +157,7 @@ A section there is folded while nothing is set in it.
 | Feature | The editor chooses | What is printed on the root element |
 |---|---|---|
 | **spacing** | margin and padding: a step of the scale or a custom length; all sides, horizontal or vertical. Margin can also be *Auto* | `margin`, `margin-inline` or `margin-block`; the same for `padding` |
+| **size** | width and height: one of the theme's sizes or a custom length | `max-width` (at most this wide, so it still fits a narrow screen), `min-height` |
 | **align** | start, centre or end | `text-align: start \| center \| end` |
 | **text** | size (a step of the type scale, or a custom length), weight, italic, case, line height, a colour of the palette | `font-size`, `font-weight`, `font-style`, `text-transform`, `line-height`, `color` |
 | **background** | a colour of the palette; an image with fill and visible part | `background-color`; `background-image`, `-size`, `-repeat`, `-position` |

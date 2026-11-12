@@ -87,6 +87,34 @@ export function SpacingWidget({ id, value, onChange, readOnly, field }) {
   );
 }
 
+/**
+ * How large the component is: at most this wide, at least this tall. Each is one of the theme's sizes
+ * (`uikit.sizes`) or a custom length. Value: `{ width: { size, custom }, height: { size, custom } }`.
+ */
+export function SizeWidget({ id, value, onChange, readOnly, field }) {
+  const current = value || {};
+  const row = (property, label) => {
+    const set = (next) => {
+      const all = { ...current, [property]: next?.size ? next : undefined };
+      const kept = Object.fromEntries(Object.entries(all).filter(([, part]) => part?.size));
+      onChange(Object.keys(kept).length ? kept : null);
+    };
+    return (
+      <div className="rsb-feature__field">
+        <label className="rsb-label" htmlFor={`${id}-${property}`}>{label}</label>
+        <LengthPicker id={`${id}-${property}`} label={label} value={current[property] || {}} sizes={field.sizes || []} readOnly={readOnly} onChange={set} />
+      </div>
+    );
+  };
+  const set = ['width', 'height'].filter((property) => current[property]?.size);
+  return (
+    <Feature field={field} changed={set.length > 0} summary={set.map((property) => `${property} ${sizeText(current[property])}`).join(', ')}>
+      {row('width', 'Width, at most')}
+      {row('height', 'Height, at least')}
+    </Feature>
+  );
+}
+
 // Three bars per icon, the way a text editor draws alignment.
 const bars = (xs) => (
   <svg width="18" height="14" viewBox="0 0 18 14" aria-hidden="true">
@@ -380,13 +408,13 @@ export function LibraryWidget({ id, value, readOnly, field }) {
   // Offered for Paragraph blocks. Anything else has the box only when it is, or is a copy of, a saved block.
   if (!linkedUuid && !origin && !field.offer) return <div className="rsb-none" />;
   const info = saved?.info;
-  let status = '';
+  // What it is: the paragraph type, or the component.
+  const kind = info?.type || (!linkedUuid && settings.components.find((component) => component.id === toDrupalType(selected.type))?.label) || '';
   let body = null;
   if (linkedUuid) {
-    status = saved ? 'Saved block' : 'Deleted saved block';
     body = saved ? (
       <>
-        <p className="rsb-meta__note">Shown as it is saved now. A change to the saved block changes every page that uses it.</p>
+        <p className="rsb-meta__note">Used from the library: shown as it is saved now. A change to the saved block changes every page that uses it.</p>
         {!readOnly && (
           <div className="rsb-actions">
             <button id={id} type="button" className="rsb-button rsb-button--small" disabled={busy} onClick={copy} title="Replaces this with a copy that you can change on this page">Edit a copy here</button>
@@ -399,10 +427,9 @@ export function LibraryWidget({ id, value, readOnly, field }) {
     ) : <p className="rsb-meta__note">This saved block was deleted from the library. Nothing is shown in its place; remove it.</p>;
   }
   else if (origin) {
-    status = 'Copy of a saved block';
     body = (
       <>
-        <p className="rsb-meta__note">The page's own: it no longer follows the saved block{saved ? '' : ', which was deleted'}.</p>
+        <p className="rsb-meta__note">A copy of the saved block, the page's own: it no longer follows the saved block{saved ? '' : ', which was deleted'}.</p>
         {!readOnly && saved && (
           <>
             {log('Briefly describe what you changed, when you update the saved block.')}
@@ -420,7 +447,7 @@ export function LibraryWidget({ id, value, readOnly, field }) {
     <div className="rsb-form-item">
       <div className="rsb-meta">
         <h3 className="rsb-meta__title">Library</h3>
-        {status && <div className="rsb-meta__item"><strong>Status:</strong> {status}</div>}
+        {kind && <div className="rsb-meta__item"><strong>Type:</strong> {kind}</div>}
         {(linkedUuid || origin) && <div className="rsb-meta__item"><strong>Name:</strong> {saved?.label || origin?.label || 'unknown'}</div>}
         {info?.saved && <div className="rsb-meta__item"><strong>Last saved:</strong> {info.saved}</div>}
         {info?.author && <div className="rsb-meta__item"><strong>Author:</strong> {info.author}</div>}

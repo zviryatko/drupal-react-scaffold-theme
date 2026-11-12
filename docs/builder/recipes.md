@@ -7,7 +7,7 @@ role. They are in `recipes/` of the theme and are applied by path (Drupal 11).
 | Recipe | Installs | Sets up |
 |---|---|---|
 | `react_scaffold_builder` | the base theme, React Scaffold Builder, Media Library, Breakpoint, Responsive Image, Menu UI, Path, CKEditor | the **Landing page** content type, the Image media type, image styles and the responsive image styles *Narrow*, *Wide* and *Hero (per breakpoint)*, the Basic HTML text format, the default theme, the **Content editor** role |
-| `react_scaffold_builder_paragraphs` | Paragraphs, Entity Reference Revisions, Paragraphs Library, Entity Usage | the paragraph types **Text block** (a starter) and **From library** (reused paragraphs), a *Usage* tab on media, content and library items |
+| `react_scaffold_builder_paragraphs` | Paragraphs, Entity Reference Revisions, Paragraphs Library, Entity Usage | the paragraph types **Text block** (a starter) and **From library** (made by the builder for pages that use a paragraph of the library), a *Usage* tab on media, content and library items |
 | `react_scaffold_builder_seo` | Metatag, Metatag: Open Graph, Token | a **Meta tags** field on Landing page, in the page settings of the builder |
 | `react_scaffold_builder_ai` | AI, React Scaffold Builder AI | the permission for the assistant |
 | `react_scaffold_builder_full` | all of the above | |
@@ -70,12 +70,9 @@ its paragraphs as they were. See [Paragraphs](/builder/paragraphs#what-is-stored
 
 ### Reused paragraphs
 
-Two ways, both set up by `react_scaffold_builder_paragraphs`:
-
-- the builder's own [library of saved blocks](/builder/library): save any block, a Paragraph block included, and link
-  it on other pages;
-- the **Paragraphs Library** module: the block **From library** shows an item of *Content → Paragraphs*, which editors
-  maintain outside the builder. Use it when the same paragraphs are also used in fields of other content types.
+A Paragraph block is saved to the library from its **Library** box. With this recipe the library is the one of the
+**Paragraphs Library** module (*Content → Paragraphs*), so the same paragraphs can be used in fields of other content
+types; see [Reusing a paragraph](/builder/paragraphs#reusing-a-paragraph).
 
 **Text block** is a starter type with a title and a text; add your own under *Structure → Paragraph types*, each becomes
 a block.
