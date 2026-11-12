@@ -27,6 +27,8 @@ jobs:
           cache-dependency-path: docs/package-lock.json
       - run: npm ci --prefix docs
       - run: npm run build --prefix docs
+        env:
+          UMAMI_WEBSITE_ID: ${{ vars.UMAMI_WEBSITE_ID }}
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:

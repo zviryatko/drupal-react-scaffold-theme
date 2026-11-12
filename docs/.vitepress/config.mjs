@@ -1,13 +1,20 @@
 import { defineConfig } from 'vitepress';
 
 // Deployed to https://zviryatko.github.io/frame/
+
+// Umami analytics: the tracker is added only when UMAMI_WEBSITE_ID is set for the build (the Docs workflow sets it
+// from the repository variable of that name), so local builds and previews are not counted.
+const umami = process.env.UMAMI_WEBSITE_ID
+  ? [['script', { defer: '', src: process.env.UMAMI_SCRIPT_URL || 'https://cloud.umami.is/script.js', 'data-website-id': process.env.UMAMI_WEBSITE_ID }]]
+  : [];
+
 export default defineConfig({
   title: 'Frame',
   description: "The Last Page Builder You'll Ever Need. Drupal Edition. A visual page builder over the Single Directory Components of your theme, with React for interactive components.",
   base: '/frame/',
   cleanUrls: true,
   lastUpdated: true,
-  head: [['link', { rel: 'icon', href: '/frame/logo.svg' }]],
+  head: [['link', { rel: 'icon', href: '/frame/logo.svg' }], ...umami],
   themeConfig: {
     logo: '/logo.svg',
     nav: [
