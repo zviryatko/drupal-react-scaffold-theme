@@ -1,8 +1,9 @@
 name: 'Frame page builder: everything'
-description: 'The page builder with all it supports: media and responsive images, paragraphs with the library and usage tracking, meta tags and the AI assistant.'
+description: 'The page builder with all it supports: media and responsive images, paragraphs with the library and usage tracking, field groups as panels of the editor, meta tags and the AI assistant.'
 type: 'Page builder'
 recipes:
   - frame_builder
   - frame_builder_paragraphs
+  - frame_builder_field_group
   - frame_builder_seo
   - frame_builder_ai

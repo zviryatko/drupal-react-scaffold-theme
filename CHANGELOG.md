@@ -32,7 +32,7 @@ The public API of the base theme, which follows semantic versioning:
   tabs are the panels. Groups inside a panel stay groups, a *Details sidebar* group is in the page settings. The
   settings of a group have **Icon in the page builder** (a name of the editor's icon set or classes of an icon font;
   without one the button shows the initials of the label). `drupalSettings.frameBuilder.sections` is now a list of
-  `{ name, label, icon }`.
+  `{ name, label, icon }`. The recipe `frame_builder_field_group` installs the module; `frame_builder_full` includes it.
 - Page builder: an image of a Field block (an image field, a media item) is never wider than the place the block is in.
   Labels in the rail of the editor are a little smaller and wrap, so a long name of a panel stays inside.
 - Page builder: an empty required field no longer leaves a save waiting for half a minute. The browser's own check of

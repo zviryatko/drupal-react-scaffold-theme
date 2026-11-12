@@ -69,14 +69,14 @@ Breakpoints come from the base theme (mobile, tablet at 48em, desktop at 75em) u
 
 ```bash
 # from the project root
-composer require drupal/paragraphs drupal/entity_usage drupal/metatag drupal/ai
+composer require drupal/paragraphs drupal/entity_usage drupal/field_group drupal/metatag drupal/ai
 cd web
 ../vendor/bin/drush theme:install my_theme
 ../vendor/bin/drush recipe themes/contrib/frame/recipes/frame_builder_full --input=frame_builder.theme=my_theme
 ../vendor/bin/drush cr
 ```
 
-This installs the builder with media, responsive images, paragraphs, meta tags and the assistant, makes `my_theme` the
+This installs the builder with media, responsive images, paragraphs, field groups, meta tags and the assistant, makes `my_theme` the
 default theme and gives the **Content editor** role what it needs. Take a smaller recipe if you want less:
 [Recipes](/builder/recipes) lists them, and what each sets up.
 

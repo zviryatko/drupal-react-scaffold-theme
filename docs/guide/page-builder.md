@@ -70,7 +70,7 @@ For such a content type:
 ### Field groups
 
 A content type with many fields is easier to edit in parts. Install
-[Field Group](https://www.drupal.org/project/field_group) and group the fields on *Manage form display* of the content
+[Field Group](https://www.drupal.org/project/field_group) (the recipe [`frame_builder_field_group`](/builder/recipes) does) and group the fields on *Manage form display* of the content
 type: the editor shows every **top-level group** as a panel, with a button in the rail on the left, after **Content**.
 
 <Video src="/media/page-builder-field-groups.mp4" poster="/media/builder/field-groups.png" />

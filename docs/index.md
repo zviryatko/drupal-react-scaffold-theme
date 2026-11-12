@@ -137,7 +137,7 @@ With the theme in `themes/contrib/frame` ([Getting started](/guide/getting-start
 content type, media, responsive images, paragraphs with the library, meta tags, the assistant and a role for editors:
 
 ```bash
-composer require drupal/paragraphs drupal/entity_usage drupal/metatag drupal/ai
+composer require drupal/paragraphs drupal/entity_usage drupal/field_group drupal/metatag drupal/ai
 drush recipe themes/contrib/frame/recipes/frame_builder_full --input=frame_builder.theme=my_theme
 ```
 

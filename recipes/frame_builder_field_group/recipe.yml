@@ -1,0 +1,9 @@
+name: 'Frame page builder: field groups'
+description: 'Long forms in parts: the Field Group module, whose top-level groups of the form of a content type are panels of the page builder, each with its own button. Group the fields on "Manage form display" of the content type.'
+type: 'Page builder'
+recipes:
+  - frame_builder
+install:
+  - field_group
+  # Where the fields of a content type are put into groups ("Manage form display").
+  - field_ui

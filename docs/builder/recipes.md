@@ -8,11 +8,12 @@ role. They are in `recipes/` of the theme and are applied by path (Drupal 11).
 |---|---|---|
 | `frame_builder` | the base theme, Frame Builder, Media Library, Breakpoint, Responsive Image, Menu UI, Path, CKEditor | the **Landing page** content type, the Image media type, image styles and the responsive image styles *Narrow*, *Wide* and *Hero (per breakpoint)*, the Basic HTML text format, the default theme, the **Content editor** role |
 | `frame_builder_paragraphs` | Paragraphs, Entity Reference Revisions, Paragraphs Library, Entity Usage | the paragraph types **Text block** (a starter) and **From library** (made by the builder for pages that use a paragraph of the library), a *Usage* tab on media, content and library items |
+| `frame_builder_field_group` | Field Group, Field UI | nothing: group the fields on *Manage form display* of a content type, each top-level group is a panel of the editor |
 | `frame_builder_seo` | Metatag, Metatag: Open Graph, Token | a **Meta tags** field on Landing page, in the page settings of the builder |
 | `frame_builder_ai` | AI, Frame Builder AI | the permission for the assistant |
 | `frame_builder_full` | all of the above | |
 
-Each of the last four applies `frame_builder` first, so one command is enough. A recipe never replaces
+Each of the last five applies `frame_builder` first, so one command is enough. A recipe never replaces
 configuration that exists: applying it to a site that has some of it adds the rest, and applying it twice changes nothing.
 
 ## Apply
@@ -22,6 +23,7 @@ Recipes install modules, they do not download them. Get the code first:
 ```bash
 # for frame_builder: nothing, it uses core and the theme
 composer require drupal/paragraphs drupal/entity_usage      # ..._paragraphs
+composer require drupal/field_group                         # ..._field_group
 composer require drupal/metatag                             # ..._seo
 composer require drupal/ai                                  # ..._ai, plus a provider, see below
 ```
@@ -76,6 +78,12 @@ types; see [Reusing a paragraph](/builder/paragraphs#reusing-a-paragraph).
 
 **Text block** is a starter type with a title and a text; add your own under *Structure → Paragraph types*, each becomes
 a block.
+
+### Field groups
+
+Nothing is grouped for you: Landing page has few fields. On a content type with many, put them into groups on
+*Structure → Content types → Manage form display*; every top-level group becomes a panel of the editor with its own
+button, and the settings of a group have its icon. See [Field groups](/guide/page-builder#field-groups).
 
 ### Meta tags
 
