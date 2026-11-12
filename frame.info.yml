@@ -1,5 +1,5 @@
 name: 'Frame'
-description: 'Base theme for React islands built as core Single Directory Components. Provides React, helpers, the API client, a page layout and a shared Vite/Jest config. Create a subtheme to use it.'
+description: 'Base theme of the Frame page builder: ready components, a page layout, and React with helpers, the API client and a shared Vite/Jest config for interactive components. Create a subtheme to use it.'
 type: theme
 base theme: false
 core_version_requirement: ^10.3 || ^11

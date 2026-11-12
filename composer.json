@@ -1,6 +1,6 @@
 {
     "name": "zviryatko/frame",
-    "description": "Base theme for React islands built as core Single Directory Components, with a shared Vite/Jest config for subthemes.",
+    "description": "Base theme with a visual page builder over the Single Directory Components of your theme. React for the editor and for interactive components, with a shared Vite/Jest config for subthemes.",
     "type": "drupal-theme",
     "license": "GPL-2.0-or-later",
     "homepage": "https://zviryatko.github.io/frame/",

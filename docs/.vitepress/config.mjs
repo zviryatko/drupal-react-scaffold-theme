@@ -3,7 +3,7 @@ import { defineConfig } from 'vitepress';
 // Deployed to https://zviryatko.github.io/frame/
 export default defineConfig({
   title: 'Frame',
-  description: 'Drupal theme scaffold: React components as core Single Directory Components, Vite build, Views REST data.',
+  description: "The Last Page Builder You'll Ever Need. Drupal Edition. A visual page builder over the Single Directory Components of your theme, with React for interactive components.",
   base: '/frame/',
   cleanUrls: true,
   lastUpdated: true,
@@ -11,6 +11,7 @@ export default defineConfig({
   themeConfig: {
     logo: '/logo.svg',
     nav: [
+      { text: 'Page builder', link: '/guide/page-builder' },
       { text: 'Guide', link: '/guide/getting-started' },
       { text: 'Examples', link: '/examples/recipe-explorer' },
       { text: 'Demos', link: '/demos' },
@@ -18,21 +19,11 @@ export default defineConfig({
     ],
     sidebar: [
       {
-        text: 'Guide',
+        text: 'Introduction',
         items: [
           { text: 'What is this', link: '/guide/what-is-this' },
           { text: 'Getting started', link: '/guide/getting-started' },
-          { text: 'Base theme and subthemes', link: '/guide/base-theme' },
           { text: 'Build a site', link: '/guide/build-a-site' },
-          { text: 'Create a subtheme', link: '/guide/create-your-theme' },
-          { text: 'Creating a component', link: '/guide/components' },
-          { text: 'Placing components in Twig', link: '/guide/twig' },
-          { text: 'React + Drupal behaviors', link: '/guide/react-behaviors' },
-          { text: 'Ajax calls and HTML responses', link: '/guide/ajax' },
-          { text: 'Translations', link: '/guide/translations' },
-          { text: 'Build: Vite and webpack', link: '/guide/build' },
-          { text: 'Testing', link: '/guide/testing' },
-          { text: 'Troubleshooting', link: '/guide/troubleshooting' },
         ],
       },
       {
@@ -50,6 +41,21 @@ export default defineConfig({
           { text: 'Paragraphs', link: '/builder/paragraphs' },
           { text: 'AI assistant', link: '/builder/ai' },
           { text: 'Architecture', link: '/builder/architecture' },
+        ],
+      },
+      {
+        text: 'Theme and React components',
+        items: [
+          { text: 'Base theme and subthemes', link: '/guide/base-theme' },
+          { text: 'Create a subtheme', link: '/guide/create-your-theme' },
+          { text: 'Creating a component', link: '/guide/components' },
+          { text: 'Placing components in Twig', link: '/guide/twig' },
+          { text: 'React + Drupal behaviors', link: '/guide/react-behaviors' },
+          { text: 'Ajax calls and HTML responses', link: '/guide/ajax' },
+          { text: 'Translations', link: '/guide/translations' },
+          { text: 'Build: Vite and webpack', link: '/guide/build' },
+          { text: 'Testing', link: '/guide/testing' },
+          { text: 'Troubleshooting', link: '/guide/troubleshooting' },
         ],
       },
       {

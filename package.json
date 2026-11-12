@@ -1,7 +1,7 @@
 {
   "name": "frame",
   "version": "1.0.0",
-  "description": "Drupal base theme: React islands as core Single Directory Components, shared Vite and Jest config for subthemes, and a visual page builder (module inside).",
+  "description": "Drupal base theme with a visual page builder (module inside) over Single Directory Components. React for interactive components, shared Vite and Jest config for subthemes.",
   "type": "module",
   "dependencies": {
     "@babel/core": "^8.0.6",

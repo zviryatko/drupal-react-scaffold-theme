@@ -1,19 +1,31 @@
 # What is this
 
-A Drupal theme scaffold for putting **React islands** into server rendered Drupal pages, built only from core features:
+**The Last Page Builder You'll Ever Need. Drupal Edition.** Frame is a Drupal base theme with a visual
+[page builder](/guide/page-builder) inside. Editors compose pages from the components of your theme; Drupal stores the
+layout and renders it:
 
-- every widget is a [Single Directory Component](https://www.drupal.org/docs/theming-drupal/using-single-directory-components) (SDC),
+- every block of the builder is a [Single Directory Component](https://www.drupal.org/docs/theming-drupal/using-single-directory-components) (SDC) of your theme,
+  and a ready set comes with the base theme,
+- fields of the page, views, Drupal blocks, media and paragraphs can be placed next to them,
+- spacing, colours, sizes and breakpoints come from the design tokens of the theme, the same values its SCSS uses,
+- the published page is normal Drupal markup, with caching, translations and SEO; it loads no editor code.
+
+**React** is used in two places: the editor itself, and **interactive components**. A component that needs behaviour in
+the browser (a filter UI, a table, a tooltip) is an SDC with a small React bundle:
+
 - JS/CSS is built by Vite into `assets/` and attached through the SDC library,
 - React runs as a global (one copy for the page), components are tiny bundles,
 - mounting happens in a Drupal behavior, so Drupal's own lifecycle (ajax, modals, BigPipe, hidden tabs) keeps working,
 - data comes from Views via a *Better REST export* display.
 
+Components without behaviour need no React and no build: a `component.yml`, a Twig file and CSS.
+
 Drupal stays the "index point" of the page. This is **not** a decoupled/headless setup: Drupal renders the page, menus, blocks and
 SEO markup, and React only owns the interactive widgets.
 
-## Architecture
+## Architecture of an interactive component
 
-In short: Drupal renders a mount element from an SDC, a Drupal behavior mounts React into it, React fetches JSON from a Views REST
+How the builder stores and renders a page is in [its architecture](/builder/architecture). For a React component, in short: Drupal renders a mount element from an SDC, a Drupal behavior mounts React into it, React fetches JSON from a Views REST
 export. The step by step flow is in [React + Drupal behaviors](/guide/react-behaviors#how-it-works-end-to-end).
 
 | Piece | Where |
@@ -32,6 +44,8 @@ one folder. Details: [Base theme and subthemes](/guide/base-theme).
 
 ## What you get out of the box
 
+- the **page builder** (the `frame_builder` module, inside the theme), its [recipes](/builder/recipes) and the
+  [components of the base theme](/builder/base-components),
 - the **base theme** `frame` and a **subtheme generator** (a working `hello-react` component, blocks, build and tests),
 - the example subtheme `frame_demo` with `react-tooltip` (smallest component), `node-list` (rsuite table with Drupal ajax modal links) and
   `recipe-explorer` (data-driven filter UI on a Views REST export, see [the walkthrough](/examples/recipe-explorer)).
