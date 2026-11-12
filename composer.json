@@ -1,20 +1,20 @@
 {
-    "name": "zviryatko/drupal-react-scaffold-theme",
+    "name": "zviryatko/frame",
     "description": "Base theme for React islands built as core Single Directory Components, with a shared Vite/Jest config for subthemes.",
     "type": "drupal-theme",
     "license": "GPL-2.0-or-later",
-    "homepage": "https://zviryatko.github.io/drupal-react-scaffold-theme/",
+    "homepage": "https://zviryatko.github.io/frame/",
     "support": {
-        "issues": "https://github.com/zviryatko/drupal-react-scaffold-theme/issues",
-        "source": "https://github.com/zviryatko/drupal-react-scaffold-theme"
+        "issues": "https://github.com/zviryatko/frame/issues",
+        "source": "https://github.com/zviryatko/frame"
     },
     "require": {
         "drupal/core": "^10.3 || ^11"
     },
     "suggest": {
-        "drupal/paragraphs": "Paragraph types as blocks of the page builder, with the Paragraphs Library for reused ones (recipe react_scaffold_builder_paragraphs)",
-        "drupal/entity_usage": "Shows where media, paragraphs and saved blocks are used by layouts (recipe react_scaffold_builder_paragraphs)",
-        "drupal/metatag": "Meta tags on landing pages, filled by the AI assistant on request (recipe react_scaffold_builder_seo)",
-        "drupal/ai": "The AI assistant of the page builder (recipe react_scaffold_builder_ai)"
+        "drupal/paragraphs": "Paragraph types as blocks of the page builder, with the Paragraphs Library for reused ones (recipe frame_builder_paragraphs)",
+        "drupal/entity_usage": "Shows where media, paragraphs and saved blocks are used by layouts (recipe frame_builder_paragraphs)",
+        "drupal/metatag": "Meta tags on landing pages, filled by the AI assistant on request (recipe frame_builder_seo)",
+        "drupal/ai": "The AI assistant of the page builder (recipe frame_builder_ai)"
     }
 }

@@ -56,7 +56,7 @@ slots:
     title: Actions
     description: 'Buttons or links under the text.'
 thirdPartySettings:
-  react_scaffold_builder:
+  frame_builder:
     icon: card
 ```
 
@@ -188,7 +188,7 @@ A component changes which features it has, and names its icon, under `thirdParty
 
 ```yaml
 thirdPartySettings:
-  react_scaffold_builder:
+  frame_builder:
     features: { background: false, position: false }
     icon: card
 ```
@@ -202,14 +202,14 @@ component's description and follows its shape; it also documents the component f
 
 ```yaml
 thirdPartySettings:
-  react_scaffold_builder:
+  frame_builder:
     example:
       type: 'my_theme:promo'
       props:
         heading: 'Fresh every day'
         tone: calm
         actions:
-          - { type: 'react_scaffold:button', props: { label: 'Order', url: '/order', variant: primary } }
+          - { type: 'frame:button', props: { label: 'Order', url: '/order', variant: primary } }
 ```
 
 Use real-looking text, the props an editor would normally set, and for slots the components that usually go in them.
@@ -246,7 +246,7 @@ they are read.
 
 ```yaml
 thirdPartySettings:
-  react_scaffold_builder:
+  frame_builder:
     version: 3                           # the current schema version; 1 when not set
     migrations:
       2:                                 # from version 1 to 2
@@ -262,7 +262,7 @@ The steps of one version are applied in the order rename, values, defaults, remo
 code, in a module or in your theme's `<theme>.theme`, after the declared changes of the same step:
 
 ```php
-function my_theme_react_scaffold_builder_item_migrate_alter(array &$props, array $context) {
+function my_theme_frame_builder_item_migrate_alter(array &$props, array $context) {
   if ($context['type'] === 'my_theme:promo' && $context['to'] === 3) {
     // Version 3 replaced the "wide" checkbox with a "width" choice.
     $props['width'] = !empty($props['wide']) ? 'full' : 'content';
@@ -292,7 +292,7 @@ How it works:
 5. Drop something into each slot, and next to it.
 6. Publish and compare the page with the canvas.
 
-A component of a base theme that your theme replaces (`replaces: react_scaffold:card`) is offered once, as your
+A component of a base theme that your theme replaces (`replaces: frame:card`) is offered once, as your
 version. Pages that used the base one show yours.
 
 A component that is removed or renamed later does not break pages that use it: Drupal prints nothing for it, and the

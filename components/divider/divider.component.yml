@@ -25,7 +25,7 @@ props:
       x-builder-widget: length
       examples: ['2rem']
 thirdPartySettings:
-  react_scaffold_builder:
+  frame_builder:
     icon: list
     features: { background: false, align: false }
-    example: { type: 'react_scaffold:divider', props: { style: solid, width: full, space: { size: l } } }
+    example: { type: 'frame:divider', props: { style: solid, width: full, space: { size: l } } }

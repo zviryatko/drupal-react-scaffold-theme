@@ -1,5 +1,5 @@
 {
-  "name": "react_scaffold",
+  "name": "frame",
   "version": "1.0.0",
   "description": "Drupal base theme: React islands as core Single Directory Components, shared Vite and Jest config for subthemes, and a visual page builder (module inside).",
   "type": "module",
@@ -31,13 +31,13 @@
     "docs:dev": "npm --prefix docs run dev",
     "docs:build": "npm --prefix docs run build",
     "docs:preview": "npm --prefix docs run preview",
-    "new": "node bin/react-scaffold.mjs new",
-    "builder:install": "npm --prefix modules/react_scaffold_builder/editor ci",
-    "builder:build": "npm --prefix modules/react_scaffold_builder/editor run build",
-    "builder:watch": "npm --prefix modules/react_scaffold_builder/editor run watch",
+    "new": "node bin/frame.mjs new",
+    "builder:install": "npm --prefix modules/frame_builder/editor ci",
+    "builder:build": "npm --prefix modules/frame_builder/editor run build",
+    "builder:watch": "npm --prefix modules/frame_builder/editor run watch",
     "builder:smoke": "npm --prefix demo run builder-smoke"
   },
   "bin": {
-    "react-scaffold": "bin/react-scaffold.mjs"
+    "frame": "bin/frame.mjs"
   }
 }

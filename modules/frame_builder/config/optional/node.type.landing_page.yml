@@ -1,0 +1,16 @@
+langcode: en
+status: true
+dependencies:
+  module:
+    - frame_builder
+third_party_settings:
+  frame_builder:
+    enabled: true
+    translation_mode: synced
+name: 'Landing page'
+type: landing_page
+description: 'A page built from components with the page builder.'
+help: null
+new_revision: true
+preview_mode: 0
+display_submitted: false

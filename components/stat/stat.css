@@ -1,2 +1,2 @@
-.stat__value { font-size: clamp(2rem, 1.5rem + 2vw, 3.25rem); font-weight: 700; line-height: 1.1; color: var(--rs-accent, #1f4fd8); }
+.stat__value { font-size: clamp(2rem, 1.5rem + 2vw, 3.25rem); font-weight: 700; line-height: 1.1; color: var(--frame-accent, #1f4fd8); }
 .stat__label { margin-top: 0.25rem; font-size: 0.9375rem; opacity: 0.8; }

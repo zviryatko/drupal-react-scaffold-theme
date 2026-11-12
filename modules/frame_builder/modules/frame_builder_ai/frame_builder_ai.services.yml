@@ -1,0 +1,10 @@
+services:
+  frame_builder_ai.sanitizer:
+    class: Drupal\frame_builder_ai\LayoutSanitizer
+    arguments: ['@current_user', '@frame_builder.media_items', '@entity_type.manager']
+  frame_builder_ai.meta_tags:
+    class: Drupal\frame_builder_ai\MetaTags
+    arguments: ['@module_handler', '@frame_builder.field_drafts']
+  frame_builder_ai.assistant:
+    class: Drupal\frame_builder_ai\PageAssistant
+    arguments: ['@ai.provider', '@frame_builder.catalog', '@frame_builder.theme_kit', '@frame_builder_ai.sanitizer', '@frame_builder.migrator', '@module_handler', '@frame_builder.renderer', '@renderer', '@frame_builder.media_items', '@entity_type.manager', '@current_user', '@frame_builder_ai.meta_tags', '@frame_builder.layouts', '@token']

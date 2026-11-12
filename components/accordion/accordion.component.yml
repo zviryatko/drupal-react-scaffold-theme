@@ -16,6 +16,6 @@ slots:
     title: Items
     description: 'Accordion items.'
 thirdPartySettings:
-  react_scaffold_builder:
+  frame_builder:
     icon: accordion
-    example: { type: 'react_scaffold:accordion', props: { items: [ { type: 'react_scaffold:accordion-item', props: { title: 'Do I need experience?', content: [ { type: 'react_scaffold:text', props: { text: '<p>No. The class starts from the basics.</p>' } } ] } } ] } }
+    example: { type: 'frame:accordion', props: { items: [ { type: 'frame:accordion-item', props: { title: 'Do I need experience?', content: [ { type: 'frame:text', props: { text: '<p>No. The class starts from the basics.</p>' } } ] } } ] } }

@@ -1,0 +1,94 @@
+editor:
+  js:
+    js/editor.js: { minified: true }
+  css:
+    theme:
+      js/editor.css: { minified: true }
+      css/builder.css: {}
+  dependencies:
+    - frame_builder/frame_links
+    - core/drupal
+    - core/drupalSettings
+    - core/once
+
+# Loaded in every frame of the builder: links open in a new tab instead of loading a page of the site in the frame.
+frame_links:
+  js:
+    js-static/frame-links.js: {}
+
+# Loaded in the media library frame (admin theme).
+media_frame:
+  js:
+    js-static/media-frame.js: {}
+  css:
+    theme:
+      css/media-frame.css: {}
+  dependencies:
+    - frame_builder/frame_links
+    - core/drupal.ajax
+
+# The admin page that holds the editor frame.
+host:
+  js:
+    js-static/host.js: {}
+  css:
+    theme:
+      css/host.css: {}
+  dependencies:
+    - core/drupal
+    - core/once
+
+# Loaded in the Content frame (the node's field form, admin theme).
+content_frame:
+  js:
+    js-static/content-frame.js: {}
+    # Token autocomplete in rich text fields, built from editor/src/frameTokens.js.
+    js/frame-tokens.js: { minified: true }
+  css:
+    theme:
+      css/content-frame.css: {}
+  dependencies:
+    - frame_builder/frame_links
+    - core/drupal
+    - core/drupalSettings
+    - core/once
+
+# Loaded in the frame of a paragraph's form (admin theme).
+paragraph_frame:
+  js:
+    js-static/paragraph-frame.js: {}
+  css:
+    theme:
+      css/paragraph-frame.css: {}
+  dependencies:
+    - frame_builder/frame_links
+    - core/drupal
+    - core/drupalSettings
+    - core/once
+
+# Label position of Field blocks, attached where a Field block is rendered.
+field:
+  css:
+    component:
+      css/field.css: {}
+
+# Loaded in the "Format settings" frame (admin theme).
+formatter_frame:
+  js:
+    js-static/formatter-frame.js: {}
+  css:
+    theme:
+      css/media-frame.css: {}
+  dependencies:
+    - frame_builder/frame_links
+    - core/drupal
+    - core/drupalSettings
+    - core/once
+
+# Loaded in the preview frame of the editor.
+preview_frame:
+  css:
+    theme:
+      css/preview-frame.css: {}
+  dependencies:
+    - frame_builder/frame_links

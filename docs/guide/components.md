@@ -1,7 +1,7 @@
 # Creating a component
 
 Components live in your **subtheme** (see [Base theme and subthemes](/guide/base-theme)). The base theme only provides the React runtime and helpers that
-`react_scaffold/react` attaches. Below, `my_theme` stands for your subtheme.
+`frame/react` attaches. Below, `my_theme` stands for your subtheme.
 
 Each widget lives in its own folder under `components/`. Drupal discovers it because it contains `<name>.component.yml`
 (theme components are namespaced by the theme machine name: `my_theme:node-list`).
@@ -45,8 +45,8 @@ libraryOverrides:
     theme:
       ../../assets/recipe-explorer.css: { }
   dependencies:
-    - react_scaffold/react
-    - react_scaffold/react-api-client
+    - frame/react
+    - frame/react-api-client
 ```
 
 - **`props`** are validated by core when the component renders. Wrong type or a missing required prop is an error, which is what you want
@@ -102,7 +102,7 @@ Keep `index.jsx` thin: it only wires Drupal to React. Why it is written like thi
 
 1. **Folder**: `components/my-widget/`.
 2. **`my-widget.component.yml`**: name, props, `libraryOverrides` pointing to `../../assets/my-widget.js` and `.css`
-   (the file names come from the folder name, see below), dependency on `react_scaffold/react`.
+   (the file names come from the folder name, see below), dependency on `frame/react`.
 3. **`my-widget.twig`**: the mount element with a class and `data-*` props.
 4. **`index.jsx`**: copy the behavior above, change the selector, behavior name and the component.
 5. **`MyWidget.jsx`** and **`my-widget.scss`**.
@@ -164,7 +164,7 @@ slots:
 
 **Libraries**
 
-- Always depend on `react_scaffold/react` (and `react_scaffold/react-api-client` if you call `apiClient`). Without it `React`, `apiClient`
+- Always depend on `frame/react` (and `frame/react-api-client` if you call `apiClient`). Without it `React`, `apiClient`
   and `executeWhenVisible` are undefined and the component fails silently.
 - If the HTML you render contains ajax links or dropbuttons, add `core/drupal.ajax` / `core/drupal.dropbutton`, see [Ajax](/guide/ajax).
   These pull jQuery in through core, your code does not need it.

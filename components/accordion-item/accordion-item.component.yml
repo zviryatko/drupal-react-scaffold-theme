@@ -22,7 +22,7 @@ slots:
     title: Content
     description: 'What shows when it is open: text or other components.'
 thirdPartySettings:
-  react_scaffold_builder:
+  frame_builder:
     icon: accordion
     features: { position: false }
-    example: { type: 'react_scaffold:accordion-item', props: { title: 'What should I bring?', open: false, content: [ { type: 'react_scaffold:text', props: { text: '<p>Just yourself. Aprons are provided.</p>' } } ] } }
+    example: { type: 'frame:accordion-item', props: { title: 'What should I bring?', open: false, content: [ { type: 'frame:text', props: { text: '<p>Just yourself. Aprons are provided.</p>' } } ] } }

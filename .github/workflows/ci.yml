@@ -30,7 +30,7 @@ jobs:
       # Its unit tests run with the base theme's Jest (job "Base theme"); here it must build.
       - run: npm run builder:install
       - run: npm run builder:build
-      - run: test -s modules/react_scaffold_builder/js/editor.js && test -s modules/react_scaffold_builder/js/frame-tokens.js
+      - run: test -s modules/frame_builder/js/editor.js && test -s modules/frame_builder/js/frame-tokens.js
 
   example:
     name: Example subtheme
@@ -43,14 +43,14 @@ jobs:
       # The example is built and tested by the base theme's tooling, it only installs its own libraries (rsuite...).
       - run: npm ci
       - run: npm ci
-        working-directory: examples/react_scaffold_demo
+        working-directory: examples/frame_demo
       - run: npm run build
-        working-directory: examples/react_scaffold_demo
+        working-directory: examples/frame_demo
       - run: npm test
-        working-directory: examples/react_scaffold_demo
+        working-directory: examples/frame_demo
 
   new:
-    name: react-scaffold new
+    name: frame new
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -60,17 +60,17 @@ jobs:
       - name: Base theme in themes/contrib, as on a site
         run: |
           mkdir -p "$RUNNER_TEMP/themes/contrib"
-          git archive --prefix=react_scaffold/ HEAD | tar -x -C "$RUNNER_TEMP/themes/contrib"
-          cd "$RUNNER_TEMP/themes/contrib/react_scaffold" && npm ci
+          git archive --prefix=frame/ HEAD | tar -x -C "$RUNNER_TEMP/themes/contrib"
+          cd "$RUNNER_TEMP/themes/contrib/frame" && npm ci
       - name: Create, build and test a subtheme
         run: |
-          node themes/contrib/react_scaffold/bin/react-scaffold.mjs new ci_theme --name "CI Theme"
+          node themes/contrib/frame/bin/frame.mjs new ci_theme --name "CI Theme"
           cd themes/custom/ci_theme
           test ! -e node_modules && test ! -e vite.config.js
           npm run build && npm test
           test -s assets/hello-react.js && test -s assets/global.css
           # The tokens of the theme's YAML reached its CSS.
-          grep -q -- '--rs-space-m' assets/global.css
+          grep -q -- '--frame-space-m' assets/global.css
         working-directory: ${{ runner.temp }}
 
   drupal:
@@ -92,16 +92,16 @@ jobs:
           composer create-project drupal/recommended-project:^11 "$SITE" --no-interaction --no-progress
           composer require drush/drush --working-dir="$SITE" --no-interaction --no-progress
           mkdir -p "$SITE/web/themes/contrib" "$SITE/web/themes/custom"
-          git archive --prefix=react_scaffold/ HEAD | tar -x -C "$SITE/web/themes/contrib"
+          git archive --prefix=frame/ HEAD | tar -x -C "$SITE/web/themes/contrib"
           cd "$SITE"
           vendor/bin/drush site:install minimal --db-url=sqlite://sites/default/files/.ht.sqlite --site-name="CI Site" -y
       - name: Build the base theme
         run: npm ci && npm run dist
-        working-directory: ${{ env.SITE }}/web/themes/contrib/react_scaffold
-      - name: Create one subtheme with react-scaffold new, one with core's generate-theme
+        working-directory: ${{ env.SITE }}/web/themes/contrib/frame
+      - name: Create one subtheme with frame new, one with core's generate-theme
         run: |
-          node web/themes/contrib/react_scaffold/bin/react-scaffold.mjs new new_theme --name "New Theme"
-          php web/core/scripts/drupal generate-theme core_theme --starterkit react_scaffold_starterkit --path themes/custom --name "Core Theme"
+          node web/themes/contrib/frame/bin/frame.mjs new new_theme --name "New Theme"
+          php web/core/scripts/drupal generate-theme core_theme --starterkit frame_starterkit --path themes/custom --name "Core Theme"
         working-directory: ${{ env.SITE }}
       - name: Build, test and install the subthemes
         run: |
@@ -128,10 +128,10 @@ jobs:
           done
       - name: Page builder on the last subtheme
         run: |
-          (cd "$SITE/web/themes/contrib/react_scaffold" && npm run builder:install && npm run builder:build)
+          (cd "$SITE/web/themes/contrib/frame" && npm run builder:install && npm run builder:build)
           # The recipe installs the module with media, breakpoints and responsive images, and keeps the theme.
-          "$SITE/vendor/bin/drush" recipe themes/contrib/react_scaffold/recipes/react_scaffold_builder --input=react_scaffold_builder.theme=core_theme -y
-          "$SITE/vendor/bin/drush" config:get responsive_image.styles.react_scaffold_hero id
+          "$SITE/vendor/bin/drush" recipe themes/contrib/frame/recipes/frame_builder --input=frame_builder.theme=core_theme -y
+          "$SITE/vendor/bin/drush" config:get responsive_image.styles.frame_hero id
           "$SITE/vendor/bin/drush" user:password admin admin
           "$SITE/vendor/bin/drush" cr
           BASE_URL=http://127.0.0.1:8080 npm --prefix demo run builder-smoke

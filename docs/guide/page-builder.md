@@ -1,10 +1,10 @@
 # Page builder
 
-The base theme ships a module, **React Scaffold Builder** (`modules/react_scaffold_builder`), that turns the components
+The base theme ships a module, **Frame Builder** (`modules/frame_builder`), that turns the components
 of your theme into a visual page builder. Editors place components, fields, views and blocks on a page, and Drupal renders
 the result as normal Single Directory Components: the published page loads no editor code.
 
-The module lives inside the theme folder, and Drupal finds it there. It works only when the default theme is React Scaffold
+The module lives inside the theme folder, and Drupal finds it there. It works only when the default theme is Frame
 or one of its subthemes (the status report says so otherwise). It was developed and tested on Drupal 11.4.
 
 <Video src="/media/page-builder-ai.mp4" poster="/media/screenshots/page-builder-ai.png" />
@@ -28,24 +28,24 @@ or one of its subthemes (the status report says so otherwise). It was developed 
 ## Enable it
 
 ```bash
-drush en react_scaffold_builder
+drush en frame_builder
 ```
 
 Or apply a [recipe](/builder/recipes), which also sets up media, responsive images and a role for editors, and
 optionally paragraphs, meta tags and the AI assistant:
 
 ```bash
-drush recipe themes/contrib/react_scaffold/recipes/react_scaffold_builder --input=react_scaffold_builder.theme=my_theme
+drush recipe themes/contrib/frame/recipes/frame_builder --input=frame_builder.theme=my_theme
 ```
 
 A release archive of the theme has the compiled editor. From a git checkout, build it once:
 
 ```bash
-cd web/themes/contrib/react_scaffold
+cd web/themes/contrib/frame
 npm run builder:install && npm run builder:build
 ```
 
-Then give editors the permission **Use the React Scaffold page builder**, and switch the builder on for a content type:
+Then give editors the permission **Use the Frame page builder**, and switch the builder on for a content type:
 *Structure → Content types → (type) → Page builder*. The module adds a ready content type, **Landing page**.
 
 For such a content type:
@@ -62,7 +62,7 @@ For such a content type:
 | Left: **Content**, **Menu** | The fields of the page and its menu settings. This is Drupal's node form, with every widget. |
 | Left: **Blocks** | What can be placed: your components by group, **Fields** of the page, **Views**, Drupal **Blocks**. The search at the top forgives typos. |
 | Left: **Structure** | The tree of the layout. |
-| Left: **AI** | With the module *React Scaffold Builder AI*: a chat that composes the page from your components. See [AI assistant](/builder/ai). |
+| Left: **AI** | With the module *Frame Builder AI*: a chat that composes the page from your components. See [AI assistant](/builder/ai). |
 | Right | The selected component: its fields, then **Layout and style** (spacing, alignment, background, position). With nothing selected: the **page settings** (title, state, URL alias, authoring…), also Drupal's node form. |
 | Top | Undo, redo and **History** (a timeline of the changes since the page was opened or saved; click a step to go to it), **Preview** (or **View** when nothing is unsaved), **Publish**, **Draft**, **Delete**. |
 
@@ -117,7 +117,7 @@ by asking for it.
 
 ## Develop the editor
 
-The editor is a React app in `modules/react_scaffold_builder/editor`, built with Vite into `modules/react_scaffold_builder/js`
+The editor is a React app in `modules/frame_builder/editor`, built with Vite into `modules/frame_builder/js`
 (not committed). [Architecture](/builder/architecture#the-editor-s-sources) lists its sources.
 
 | Command (in the base theme folder) | Does |

@@ -1,6 +1,6 @@
-// Browser smoke test of the page builder module (modules/react_scaffold_builder), used by CI:
+// Browser smoke test of the page builder module (modules/frame_builder), used by CI:
 //   BASE_URL=http://127.0.0.1:8080 ADMIN_USER=admin ADMIN_PASS=admin node builder-smoke.mjs
-// Needs the module enabled, its editor built, and a default theme based on React Scaffold. It uses only what the
+// Needs the module enabled, its editor built, and a default theme based on Frame. It uses only what the
 // module and the base theme ship: the "Landing page" content type and the layout components.
 import { chromium } from 'playwright';
 
@@ -30,22 +30,22 @@ try {
   await page.goto(`${base}/node/add/landing_page`);
   await page.fill('input[name="title[0][value]"]', title);
   await page.click('[data-drupal-selector="edit-submit"]');
-  await page.waitForSelector('iframe.react-scaffold-builder-frame', { timeout: 30000 });
+  await page.waitForSelector('iframe.frame-builder-frame', { timeout: 30000 });
   check(/\/node\/\d+\/edit/.test(page.url()), 'a new landing page continues in the builder, as its edit page');
   const node = page.url().match(/\/node\/(\d+)\//)[1];
 
-  const editor = page.frameLocator('iframe.react-scaffold-builder-frame');
-  await editor.locator('#react-scaffold-builder [class*="PuckHeader"]').first().waitFor({ timeout: 30000 });
-  const settings = await editor.locator('body').evaluate(() => window.drupalSettings.reactScaffoldBuilder);
+  const editor = page.frameLocator('iframe.frame-builder-frame');
+  await editor.locator('#frame-builder [class*="PuckHeader"]').first().waitFor({ timeout: 30000 });
+  const settings = await editor.locator('body').evaluate(() => window.drupalSettings.frameBuilder);
   const groups = [...new Set(settings.components.map((component) => component.group))];
   check(['Layout', 'Fields'].every((group) => groups.includes(group)), `the drawer has layout components and the fields of the page (${groups.join(', ')})`);
-  check(settings.components.some((component) => component.id === 'react_scaffold:columns'), 'the Columns component of the base theme is offered');
+  check(settings.components.some((component) => component.id === 'frame:columns'), 'the Columns component of the base theme is offered');
   await editor.frameLocator('iframe[title="Page settings"]').locator('input[name="title[0][value]"]').waitFor({ timeout: 30000 });
   check(true, 'the page settings (node form) are shown in the right panel');
 
   // Save a layout through the editor's own endpoint, then look at the editor and the page.
   const status = await editor.locator('body').evaluate(async (element, body) => {
-    const builder = window.drupalSettings.reactScaffoldBuilder;
+    const builder = window.drupalSettings.frameBuilder;
     const response = await fetch(builder.endpoints.save, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': builder.csrfToken },
@@ -55,9 +55,9 @@ try {
   }, {
     publish: true,
     data: { root: { props: {} }, content: [
-      { type: 'react_scaffold:stack', props: { id: 'stack', gap: { size: 'm' }, align: 'stretch', dividers: false, _spacing: { padding: { size: 'm', sides: 'all' } }, content: [
+      { type: 'frame:stack', props: { id: 'stack', gap: { size: 'm' }, align: 'stretch', dividers: false, _spacing: { padding: { size: 'm', sides: 'all' } }, content: [
         { type: 'drupal_field:title', props: { id: 'title', formatter: 'string', label: 'hidden' } },
-        { type: 'react_scaffold:columns', props: { id: 'columns', layout: '2', gap: { size: 'custom', custom: '10px' }, align: 'stretch', stack: true, content: [
+        { type: 'frame:columns', props: { id: 'columns', layout: '2', gap: { size: 'custom', custom: '10px' }, align: 'stretch', stack: true, content: [
           { type: 'drupal_field:title', props: { id: 'left', formatter: 'string', label: 'hidden' } },
           { type: 'drupal_field:title', props: { id: 'right', formatter: 'string', label: 'hidden' } },
         ] } },
@@ -73,7 +73,7 @@ try {
       stackPadding: getComputedStyle(document.querySelector('.layout-stack')).paddingTop,
       columns: items ? getComputedStyle(items).gridTemplateColumns.split(' ').length : 0,
       gap: items ? getComputedStyle(items).columnGap : '',
-      titles: [...document.querySelectorAll('.layout-stack .rsb-field')].map((field) => field.textContent.trim()),
+      titles: [...document.querySelectorAll('.layout-stack .frame-builder-field')].map((field) => field.textContent.trim()),
     };
   });
   check(published.columns === 2 && published.gap === '10px', 'the page shows the Columns layout with its gap');
@@ -81,7 +81,7 @@ try {
   check(published.titles.length === 3 && published.titles.every((text) => text === title), 'Field blocks show the title of the page');
 
   await page.goto(`${base}/node/${node}/edit`);
-  const again = page.frameLocator('iframe.react-scaffold-builder-frame');
+  const again = page.frameLocator('iframe.frame-builder-frame');
   await again.locator('[data-puck-component="right"]', { hasText: title }).waitFor({ timeout: 30000 });
   check(true, 'the editor renders the saved layout, nested components included');
   const zone = await again.locator('[data-puck-dropzone="columns:content"]').evaluate((element) => getComputedStyle(element).gridTemplateColumns.split(' ').length);

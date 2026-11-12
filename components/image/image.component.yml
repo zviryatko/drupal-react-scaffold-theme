@@ -30,7 +30,7 @@ props:
       description: 'Shown under the image.'
 # Page builder: the icon in the list of blocks.
 thirdPartySettings:
-  react_scaffold_builder:
+  frame_builder:
     # A typical use, as a layout item: shown to the AI assistant.
-    example: { type: 'react_scaffold:image', props: { image: { media: 12 }, caption: 'What you will cook on the first evening' } }
+    example: { type: 'frame:image', props: { image: { media: 12 }, caption: 'What you will cook on the first evening' } }
     icon: image

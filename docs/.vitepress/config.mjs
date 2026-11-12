@@ -1,20 +1,20 @@
 import { defineConfig } from 'vitepress';
 
-// Deployed to https://zviryatko.github.io/drupal-react-scaffold-theme/
+// Deployed to https://zviryatko.github.io/frame/
 export default defineConfig({
-  title: 'Drupal React Scaffold',
+  title: 'Frame',
   description: 'Drupal theme scaffold: React components as core Single Directory Components, Vite build, Views REST data.',
-  base: '/drupal-react-scaffold-theme/',
+  base: '/frame/',
   cleanUrls: true,
   lastUpdated: true,
-  head: [['link', { rel: 'icon', href: '/drupal-react-scaffold-theme/logo.svg' }]],
+  head: [['link', { rel: 'icon', href: '/frame/logo.svg' }]],
   themeConfig: {
     logo: '/logo.svg',
     nav: [
       { text: 'Guide', link: '/guide/getting-started' },
       { text: 'Examples', link: '/examples/recipe-explorer' },
       { text: 'Demos', link: '/demos' },
-      { text: 'GitHub', link: 'https://github.com/zviryatko/drupal-react-scaffold-theme' },
+      { text: 'GitHub', link: 'https://github.com/zviryatko/frame' },
     ],
     sidebar: [
       {
@@ -62,9 +62,9 @@ export default defineConfig({
       },
       { text: 'Demos (video)', link: '/demos' },
     ],
-    socialLinks: [{ icon: 'github', link: 'https://github.com/zviryatko/drupal-react-scaffold-theme' }],
+    socialLinks: [{ icon: 'github', link: 'https://github.com/zviryatko/frame' }],
     search: { provider: 'local' },
-    editLink: { pattern: 'https://github.com/zviryatko/drupal-react-scaffold-theme/edit/main/docs/:path' },
+    editLink: { pattern: 'https://github.com/zviryatko/frame/edit/main/docs/:path' },
     outline: [2, 3],
   },
 });

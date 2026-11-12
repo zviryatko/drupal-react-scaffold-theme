@@ -18,6 +18,6 @@ slots:
     title: Content
     description: 'What is kept at this width.'
 thirdPartySettings:
-  react_scaffold_builder:
+  frame_builder:
     icon: section
-    example: { type: 'react_scaffold:container', props: { width: narrow, content: [ { type: 'react_scaffold:text', props: { text: '<p>A long text reads best in a narrow column.</p>' } } ] } }
+    example: { type: 'frame:container', props: { width: narrow, content: [ { type: 'frame:text', props: { text: '<p>A long text reads best in a narrow column.</p>' } } ] } }

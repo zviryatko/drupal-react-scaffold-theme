@@ -44,17 +44,17 @@ The components use a few CSS custom properties, with neutral fallbacks:
 
 | Property | Used for | Default |
 |---|---|---|
-| `--rs-accent` | buttons, the filled call to action, numbers, the line of a quote, a short divider | `#1f4fd8` |
-| `--rs-accent-contrast` | text on the accent colour | `#fff` |
-| `--rs-radius` | corners of buttons, boxes, hero | `0.375rem` |
+| `--frame-accent` | buttons, the filled call to action, numbers, the line of a quote, a short divider | `#1f4fd8` |
+| `--frame-accent-contrast` | text on the accent colour | `#fff` |
+| `--frame-radius` | corners of buttons, boxes, hero | `0.375rem` |
 
 With the builder module enabled, the tokens of your theme are on every page as custom properties, so the components
-pick up your colours without CSS: `--rs-space-<name>` and `--rs-color-<name>` for the spacing scale and the palette of
-the theme's `.info.yml`, and `--rs-accent`, which is the palette's colour named `accent` or `primary`, else its first
+pick up your colours without CSS: `--frame-space-<name>` and `--frame-color-<name>` for the spacing scale and the palette of
+the theme's `.info.yml`, and `--frame-accent`, which is the palette's colour named `accent` or `primary`, else its first
 colour. To choose otherwise, set them in your theme's CSS:
 
 ```css
-:root { --rs-accent: #b3261e; --rs-accent-contrast: #fff; --rs-radius: 0; }
+:root { --frame-accent: #b3261e; --frame-accent-contrast: #fff; --frame-radius: 0; }
 ```
 
 A *Button* and a *Badge* also take a colour of the palette as a prop.
@@ -67,7 +67,7 @@ They are ordinary components:
   `.notice`, `.stat`, `.badge`, `.heading-block`, `.container-block`, `.divider`, `.spacer`, `.card`, `.section`,
   `.rich-text`).
 - **Replace** one with your own version: a component in your theme with the same props and slots and
-  `replaces: react_scaffold:<name>` in its `*.component.yml`. The builder then offers yours instead of the base
+  `replaces: frame:<name>` in its `*.component.yml`. The builder then offers yours instead of the base
   theme's, and pages that used the base one show yours. The example subtheme does this for Card, Section and Text.
 - **Hide** what you do not want editors to use: replace it with a component that has `noUi: true`, or leave it and
   describe in its place what to use.

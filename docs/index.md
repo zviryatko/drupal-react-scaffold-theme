@@ -1,12 +1,12 @@
 ---
 layout: home
 hero:
-  name: Drupal React Scaffold
+  name: Frame
   text: React components as core Single Directory Components
   tagline: No contrib modules. Vite build. Data from Views through views_better_rest. Works with Drupal ajax, BigPipe and hidden tabs.
   image:
     src: /logo.svg
-    alt: Drupal React Scaffold
+    alt: Frame
   actions:
     - theme: brand
       text: Getting started
@@ -16,7 +16,7 @@ hero:
       link: /demos
     - theme: alt
       text: GitHub
-      link: https://github.com/zviryatko/drupal-react-scaffold-theme
+      link: https://github.com/zviryatko/frame
 features:
   - title: Core SDC only
     details: Each React widget is a normal Single Directory Component (component.yml + twig). Place it with include, embed or a render array.
@@ -44,15 +44,15 @@ A React tooltip as a Drupal component in a subtheme: five small files. Nothing e
 
 ::: code-group
 
-<<< ../examples/react_scaffold_demo/components/react-tooltip/react-tooltip.component.yml{yaml} [react-tooltip.component.yml]
+<<< ../examples/frame_demo/components/react-tooltip/react-tooltip.component.yml{yaml} [react-tooltip.component.yml]
 
-<<< ../examples/react_scaffold_demo/components/react-tooltip/react-tooltip.twig{twig} [react-tooltip.twig]
+<<< ../examples/frame_demo/components/react-tooltip/react-tooltip.twig{twig} [react-tooltip.twig]
 
-<<< ../examples/react_scaffold_demo/components/react-tooltip/index.jsx{jsx} [index.jsx]
+<<< ../examples/frame_demo/components/react-tooltip/index.jsx{jsx} [index.jsx]
 
-<<< ../examples/react_scaffold_demo/components/react-tooltip/TextWithTooltip.jsx{jsx} [TextWithTooltip.jsx]
+<<< ../examples/frame_demo/components/react-tooltip/TextWithTooltip.jsx{jsx} [TextWithTooltip.jsx]
 
-<<< ../examples/react_scaffold_demo/components/react-tooltip/react-tooltip.scss{scss} [react-tooltip.scss]
+<<< ../examples/frame_demo/components/react-tooltip/react-tooltip.scss{scss} [react-tooltip.scss]
 
 :::
 

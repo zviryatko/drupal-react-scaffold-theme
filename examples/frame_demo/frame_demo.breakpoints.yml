@@ -1,0 +1,20 @@
+# Breakpoints of the theme (Drupal's Breakpoint module). Responsive image styles can use them, and the page builder
+# offers their widths in its preview.
+frame_demo.mobile:
+  label: Mobile
+  mediaQuery: ''
+  weight: 0
+  multipliers:
+    - 1x
+frame_demo.tablet:
+  label: Tablet
+  mediaQuery: 'all and (min-width: 48em)'
+  weight: 1
+  multipliers:
+    - 1x
+frame_demo.desktop:
+  label: Desktop
+  mediaQuery: 'all and (min-width: 75em)'
+  weight: 2
+  multipliers:
+    - 1x

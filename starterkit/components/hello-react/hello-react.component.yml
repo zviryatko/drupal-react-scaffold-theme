@@ -31,4 +31,4 @@ libraryOverrides:
     theme:
       ../../assets/hello-react.css: { }
   dependencies:
-    - react_scaffold/react
+    - frame/react

@@ -1,8 +1,8 @@
-// Shared Vite configuration for the React Scaffold base theme and every subtheme.
+// Shared Vite configuration for the Frame base theme and every subtheme.
 //
 // Base theme (builds the runtime: React UMD, helpers, apiClient):
 //   createViteConfig({ root: import.meta.dirname, mode, runtime: true })
-// Subtheme (builds only its own components, React and helpers come from the base theme), done by bin/react-scaffold.mjs:
+// Subtheme (builds only its own components, React and helpers come from the base theme), done by bin/frame.mjs:
 //   createViteConfig({ root: import.meta.dirname, mode })
 //
 // Contract with Drupal: one bundle per `components/<name>/index.jsx` written to `<outDir>/<name>.{js,css}`,
@@ -18,7 +18,7 @@ import { tokensImporter, tokensWatch } from './tokens.js';
 const here = import.meta.dirname;
 const require = createRequire(import.meta.url);
 
-// React is loaded once per page by the `react_scaffold/react` library (UMD, window.React / window.ReactDOM).
+// React is loaded once per page by the `frame/react` library (UMD, window.React / window.ReactDOM).
 const reactGlobals = { react: 'React', 'react-dom': 'ReactDOM', 'react-dom/client': 'ReactDOM' };
 
 /**
@@ -26,10 +26,10 @@ const reactGlobals = { react: 'React', 'react-dom': 'ReactDOM', 'react-dom/clien
  * npm libraries a component imports. Each import becomes a virtual module that re-exports the global.
  */
 export function reactFromGlobals() {
-  const prefix = '\0react-scaffold-global:';
+  const prefix = '\0frame-global:';
   const identifier = /^[A-Za-z_$][\w$]*$/;
   return {
-    name: 'react-scaffold-globals',
+    name: 'frame-globals',
     enforce: 'pre',
     resolveId: (id) => (id in reactGlobals ? prefix + id : null),
     load(id) {
@@ -103,7 +103,7 @@ export function createViteConfig({ root, mode = 'production', runtime = false, e
     },
     css: {
       postcss: { plugins: [autoprefixer] },
-      // `@use 'react-scaffold/tokens'`: the theme's tokens from its YAML, see tokens.js.
+      // `@use 'frame/tokens'`: the theme's tokens from its YAML, see tokens.js.
       preprocessorOptions: { scss: { api: 'modern-compiler', importers: [tokensImporter(root)] } },
     },
     define: { global: 'globalThis' },

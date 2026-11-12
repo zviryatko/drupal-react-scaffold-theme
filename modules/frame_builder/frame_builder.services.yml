@@ -1,0 +1,47 @@
+services:
+  frame_builder.catalog:
+    class: Drupal\frame_builder\ComponentCatalog
+    arguments: ['@plugin.manager.sdc', '@theme.manager', '@module_handler', '@entity_type.manager', '@plugin.manager.field.formatter', '@plugin.manager.field.field_type', '@plugin.manager.block', '@frame_builder.features', '@frame_builder.library', '@frame_builder.paragraphs']
+  frame_builder.layouts:
+    class: Drupal\frame_builder\LayoutStorage
+    arguments: ['@frame_builder.catalog', '@frame_builder.migrator', '@frame_builder.paragraphs']
+  frame_builder.library:
+    class: Drupal\frame_builder\Library
+    arguments: ['@entity_type.manager', '@frame_builder.migrator']
+  frame_builder.paragraphs:
+    class: Drupal\frame_builder\Paragraphs
+    arguments: ['@entity_type.manager', '@module_handler', '@frame_builder.paragraph_drafts']
+  frame_builder.paragraph_drafts:
+    class: Drupal\frame_builder\ParagraphDrafts
+    arguments: ['@tempstore.private']
+  frame_builder.migrator:
+    class: Drupal\frame_builder\LayoutMigrator
+    arguments: ['@plugin.manager.sdc', '@module_handler', '@theme.manager', '@theme.initialization', '@config.factory']
+  frame_builder.renderer:
+    class: Drupal\frame_builder\LayoutRenderer
+    arguments: ['@frame_builder.catalog', '@token', '@plugin.manager.field.formatter', '@plugin.manager.block', '@current_user', '@frame_builder.features', '@frame_builder.media_items', '@renderer', '@frame_builder.library', '@frame_builder.paragraphs']
+  frame_builder.node_properties:
+    class: Drupal\frame_builder\NodeProperties
+    arguments: ['@module_handler', '@current_user']
+  frame_builder.media_items:
+    class: Drupal\frame_builder\MediaItems
+    arguments: ['@entity_type.manager', '@file_url_generator']
+  # Only collected when the Media Library module is installed.
+  frame_builder.media_library_opener:
+    class: Drupal\frame_builder\MediaLibraryOpener
+    arguments: ['@entity_type.manager', '@frame_builder.media_items']
+    tags:
+      - { name: media_library.opener }
+  frame_builder.theme_kit:
+    class: Drupal\frame_builder\ThemeKit
+    arguments: ['@theme.manager', '@module_handler', '@entity_type.manager']
+  frame_builder.features:
+    class: Drupal\frame_builder\ComponentFeatures
+    arguments: ['@frame_builder.theme_kit', '@frame_builder.media_items']
+  frame_builder.route_subscriber:
+    class: Drupal\frame_builder\Routing\RouteSubscriber
+    tags:
+      - { name: event_subscriber }
+  frame_builder.field_drafts:
+    class: Drupal\frame_builder\FieldDrafts
+    arguments: ['@tempstore.private']

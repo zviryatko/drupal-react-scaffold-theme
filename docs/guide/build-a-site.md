@@ -14,8 +14,8 @@ vendor/bin/drush site:install minimal --db-url=sqlite://sites/default/files/.ht.
 
 # The base theme, from a release archive (compiled) or from git (build it), see "Getting started".
 mkdir -p web/themes/contrib && cd web/themes/contrib
-git clone https://github.com/zviryatko/drupal-react-scaffold-theme.git react_scaffold
-cd react_scaffold
+git clone https://github.com/zviryatko/frame.git frame
+cd frame
 npm install && npm run dist                           # the runtime and the build tooling for subthemes
 npm run builder:install && npm run builder:build      # the editor of the page builder
 ```
@@ -26,7 +26,7 @@ Details and the other ways to install: [Getting started](/guide/getting-started)
 
 ```bash
 # from the project root
-node web/themes/contrib/react_scaffold/bin/react-scaffold.mjs new my_theme --name "My Theme"
+node web/themes/contrib/frame/bin/frame.mjs new my_theme --name "My Theme"
 cd web/themes/custom/my_theme && npm run build
 ```
 
@@ -35,11 +35,11 @@ You get a theme with an info file, a stylesheet, one React component and a test.
 
 ## 3. Design tokens, once
 
-Open `my_theme.info.yml` and put your design system into the `react_scaffold_builder` block: the spacing scale, the
+Open `my_theme.info.yml` and put your design system into the `frame_builder` block: the spacing scale, the
 palette, the type scale.
 
 ```yaml
-react_scaffold_builder:
+frame_builder:
   uikit:
     spacing: { xs: 0.25rem, s: 0.5rem, m: 1rem, l: 2rem, xl: 4rem }
     colors:
@@ -54,12 +54,12 @@ Editors pick from these in the builder, and your SCSS reads the same file:
 
 ```scss
 // scss/global.scss
-@use 'react-scaffold/tokens' as rs;
+@use 'frame/tokens' as frame;
 
-@include rs.rules;        // custom properties and utility classes for every choice of the builder
+@include frame.rules;        // custom properties and utility classes for every choice of the builder
 
-body { color: rs.color(ink); font-size: rs.font-size(m); }
-.page__main { padding: rs.space(m); @include rs.breakpoint(desktop) { padding: rs.space(xl); } }
+body { color: frame.color(ink); font-size: frame.font-size(m); }
+.page__main { padding: frame.space(m); @include frame.breakpoint(desktop) { padding: frame.space(xl); } }
 ```
 
 Breakpoints come from the base theme (mobile, tablet at 48em, desktop at 75em) until you add a
@@ -72,7 +72,7 @@ Breakpoints come from the base theme (mobile, tablet at 48em, desktop at 75em) u
 composer require drupal/paragraphs drupal/entity_usage drupal/metatag drupal/ai
 cd web
 ../vendor/bin/drush theme:install my_theme
-../vendor/bin/drush recipe themes/contrib/react_scaffold/recipes/react_scaffold_builder_full --input=react_scaffold_builder.theme=my_theme
+../vendor/bin/drush recipe themes/contrib/frame/recipes/frame_builder_full --input=frame_builder.theme=my_theme
 ../vendor/bin/drush cr
 ```
 
@@ -115,7 +115,7 @@ While developing: `npm run watch` in the theme, and `drush cr` after changing a 
 Compiled files are not in git. On the server, or in CI, build them:
 
 ```bash
-(cd web/themes/contrib/react_scaffold && npm ci && npm run dist && npm run builder:install && npm run builder:build)
+(cd web/themes/contrib/frame && npm ci && npm run dist && npm run builder:install && npm run builder:build)
 (cd web/themes/custom/my_theme && npm run build)
 drush deploy
 ```
@@ -126,7 +126,7 @@ is applied once, not on every deploy. See [Deploying](/guide/create-your-theme#d
 
 ## Checklist
 
-- The status report (*Reports → Status report*) has no warning from *React Scaffold Builder*: the default theme is yours.
+- The status report (*Reports → Status report*) has no warning from *Frame Builder*: the default theme is yours.
 - *Structure → Content types → Landing page → Page builder* is on; switch it on for other content types there.
-- Editors have the role **Content editor**, or the permission *Use the React Scaffold page builder* in their own role.
+- Editors have the role **Content editor**, or the permission *Use the Frame page builder* in their own role.
 - A component missing from **Blocks**: `drush cr`, then [Troubleshooting](/guide/troubleshooting).

@@ -1,0 +1,14 @@
+name: 'Frame page builder: AI assistant'
+description: 'The chat assistant of the page builder: the AI module and Frame Builder AI, with the permission for content editors. Add a provider module (OpenAI, Anthropic, Ollama...) and make it the default for chat.'
+type: 'Page builder'
+recipes:
+  - frame_builder
+install:
+  - ai
+  - frame_builder_ai
+config:
+  strict: false
+  actions:
+    user.role.content_editor:
+      grantPermissions:
+        - 'use frame builder ai'

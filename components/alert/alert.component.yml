@@ -24,7 +24,7 @@ props:
       examples: ['<p>Something worth knowing.</p>']
   required: [text]
 thirdPartySettings:
-  react_scaffold_builder:
+  frame_builder:
     icon: tooltip
     features: { background: false }
-    example: { type: 'react_scaffold:alert', props: { tone: info, title: 'Good to know', text: '<p>Classes are held in English and Italian.</p>' } }
+    example: { type: 'frame:alert', props: { tone: info, title: 'Good to know', text: '<p>Classes are held in English and Italian.</p>' } }

@@ -14,16 +14,16 @@
 .layout-columns--align-end { --layout-align: end; }
 
 .layout-columns__items,
-.layout-columns__items > [data-rsb-slot] > [data-puck-dropzone] {
+.layout-columns__items > [data-frame-builder-slot] > [data-puck-dropzone] {
   display: grid;
   grid-template-columns: var(--layout-cols);
   gap: var(--layout-gap, 1rem);
   align-items: var(--layout-align, stretch);
 }
-.layout-columns__items:has(> [data-rsb-slot]) { display: block; }
+.layout-columns__items:has(> [data-frame-builder-slot]) { display: block; }
 /* Items bring their own bottom margin for normal flow; in a grid the gap does that. */
 .layout-columns__items > *,
-.layout-columns__items > [data-rsb-slot] > [data-puck-dropzone] > * > :first-child > * { margin-block: 0; }
+.layout-columns__items > [data-frame-builder-slot] > [data-puck-dropzone] > * > :first-child > * { margin-block: 0; }
 
 @media (max-width: 47.99em) {
   .layout-columns--stack { --layout-cols: minmax(0, 1fr); }

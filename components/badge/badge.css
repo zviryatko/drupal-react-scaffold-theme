@@ -1,2 +1,2 @@
-.badge { display: inline-block; padding: 0.25em 0.7em; border-radius: 999px; background: var(--badge-color, var(--rs-accent, #1f4fd8)); color: var(--rs-accent-contrast, #fff); font-size: 0.8125rem; font-weight: 700; line-height: 1.4; white-space: nowrap; }
-.badge--square { border-radius: var(--rs-radius, 0.375rem); }
+.badge { display: inline-block; padding: 0.25em 0.7em; border-radius: 999px; background: var(--badge-color, var(--frame-accent, #1f4fd8)); color: var(--frame-accent-contrast, #fff); font-size: 0.8125rem; font-weight: 700; line-height: 1.4; white-space: nowrap; }
+.badge--square { border-radius: var(--frame-radius, 0.375rem); }

@@ -1,0 +1,25 @@
+<?php
+
+/**
+ * @file
+ * The AI assistant of the Frame page builder.
+ */
+
+use Drupal\Core\Url;
+use Drupal\node\NodeInterface;
+
+/**
+ * Implements hook_frame_builder_editor_settings_alter().
+ *
+ * Tells the editor where the assistant is. Without a chat provider in the AI
+ * module the panel is shown with a note on what to set up.
+ */
+function frame_builder_ai_frame_builder_editor_settings_alter(array &$settings, NodeInterface $node) {
+  if (!\Drupal::currentUser()->hasPermission('use frame builder ai')) {
+    return;
+  }
+  $settings['ai'] = [
+    'endpoint' => Url::fromRoute('frame_builder_ai.chat', ['node' => $node->id()])->toString(),
+    'ready' => \Drupal::service('frame_builder_ai.assistant')->isReady(),
+  ];
+}

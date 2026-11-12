@@ -8,7 +8,7 @@ the thing that knows about it is `Drupal.behaviors`.
 ```
 Drupal page (Twig, blocks, regions)
  └─ SDC component  ──►  <div class="recipe-explorer" data-endpoint="/en/api/recipes">
-      │  libraryOverrides attaches assets/recipe-explorer.{js,css}  (+ react_scaffold/react)
+      │  libraryOverrides attaches assets/recipe-explorer.{js,css}  (+ frame/react)
       ▼
  Drupal.behaviors.recipeExplorer.attach(context)
       │  once('react', '.recipe-explorer', context)       → only new elements
@@ -71,7 +71,7 @@ ancestor and id. Use it for anything that is not trivially visible, it costs not
 
 ## Why React is a global
 
-The base theme library `react_scaffold/react` loads `assets/react/react.js` and `react-dom.js` (UMD builds) once. Components are built with React as an
+The base theme library `frame/react` loads `assets/react/react.js` and `react-dom.js` (UMD builds) once. Components are built with React as an
 **external**: `import React from 'react'` becomes `window.React`. Benefits:
 
 - N components on a page share one React (no duplicated 140 kB, no "two copies of React" hook errors),

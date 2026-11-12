@@ -1,15 +1,15 @@
 // Global styles of the theme. Built to assets/global.css and attached by the global-styling library.
 //
-// The design tokens of the theme are declared once, in YAML (the react_scaffold_builder block of the .info.yml, and
-// the .breakpoints.yml), and are available here: rs.space(m), rs.color(dark), rs.font-size(xl),
-// @include rs.breakpoint(tablet) { ... }. The page builder offers editors the same values.
-@use 'react-scaffold/tokens' as rs;
+// The design tokens of the theme are declared once, in YAML (the frame_builder block of the .info.yml, and
+// the .breakpoints.yml), and are available here: frame.space(m), frame.color(dark), frame.font-size(xl),
+// @include frame.breakpoint(tablet) { ... }. The page builder offers editors the same values.
+@use 'frame/tokens' as frame;
 
-// Custom properties (--rs-space-m, --rs-color-dark, ...) and a utility class for every choice of the builder
-// (.rs-p-l, .rs-text-xl, .rs-bg-light, ...). Remove the line if your theme does not use them.
-@include rs.rules;
+// Custom properties (--frame-space-m, --frame-color-dark, ...) and a utility class for every choice of the builder
+// (.frame-p-l, .frame-text-xl, .frame-bg-light, ...). Remove the line if your theme does not use them.
+@include frame.rules;
 
 body {
   margin: 0;
-  font: #{rs.font-size(m)}/1.6 system-ui, sans-serif;
+  font: #{frame.font-size(m)}/1.6 system-ui, sans-serif;
 }

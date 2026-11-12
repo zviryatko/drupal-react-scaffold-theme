@@ -2,7 +2,7 @@
 
 ## `apiClient`
 
-The base theme (`src/apiClient.js`, library `react_scaffold/react-api-client`) defines `window.apiClient(url, query, params)`: a thin `fetch` wrapper.
+The base theme (`src/apiClient.js`, library `frame/react-api-client`) defines `window.apiClient(url, query, params)`: a thin `fetch` wrapper.
 
 ```js
 const data = await apiClient('/en/api/recipes', { difficulty: 'easy', page: 1 });
@@ -14,11 +14,11 @@ What it does:
 - appends `query` as a query string and **drops `null`/`undefined` values**, so clearing a filter is `{ difficulty: null }`,
 - returns `response.json()`.
 
-The CSRF token comes from the base theme: `hook_js_settings_alter()` in `react_scaffold.theme` (it also runs for subthemes) puts a token into `drupalSettings.csrfToken`,
+The CSRF token comes from the base theme: `hook_js_settings_alter()` in `frame.theme` (it also runs for subthemes) puts a token into `drupalSettings.csrfToken`,
 which Drupal needs for non-GET REST requests from cookie-authenticated users.
 
 ```php
-function react_scaffold_js_settings_alter(array &$settings, AttachedAssetsInterface $assets) {
+function frame_js_settings_alter(array &$settings, AttachedAssetsInterface $assets) {
   $settings['csrfToken'] = \Drupal::service('csrf_token')->get(CsrfRequestHeaderAccessCheck::TOKEN_KEY);
 }
 ```
@@ -88,8 +88,8 @@ Behaviors need their JS. If your HTML contains ajax links or dropbuttons, declar
 ```yaml
 libraryOverrides:
   dependencies:
-    - react_scaffold/react
-    - react_scaffold/react-api-client
+    - frame/react
+    - frame/react-api-client
     - core/drupal.ajax        # use-ajax links, modals
     - core/drupal.dropbutton  # dropbuttons
 ```

@@ -1,0 +1,24 @@
+global-styling:
+  css:
+    theme:
+      assets/common.css: {}
+
+global-libraries:
+  js:
+    assets/common.js: { minified: true, weight: -4 }
+  dependencies:
+    - core/drupal
+    - core/once
+    - core/drupalSettings
+
+react:
+  js:
+    assets/react/react.js: { minified: true, weight: -4 }
+    assets/react/react-dom.js: { minified: true, weight: -4 }
+    assets/helpers.js: { minified: true, weight: -3 }
+  dependencies:
+    - frame/global-libraries
+
+react-api-client:
+  js:
+    assets/apiClient.js: { minified: true, weight: -2 }

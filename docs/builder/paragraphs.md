@@ -36,7 +36,7 @@ layout options:
 - **Unsaved values** are kept by `ParagraphDrafts` (Drupal's private tempstore), by page, language and block. Only the
   editor and its preview show them.
 - **The paragraphs belong to the page.** The page lists them in an Entity Reference Revisions field,
-  `react_scaffold_paragraphs`, filled from the layout on every save, and each paragraph has the page as its parent.
+  `frame_paragraphs`, filled from the layout on every save, and each paragraph has the page as its parent.
   That is the relation Paragraphs expects: the paragraphs are deleted with the page and are not seen as orphans.
   The field is added to nodes when the modules are present (also when they are installed later; existing sites:
   `drush updb`).
@@ -62,7 +62,7 @@ Blocks panel like the ones saved in the builder. Saving and updating need the mo
 paragraph library item*, deleting *Administer Paragraphs library*.
 
 Without the module a saved paragraph is a saved block of the builder's own, with a paragraph that belongs to it.
-The [recipe](/builder/recipes) `react_scaffold_builder_paragraphs` installs it, with Entity Usage and a starter
+The [recipe](/builder/recipes) `frame_builder_paragraphs` installs it, with Entity Usage and a starter
 paragraph type.
 
 ## Limits

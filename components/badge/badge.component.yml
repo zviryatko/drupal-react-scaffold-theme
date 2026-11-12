@@ -24,7 +24,7 @@ props:
       examples: [pill]
   required: [text]
 thirdPartySettings:
-  react_scaffold_builder:
+  frame_builder:
     icon: tooltip
     features: { background: false }
-    example: { type: 'react_scaffold:badge', props: { text: 'New', shape: pill, _position: { mode: absolute, corner: top-right, offset: { size: s } } } }
+    example: { type: 'frame:badge', props: { text: 'New', shape: pill, _position: { mode: absolute, corner: top-right, offset: { size: s } } } }

@@ -1,6 +1,6 @@
 # AI assistant
 
-The module **React Scaffold Builder AI** (`react_scaffold_builder_ai`, shipped inside the builder module) adds an
+The module **Frame Builder AI** (`frame_builder_ai`, shipped inside the builder module) adds an
 assistant to the editor: describe a page or a change in a chat, and it composes the layout from the components of your
 theme. It is built on the [AI module](https://www.drupal.org/project/ai) of Drupal and uses whichever provider and
 model the site has configured there.
@@ -23,14 +23,14 @@ The assistant **only chooses and fills in components that exist**. It writes no 
 
 ```bash
 composer require drupal/ai drupal/ai_provider_anthropic   # or another provider
-drush en react_scaffold_builder_ai
+drush en frame_builder_ai
 ```
 
 | Permission | |
 |---|---|
 | *Use the AI assistant of the page builder* | Shows the **AI** panel. Needed in addition to the builder permission. Every request is a paid call to the provider: give it deliberately |
 
-The [recipe](/builder/recipes) `react_scaffold_builder_ai` does step 3 and gives the permission to the Content editor
+The [recipe](/builder/recipes) `frame_builder_ai` does step 3 and gives the permission to the Content editor
 role; the provider and its key stay yours to set.
 
 Without a default chat model the panel is there, with a note on what to set up. The builder itself does not depend on
@@ -74,7 +74,7 @@ The answer appears in the chat, and when the assistant changed the page, the new
 ## How it works
 
 ```
-editor ── POST /react-scaffold-builder/node/N/ai ─► PageAssistant
+editor ── POST /frame-builder/node/N/ai ─► PageAssistant
   {messages, data, image?}                            1. instructions (system prompt)
                                                       2. chat() of the default provider of the AI module
                                                       3. the answer is a tool request? run it, add the result to
@@ -134,13 +134,13 @@ theme's CSS, up to 3000 pixels high. It happens at most once per request, and on
 
 Each step is a request to the provider: a request that searches, previews and checks costs four calls instead of one.
 
-The messages of the conversation (the last twelve) are sent as they are. The call is tagged `react_scaffold_builder`,
+The messages of the conversation (the last twelve) are sent as they are. The call is tagged `frame_builder`,
 which shows in the AI module's logging.
 
 To add guidance of your site (tone of voice, preferred components, what every page needs), alter the instructions:
 
 ```php
-function my_module_react_scaffold_builder_ai_instructions_alter(string &$instructions, \Drupal\node\NodeInterface $node) {
+function my_module_frame_builder_ai_instructions_alter(string &$instructions, \Drupal\node\NodeInterface $node) {
   $instructions .= "\n\n# House style\nWrite headings in sentence case. Start a landing page with a Section.";
 }
 ```

@@ -6,13 +6,13 @@ role. They are in `recipes/` of the theme and are applied by path (Drupal 11).
 
 | Recipe | Installs | Sets up |
 |---|---|---|
-| `react_scaffold_builder` | the base theme, React Scaffold Builder, Media Library, Breakpoint, Responsive Image, Menu UI, Path, CKEditor | the **Landing page** content type, the Image media type, image styles and the responsive image styles *Narrow*, *Wide* and *Hero (per breakpoint)*, the Basic HTML text format, the default theme, the **Content editor** role |
-| `react_scaffold_builder_paragraphs` | Paragraphs, Entity Reference Revisions, Paragraphs Library, Entity Usage | the paragraph types **Text block** (a starter) and **From library** (made by the builder for pages that use a paragraph of the library), a *Usage* tab on media, content and library items |
-| `react_scaffold_builder_seo` | Metatag, Metatag: Open Graph, Token | a **Meta tags** field on Landing page, in the page settings of the builder |
-| `react_scaffold_builder_ai` | AI, React Scaffold Builder AI | the permission for the assistant |
-| `react_scaffold_builder_full` | all of the above | |
+| `frame_builder` | the base theme, Frame Builder, Media Library, Breakpoint, Responsive Image, Menu UI, Path, CKEditor | the **Landing page** content type, the Image media type, image styles and the responsive image styles *Narrow*, *Wide* and *Hero (per breakpoint)*, the Basic HTML text format, the default theme, the **Content editor** role |
+| `frame_builder_paragraphs` | Paragraphs, Entity Reference Revisions, Paragraphs Library, Entity Usage | the paragraph types **Text block** (a starter) and **From library** (made by the builder for pages that use a paragraph of the library), a *Usage* tab on media, content and library items |
+| `frame_builder_seo` | Metatag, Metatag: Open Graph, Token | a **Meta tags** field on Landing page, in the page settings of the builder |
+| `frame_builder_ai` | AI, Frame Builder AI | the permission for the assistant |
+| `frame_builder_full` | all of the above | |
 
-Each of the last four applies `react_scaffold_builder` first, so one command is enough. A recipe never replaces
+Each of the last four applies `frame_builder` first, so one command is enough. A recipe never replaces
 configuration that exists: applying it to a site that has some of it adds the rest, and applying it twice changes nothing.
 
 ## Apply
@@ -20,7 +20,7 @@ configuration that exists: applying it to a site that has some of it adds the re
 Recipes install modules, they do not download them. Get the code first:
 
 ```bash
-# for react_scaffold_builder: nothing, it uses core and the theme
+# for frame_builder: nothing, it uses core and the theme
 composer require drupal/paragraphs drupal/entity_usage      # ..._paragraphs
 composer require drupal/metatag                             # ..._seo
 composer require drupal/ai                                  # ..._ai, plus a provider, see below
@@ -30,21 +30,21 @@ Then, from the Drupal root (`web/`), with your subtheme installed:
 
 ```bash
 drush theme:install my_theme
-drush recipe themes/contrib/react_scaffold/recipes/react_scaffold_builder_full --input=react_scaffold_builder.theme=my_theme
+drush recipe themes/contrib/frame/recipes/frame_builder_full --input=frame_builder.theme=my_theme
 drush cr
 ```
 
-Without drush: `php core/scripts/drupal recipe themes/contrib/react_scaffold/recipes/react_scaffold_builder_full`.
+Without drush: `php core/scripts/drupal recipe themes/contrib/frame/recipes/frame_builder_full`.
 
 ### The `theme` input
 
-The builder works only when the default theme of the site is React Scaffold or a subtheme of it. The recipe makes the
+The builder works only when the default theme of the site is Frame or a subtheme of it. The recipe makes the
 theme you name the default one:
 
 | | |
 |---|---|
-| `--input=react_scaffold_builder.theme=my_theme` | your subtheme, installed before (`drush theme:install my_theme`) |
-| `--input=react_scaffold_builder.theme=react_scaffold` | the base theme itself, to look around without a subtheme |
+| `--input=frame_builder.theme=my_theme` | your subtheme, installed before (`drush theme:install my_theme`) |
+| `--input=frame_builder.theme=frame` | the base theme itself, to look around without a subtheme |
 | no input | the default theme of the site is kept. Right when it is already your subtheme |
 
 ## What you get
@@ -54,8 +54,8 @@ theme you name the default one:
 - The **Image** media type and the media library: image props and backgrounds of components pick from it.
 - Image styles of 325, 650, 1300 and 2600 pixels (core's *Standard responsive images* recipe) with the responsive image
   styles **Narrow** and **Wide**, which let the browser choose by the width of the image (`sizes`).
-- **Hero (per breakpoint)** (`react_scaffold_hero`): one image style per breakpoint of the base theme, mobile, tablet
-  and desktop (`react_scaffold.breakpoints.yml`). Use this kind for backgrounds: a background image gets one
+- **Hero (per breakpoint)** (`frame_hero`): one image style per breakpoint of the base theme, mobile, tablet
+  and desktop (`frame.breakpoints.yml`). Use this kind for backgrounds: a background image gets one
   `@media` rule per breakpoint. See [Images](/builder/styling#images).
 
 A subtheme without its own `<theme>.breakpoints.yml` uses the base theme's breakpoints, in the preview of the builder
@@ -103,7 +103,7 @@ page builder* away from the role if not every editor should have it.
 
 ## Not in the recipes
 
-- Your subtheme: create it with `react-scaffold new`, see [Build a site](/guide/build-a-site).
+- Your subtheme: create it with `frame new`, see [Build a site](/guide/build-a-site).
 - Content moderation: the builder saves with **Publish** and **Draft** and does not show workflow states.
 - A provider for the AI module, and translation modules. For translations enable Content Translation and choose
   *Synced* or *Independent* on the content type, see [Translations](/guide/page-builder#translations).
@@ -117,7 +117,7 @@ A site recipe can build on these, for example to add your paragraph types:
 name: 'My site'
 type: 'Site'
 recipes:
-  - ../web/themes/contrib/react_scaffold/recipes/react_scaffold_builder_paragraphs
+  - ../web/themes/contrib/frame/recipes/frame_builder_paragraphs
 install:
   - my_theme
 config:

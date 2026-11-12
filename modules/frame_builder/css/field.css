@@ -1,0 +1,40 @@
+/*
+ * Label position of a Field block ("Above" / "Inline"), as Drupal themes show it.
+ *
+ * Core's field template has no classes of its own, so the label is found by position: the first child of the field.
+ * Themes with their own field template (.field__label) keep their styling; only what they lack is added.
+ */
+.frame-builder-field--label-above > div > div:first-child,
+.frame-builder-field--label-inline > div > div:first-child,
+.frame-builder-field .field__label {
+  font-weight: var(--frame-builder-label-font-weight, 700);
+}
+/* The "Label style" of a Field block: only what is set. */
+.frame-builder-field > div > div:first-child:not(:only-child),
+.frame-builder-field .field__label {
+  font-size: var(--frame-builder-label-font-size, inherit);
+  font-style: var(--frame-builder-label-font-style, inherit);
+  text-transform: var(--frame-builder-label-text-transform, inherit);
+  line-height: var(--frame-builder-label-line-height, inherit);
+  color: var(--frame-builder-label-color, inherit);
+}
+.frame-builder-field--label-above > div > div:first-child {
+  margin-bottom: 0.25em;
+}
+.frame-builder-field--label-inline > div {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0 0.5em;
+}
+.frame-builder-field--label-inline > div > div:first-child:not(.field__label)::after {
+  content: ":";
+}
+.frame-builder-field--label-visually-hidden > div > div:first-child:not(.field__label) {
+  position: absolute;
+  overflow: hidden;
+  clip: rect(1px, 1px, 1px, 1px);
+  width: 1px;
+  height: 1px;
+  word-wrap: normal;
+}

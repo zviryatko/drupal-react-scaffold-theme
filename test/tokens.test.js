@@ -5,11 +5,11 @@ const { tmpdir } = require('node:os');
 const { join, resolve } = require('node:path');
 
 const base = resolve(__dirname, '..');
-const cli = join(base, 'bin/react-scaffold.mjs');
+const cli = join(base, 'bin/frame.mjs');
 
 /** A theme folder next to a copy-free pointer to the base theme: themes/custom/<name>. */
 function theme(name, info, breakpoints) {
-  const dir = join(mkdtempSync(join(tmpdir(), 'rs-tokens-')), name);
+  const dir = join(mkdtempSync(join(tmpdir(), 'frame-tokens-')), name);
   mkdirSync(dir, { recursive: true });
   writeFileSync(join(dir, `${name}.info.yml`), info);
   if (breakpoints) writeFileSync(join(dir, `${name}.breakpoints.yml`), breakpoints);
@@ -31,8 +31,8 @@ function compile(cwd, scss) {
 describe('tokens', () => {
   const dir = theme('my_theme', `name: My theme
 type: theme
-base theme: react_scaffold
-react_scaffold_builder:
+base theme: frame
+frame_builder:
   uikit:
     spacing: { s: 4px, m: 1rem, bad: 'red; }' }
     colors:
@@ -61,32 +61,32 @@ my_theme.wide:
   });
 
   it('gives functions, a breakpoint mixin and the rules of the builder features', () => {
-    const css = compile(dir, `@use 'react-scaffold/tokens' as rs;
-      .a { padding: rs.space(m); color: rs.color(brand); font-size: rs.font-size(xl); @include rs.breakpoint(wide) { padding: rs.space(s); } @include rs.breakpoint(small) { margin: 0; } }
-      @include rs.rules($responsive: true);`);
+    const css = compile(dir, `@use 'frame/tokens' as frame;
+      .a { padding: frame.space(m); color: frame.color(brand); font-size: frame.font-size(xl); @include frame.breakpoint(wide) { padding: frame.space(s); } @include frame.breakpoint(small) { margin: 0; } }
+      @include frame.rules($responsive: true);`);
     expect(css).toMatch(/\.a \{\s*padding: 1rem;\s*color: #123456;\s*font-size: 1\.5rem;/);
     // A breakpoint without a media query (the smallest screens) applies always.
     expect(css).toMatch(/\.a \{\s*margin: 0;/);
     expect(css).toMatch(/@media all and \(min-width: 60em\) \{\s*\.a \{\s*padding: 4px;/);
-    expect(css).toContain('--rs-space-m: 1rem;');
-    expect(css).toContain('--rs-accent: #123456;');
-    expect(css).toMatch(/\.rs-px-m \{\s*padding-inline: 1rem;/);
-    expect(css).toMatch(/\.rs-bg-brand \{\s*background-color: #123456;/);
-    expect(css).toMatch(/\.rs-text-2xl \{\s*font-size: 2rem;/);
+    expect(css).toContain('--frame-space-m: 1rem;');
+    expect(css).toContain('--frame-accent: #123456;');
+    expect(css).toMatch(/\.frame-px-m \{\s*padding-inline: 1rem;/);
+    expect(css).toMatch(/\.frame-bg-brand \{\s*background-color: #123456;/);
+    expect(css).toMatch(/\.frame-text-2xl \{\s*font-size: 2rem;/);
     // Sizes: the defaults, as the theme declares none.
-    expect(css).toMatch(/\.rs-w-l \{\s*max-width: 60rem;/);
-    expect(css).toMatch(/--rs-size-full: 100%/);
-    expect(css).toContain('.rs-m-s\\@wide');
+    expect(css).toMatch(/\.frame-w-l \{\s*max-width: 60rem;/);
+    expect(css).toMatch(/--frame-size-full: 100%/);
+    expect(css).toContain('.frame-m-s\\@wide');
     // The theme switched the position feature off.
-    expect(css).not.toContain('.rs-pin-');
+    expect(css).not.toContain('.frame-pin-');
   });
 
   it('fails on a token the theme does not declare', () => {
-    expect(() => compile(dir, `@use 'react-scaffold/tokens' as rs; .a { padding: rs.space(huge); }`)).toThrow(/Unknown spacing step "huge"/);
+    expect(() => compile(dir, `@use 'frame/tokens' as frame; .a { padding: frame.space(huge); }`)).toThrow(/Unknown spacing step "huge"/);
   });
 
   it('uses the breakpoints of the base theme when the theme has none, and writes a file', () => {
-    const plain = theme('plain_theme', 'name: Plain\ntype: theme\nbase theme: react_scaffold\n');
+    const plain = theme('plain_theme', 'name: Plain\ntype: theme\nbase theme: frame\n');
     tokens(plain, '--out', 'scss/_tokens.scss');
     const scss = readFileSync(join(plain, 'scss/_tokens.scss'), 'utf8');
     expect(scss).toContain("'tablet': 'all and (min-width: 48em)'");

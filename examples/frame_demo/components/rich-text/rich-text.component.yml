@@ -1,0 +1,26 @@
+$schema: https://git.drupalcode.org/project/drupal/-/raw/HEAD/core/assets/schemas/v1/metadata.schema.json
+name: Text
+# The demo theme has its own look for this component of the base theme.
+replaces: frame:text
+status: experimental
+description: 'Formatted text, edited with the editor of a Drupal text format.'
+group: Content
+props:
+  type: object
+  properties:
+    text:
+      type: string
+      title: Text
+      description: 'Filtered by the chosen text format when the page is rendered.'
+      contentMediaType: text/html
+      x-formatting-context: block
+      examples:
+        - '<p>Write something.</p>'
+  required:
+    - text
+# Page builder: the icon in the list of blocks.
+thirdPartySettings:
+  frame_builder:
+    # A typical use, as a layout item: shown to the AI assistant.
+    example: { type: 'frame:text', props: { text: '<h3>A sub-heading</h3><p>A paragraph with a <a href="/about">link</a> and a list:</p><ul><li>One</li><li>Two</li></ul>' } }
+    icon: text

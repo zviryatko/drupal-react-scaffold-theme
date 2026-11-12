@@ -3,7 +3,7 @@ import { resolve } from 'node:path';
 import { createRequire } from 'node:module';
 
 // Copies the React UMD builds into <root>/<outDir>/react. They are loaded once per page by the
-// `react_scaffold/react` library, every component bundle treats React as an external (window.React).
+// `frame/react` library, every component bundle treats React as an external (window.React).
 export function vitePluginCopyReact({ root, outDir = 'assets', mode = 'development' }) {
   const require = createRequire(import.meta.url);
   const umd = (pkg, file) => resolve(require.resolve(`${pkg}/package.json`), '..', 'umd', file);

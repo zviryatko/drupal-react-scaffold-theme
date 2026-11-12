@@ -4,4 +4,4 @@
 .heading-block--m .heading-block__text { font-size: 1.5rem; }
 .heading-block--l .heading-block__text { font-size: clamp(1.75rem, 1.4rem + 1.2vw, 2.25rem); }
 .heading-block--xl .heading-block__text { font-size: clamp(2.25rem, 1.6rem + 2.6vw, 3.5rem); }
-.heading-block__eyebrow { margin: 0 0 0.35rem; font-size: 0.8125rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--rs-accent, #1f4fd8); }
+.heading-block__eyebrow { margin: 0 0 0.35rem; font-size: 0.8125rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--frame-accent, #1f4fd8); }

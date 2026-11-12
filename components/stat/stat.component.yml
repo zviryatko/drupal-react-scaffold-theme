@@ -18,6 +18,6 @@ props:
       examples: ['of visitors come back']
   required: [value]
 thirdPartySettings:
-  react_scaffold_builder:
+  frame_builder:
     icon: heading
-    example: { type: 'react_scaffold:stat', props: { value: '8', label: 'people per class at most', _align: center } }
+    example: { type: 'frame:stat', props: { value: '8', label: 'people per class at most', _align: center } }

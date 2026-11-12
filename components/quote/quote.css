@@ -1,4 +1,4 @@
-.quote { margin: 0 0 1rem; padding-inline-start: 1.25rem; border-inline-start: 4px solid var(--rs-accent, #1f4fd8); }
+.quote { margin: 0 0 1rem; padding-inline-start: 1.25rem; border-inline-start: 4px solid var(--frame-accent, #1f4fd8); }
 .quote__text { margin: 0; font-size: 1.125rem; line-height: 1.55; font-style: italic; }
 .quote--l .quote__text { font-size: clamp(1.25rem, 1.1rem + 0.8vw, 1.75rem); line-height: 1.4; }
 .quote__source { display: flex; align-items: center; gap: 0.75rem; margin-top: 0.9rem; font-size: 0.9375rem; }

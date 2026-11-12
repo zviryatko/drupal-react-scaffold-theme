@@ -1,5 +1,5 @@
 .accordion { margin: 0 0 1rem; }
 .accordion--lines .accordion-item { border-bottom: 1px solid rgb(0 0 0 / 15%); }
-.accordion--lines .accordion-item:first-child, .accordion--lines > [data-rsb-slot] > [data-puck-dropzone] > :first-child .accordion-item { border-top: 1px solid rgb(0 0 0 / 15%); }
-.accordion--bordered .accordion-item { margin-bottom: 0.5rem; border: 1px solid rgb(0 0 0 / 15%); border-radius: var(--rs-radius, 0.375rem); background: rgb(255 255 255 / 60%); }
+.accordion--lines .accordion-item:first-child, .accordion--lines > [data-frame-builder-slot] > [data-puck-dropzone] > :first-child .accordion-item { border-top: 1px solid rgb(0 0 0 / 15%); }
+.accordion--bordered .accordion-item { margin-bottom: 0.5rem; border: 1px solid rgb(0 0 0 / 15%); border-radius: var(--frame-radius, 0.375rem); background: rgb(255 255 255 / 60%); }
 .accordion--bordered .accordion-item__title, .accordion--bordered .accordion-item__content { padding-inline: 1rem; }

@@ -1,0 +1,190 @@
+# The builder as an admin page: Drupal's admin theme, toolbar and navigation
+# stay around it. The editor itself runs in a frame served by the front-end
+# theme, so components look and behave as on the site.
+frame_builder.editor:
+  path: '/node/{node}/builder'
+  defaults:
+    _controller: '\Drupal\frame_builder\Controller\BuilderController::host'
+    _title_callback: '\Drupal\frame_builder\Controller\BuilderController::title'
+  requirements:
+    _custom_access: '\Drupal\frame_builder\Controller\BuilderController::access'
+    node: \d+
+  options:
+    _admin_route: TRUE
+    parameters:
+      node:
+        type: entity:node
+
+frame_builder.editor_frame:
+  path: '/node/{node}/builder/frame'
+  defaults:
+    _controller: '\Drupal\frame_builder\Controller\BuilderController::editor'
+    _title_callback: '\Drupal\frame_builder\Controller\BuilderController::title'
+  requirements:
+    _custom_access: '\Drupal\frame_builder\Controller\BuilderController::access'
+    node: \d+
+  options:
+    parameters:
+      node:
+        type: entity:node
+
+# The node's field widgets, in a frame of the editor (admin theme).
+frame_builder.content_form:
+  path: '/node/{node}/builder/content'
+  defaults:
+    _controller: '\Drupal\frame_builder\Controller\BuilderController::contentForm'
+  requirements:
+    _custom_access: '\Drupal\frame_builder\Controller\BuilderController::access'
+    node: \d+
+  options:
+    _admin_route: TRUE
+    parameters:
+      node:
+        type: entity:node
+
+frame_builder.save:
+  path: '/frame-builder/node/{node}/save'
+  defaults:
+    _controller: '\Drupal\frame_builder\Controller\BuilderController::save'
+  methods: [POST]
+  requirements:
+    _custom_access: '\Drupal\frame_builder\Controller\BuilderController::access'
+    _csrf_request_header_token: 'TRUE'
+    node: \d+
+  options:
+    parameters:
+      node:
+        type: entity:node
+
+frame_builder.render:
+  path: '/frame-builder/render'
+  defaults:
+    _controller: '\Drupal\frame_builder\Controller\BuilderController::render'
+  methods: [POST]
+  requirements:
+    _permission: 'use frame builder'
+    _csrf_request_header_token: 'TRUE'
+
+frame_builder.urls:
+  path: '/frame-builder/urls'
+  defaults:
+    _controller: '\Drupal\frame_builder\Controller\BuilderController::urls'
+  methods: [GET]
+  requirements:
+    _permission: 'use frame builder'
+
+frame_builder.media:
+  path: '/frame-builder/media'
+  defaults:
+    _controller: '\Drupal\frame_builder\Controller\BuilderController::media'
+  methods: [GET]
+  requirements:
+    _permission: 'use frame builder'
+
+frame_builder.tokens:
+  path: '/frame-builder/tokens'
+  defaults:
+    _controller: '\Drupal\frame_builder\Controller\BuilderController::tokens'
+  methods: [GET]
+  requirements:
+    _permission: 'use frame builder'
+
+# Drupal's media library in a frame. An admin route, so it is rendered by the
+# admin theme, which is the theme that styles the media library.
+frame_builder.media_frame:
+  path: '/frame-builder/media-library'
+  defaults:
+    _controller: '\Drupal\frame_builder\Controller\BuilderController::mediaFrame'
+  methods: [GET]
+  requirements:
+    _permission: 'use frame builder'
+  options:
+    _admin_route: TRUE
+
+# Settings form of a field formatter, in a frame of the editor (admin theme).
+frame_builder.formatter_settings:
+  path: '/node/{node}/builder/formatter'
+  defaults:
+    _controller: '\Drupal\frame_builder\Controller\BuilderController::formatterSettings'
+  requirements:
+    _custom_access: '\Drupal\frame_builder\Controller\BuilderController::access'
+    node: \d+
+  options:
+    _admin_route: TRUE
+    parameters:
+      node:
+        type: entity:node
+
+# Per-user autosave of unsaved editor state: lets the editor be reloaded, and
+# feeds the preview.
+frame_builder.draft:
+  path: '/frame-builder/node/{node}/draft'
+  defaults:
+    _controller: '\Drupal\frame_builder\Controller\BuilderController::draft'
+  methods: [POST]
+  requirements:
+    _custom_access: '\Drupal\frame_builder\Controller\BuilderController::access'
+    _csrf_request_header_token: 'TRUE'
+    node: \d+
+  options:
+    parameters:
+      node:
+        type: entity:node
+
+# The page as visitors would see it, with the user's unsaved layout.
+frame_builder.preview:
+  path: '/node/{node}/builder/preview'
+  defaults:
+    _controller: '\Drupal\frame_builder\Controller\BuilderController::preview'
+    _title_callback: '\Drupal\frame_builder\Controller\BuilderController::title'
+  requirements:
+    _custom_access: '\Drupal\frame_builder\Controller\BuilderController::access'
+    node: \d+
+  options:
+    parameters:
+      node:
+        type: entity:node
+
+# The same settings form as an HTMX fragment, shown inline in the sidebar
+# (Drupal 11.2+, where core ships HTMX). `_htmx_route` makes Drupal answer
+# with the form only, plus the assets it needs.
+frame_builder.formatter_form:
+  path: '/node/{node}/builder/formatter-form'
+  defaults:
+    _controller: '\Drupal\frame_builder\Controller\BuilderController::formatterForm'
+  requirements:
+    _custom_access: '\Drupal\frame_builder\Controller\BuilderController::access'
+    node: \d+
+  options:
+    _htmx_route: TRUE
+    # The answer is a small fragment that must be complete at once. (BigPipe
+    # also mishandles the page state HTMX sends, which filled the log with
+    # warnings about a library without a name.)
+    _no_big_pipe: TRUE
+    parameters:
+      node:
+        type: entity:node
+
+# The library of saved blocks (BuilderController::library).
+frame_builder.library:
+  path: '/frame-builder/library'
+  defaults:
+    _controller: '\Drupal\frame_builder\Controller\BuilderController::library'
+  methods: [GET, POST]
+  requirements:
+    _permission: 'use frame builder'
+    _csrf_request_header_token: 'TRUE'
+
+# The form of a paragraph, for a Paragraph block (with the Paragraphs module).
+frame_builder.paragraph_form:
+  path: '/node/{node}/builder/paragraph'
+  defaults:
+    _controller: '\Drupal\frame_builder\Controller\BuilderController::paragraphForm'
+  requirements:
+    _custom_access: '\Drupal\frame_builder\Controller\BuilderController::access'
+    node: \d+
+  options:
+    _admin_route: TRUE
+    parameters:
+      node:
+        type: entity:node

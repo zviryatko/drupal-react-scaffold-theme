@@ -97,7 +97,7 @@ slots:
   content:
     title: Content
 thirdPartySettings:
-  react_scaffold_builder:
+  frame_builder:
     icon: columns
 ```
 
@@ -120,13 +120,13 @@ drop zone must be the grid there:
 
 ```css
 .my-grid__items,
-.my-grid__items > [data-rsb-slot] > [data-puck-dropzone] {
+.my-grid__items > [data-frame-builder-slot] > [data-puck-dropzone] {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
   gap: var(--my-gap, 1rem);
 }
 /* In the editor the inner element holds only the marker: it must not be a grid of one. */
-.my-grid__items:has(> [data-rsb-slot]) { display: block; }
+.my-grid__items:has(> [data-frame-builder-slot]) { display: block; }
 ```
 
 Custom properties set on the inner element (`--my-gap`) are inherited by the drop zone, so one rule serves both.
@@ -135,7 +135,7 @@ Rules for the *items* need the same treatment. In the editor an item is wrapped,
 
 ```css
 .my-grid__items > *,
-.my-grid__items > [data-rsb-slot] > [data-puck-dropzone] > * { min-width: 0; }
+.my-grid__items > [data-frame-builder-slot] > [data-puck-dropzone] > * { min-width: 0; }
 ```
 
 **3. A length prop is a CSS length.** `x-builder-widget: length` gives the editor the theme's scale, and the template a
@@ -150,7 +150,7 @@ They are ordinary components, so the usual ways apply:
 
 - **Restyle**: override their classes (`.layout-columns__items`, `.layout-flex__items`, `.layout-stack__items`) in your
   theme's CSS, for example the width below which Columns become one column.
-- **Replace**: copy a component into your theme and declare `replaces: react_scaffold:columns` in its `*.component.yml`.
+- **Replace**: copy a component into your theme and declare `replaces: frame:columns` in its `*.component.yml`.
   The builder then offers your version instead of the original, and existing layouts that use the original show
   yours.
 - **Add**: write your own, as above. It appears next to them in the **Layout** group.

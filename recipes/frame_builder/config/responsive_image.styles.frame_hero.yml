@@ -1,0 +1,29 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - image.style.max_1300x1300
+    - image.style.max_2600x2600
+    - image.style.max_650x650
+  theme:
+    - frame
+id: frame_hero
+label: 'Hero (per breakpoint)'
+image_style_mappings:
+  -
+    image_mapping_type: image_style
+    image_mapping: max_650x650
+    breakpoint_id: frame.mobile
+    multiplier: 1x
+  -
+    image_mapping_type: image_style
+    image_mapping: max_1300x1300
+    breakpoint_id: frame.tablet
+    multiplier: 1x
+  -
+    image_mapping_type: image_style
+    image_mapping: max_2600x2600
+    breakpoint_id: frame.desktop
+    multiplier: 1x
+breakpoint_group: frame
+fallback_image_style: max_1300x1300

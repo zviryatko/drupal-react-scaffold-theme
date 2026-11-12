@@ -1,8 +1,0 @@
-name: 'React Scaffold Builder AI'
-type: module
-description: 'A chat assistant in the page builder that composes a page from the components of the theme, using the AI module and the provider configured there.'
-package: 'React Scaffold'
-core_version_requirement: ^11
-dependencies:
-  - react_scaffold_builder:react_scaffold_builder
-  - ai:ai

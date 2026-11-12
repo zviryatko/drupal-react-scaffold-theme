@@ -1,11 +1,11 @@
 # Base theme and subthemes
 
-React Scaffold is a **base theme**. You do not edit it, you create a **subtheme** that inherits from it and holds your components.
+Frame is a **base theme**. You do not edit it, you create a **subtheme** that inherits from it and holds your components.
 That keeps the scaffold updatable: pulling a new version of the base theme gives every subtheme the new runtime, helpers and build config.
 
 ```
 themes/
-  contrib/react_scaffold/        ← base theme (git/composer, never edited)
+  contrib/frame/        ← base theme (git/composer, never edited)
   custom/my_theme/               ← your subtheme: components, styles, templates
 ```
 
@@ -13,13 +13,13 @@ themes/
 
 | Provides | Where | Used by subthemes as |
 |---|---|---|
-| **React runtime**: React 18 + ReactDOM UMD, loaded once per page | `assets/react/*.js`, library `react_scaffold/react` | `dependencies: [react_scaffold/react]` in a component |
-| **Helpers**: `executeWhenVisible`, `rawHtml`, `attachBehaviors`, ... | `src/helpers.jsx` → `assets/helpers.js` | globals, part of `react_scaffold/react` |
-| **API client** with CSRF header | `src/apiClient.js` → `assets/apiClient.js` | global `apiClient()`, library `react_scaffold/react-api-client` |
-| **CSRF token** in `drupalSettings.csrfToken` | `react_scaffold.theme` | automatic, base theme hooks run for subthemes |
-| **Page layout** and region list | `templates/layout/page.html.twig`, `react_scaffold.info.yml`, `scss/base.scss` | inherited template, restyle with your CSS |
-| **Build and test tooling**: Vite, Sass, Jest, Babel, Testing Library and their configuration | `bin/react-scaffold.mjs`, `vite.base.js`, `jest.base.cjs`, `node_modules` | `npm run build`, `npm run watch`, `npm test` in a subtheme |
-| **Subtheme generator** | `bin/react-scaffold.mjs new`, template in `starterkit/` | `node <base theme>/bin/react-scaffold.mjs new my_theme` |
+| **React runtime**: React 18 + ReactDOM UMD, loaded once per page | `assets/react/*.js`, library `frame/react` | `dependencies: [frame/react]` in a component |
+| **Helpers**: `executeWhenVisible`, `rawHtml`, `attachBehaviors`, ... | `src/helpers.jsx` → `assets/helpers.js` | globals, part of `frame/react` |
+| **API client** with CSRF header | `src/apiClient.js` → `assets/apiClient.js` | global `apiClient()`, library `frame/react-api-client` |
+| **CSRF token** in `drupalSettings.csrfToken` | `frame.theme` | automatic, base theme hooks run for subthemes |
+| **Page layout** and region list | `templates/layout/page.html.twig`, `frame.info.yml`, `scss/base.scss` | inherited template, restyle with your CSS |
+| **Build and test tooling**: Vite, Sass, Jest, Babel, Testing Library and their configuration | `bin/frame.mjs`, `vite.base.js`, `jest.base.cjs`, `node_modules` | `npm run build`, `npm run watch`, `npm test` in a subtheme |
+| **Subtheme generator** | `bin/frame.mjs new`, template in `starterkit/` | `node <base theme>/bin/frame.mjs new my_theme` |
 
 The base theme itself has `base theme: false`: it does not depend on `stable9` or any other theme, core's default templates and CSS apply.
 It ships **no components**, only the runtime. Compiled files are not in git: a release archive contains the built `assets/`, a git checkout needs
@@ -30,9 +30,9 @@ It ships **no components**, only the runtime. Compiled files are not in git: a r
 | Inherited automatically | **Not** inherited, declare it in the subtheme |
 |---|---|
 | libraries listed under `libraries:` in the base `info.yml` (`global-styling`, `global-libraries`) | **regions**: Drupal does not inherit `regions:` from a base theme. Without them core's default list applies and blocks placed in `page_title`, `breadcrumbs`... are disabled |
-| library definitions (`react_scaffold/react` can be used from any subtheme component) | the subtheme's own `global-styling` library and CSS |
+| library definitions (`frame/react` can be used from any subtheme component) | the subtheme's own `global-styling` library and CSS |
 | `page.html.twig` and all templates of the base chain | block placement (blocks belong to a theme, ship them as `config/optional/block.block.*.yml`) |
-| `.theme` hooks (`react_scaffold_js_settings_alter`) | the subtheme's own assets (`npm run build`) |
+| `.theme` hooks (`frame_js_settings_alter`) | the subtheme's own assets (`npm run build`) |
 | SDC components of the base theme (none shipped) | |
 
 The generated subtheme declares the current region list in your `info.yml` (a test keeps it equal to the base theme's). If a new base version adds regions, add them
@@ -41,11 +41,11 @@ to your subtheme too (the changelog says so).
 ## How the pieces fit at runtime
 
 ```
-page ─► react_scaffold/global-libraries   (base: core/drupal, once, drupalSettings)
-    ├─► react_scaffold/global-styling     (base: layout skeleton CSS)
+page ─► frame/global-libraries   (base: core/drupal, once, drupalSettings)
+    ├─► frame/global-styling     (base: layout skeleton CSS)
     ├─► my_theme/global-styling           (subtheme: your CSS)
     └─► my_theme:my-widget library        (generated by SDC, only when the component renders)
-          └─ depends on react_scaffold/react   (React UMD + helpers, from the base theme)
+          └─ depends on frame/react   (React UMD + helpers, from the base theme)
 ```
 
 ## The build contract
@@ -58,9 +58,9 @@ is three scripts that call the base theme's command line:
 
 ```json
 "scripts": {
-  "build": "node ../../contrib/react_scaffold/bin/react-scaffold.mjs build",
-  "watch": "node ../../contrib/react_scaffold/bin/react-scaffold.mjs watch",
-  "test": "node ../../contrib/react_scaffold/bin/react-scaffold.mjs test"
+  "build": "node ../../contrib/frame/bin/frame.mjs build",
+  "watch": "node ../../contrib/frame/bin/frame.mjs watch",
+  "test": "node ../../contrib/frame/bin/frame.mjs test"
 }
 ```
 
@@ -83,7 +83,7 @@ and `test`. Start from the shared factory:
 ```js
 // vite.config.js
 import { defineConfig } from 'vite';
-import { createViteConfig } from '../../contrib/react_scaffold/vite.base.js';
+import { createViteConfig } from '../../contrib/frame/vite.base.js';
 
 export default defineConfig(({ mode }) => {
   const config = createViteConfig({ root: import.meta.dirname, mode, entries: { global: './scss/global.scss' } });
@@ -93,7 +93,7 @@ export default defineConfig(({ mode }) => {
 
 ```js
 // jest.config.cjs
-module.exports = require('../../contrib/react_scaffold/jest.base.cjs')(__dirname, { testPathIgnorePatterns: ['/node_modules/', '/assets/', '/e2e/'] });
+module.exports = require('../../contrib/frame/jest.base.cjs')(__dirname, { testPathIgnorePatterns: ['/node_modules/', '/assets/', '/e2e/'] });
 ```
 
 ### `createViteConfig` options
@@ -117,9 +117,9 @@ module.exports = require('../../contrib/react_scaffold/jest.base.cjs')(__dirname
 
 ## Following the Drupal sub-theme rules
 
-[Creating sub-themes](https://www.drupal.org/node/2165673) lists what a subtheme has to handle itself. How React Scaffold deals with each:
+[Creating sub-themes](https://www.drupal.org/node/2165673) lists what a subtheme has to handle itself. How Frame deals with each:
 
-| Rule from the Drupal documentation | In React Scaffold |
+| Rule from the Drupal documentation | In Frame |
 |---|---|
 | **Regions are not inherited**: copy them into the subtheme | the starterkit's `info.yml` has the base theme's regions, a test keeps them equal |
 | **Block placement** is inherited only from the default theme and only if the subtheme ships no block config | the starterkit ships `config/optional/block.block.*.yml` (branding, main menu, page title...) for the generated theme, edit or replace them |
@@ -130,8 +130,8 @@ module.exports = require('../../contrib/react_scaffold/jest.base.cjs')(__dirname
 ## Releases and updating the base theme
 
 Compiled files are never committed. The workflow `.github/workflows/release.yml` builds them when a version tag is pushed (`git tag v1.0.0 && git push --tags`)
-and attaches `react_scaffold-<version>.zip` and `.tar.gz` to the GitHub release: the theme, with `assets/`, without docs and CI files. CI (`ci.yml`) builds the base theme,
-the example subtheme, and installs Drupal on SQLite with two subthemes (one from `react-scaffold new`, one from core's `generate-theme`) to check in a browser
+and attaches `frame-<version>.zip` and `.tar.gz` to the GitHub release: the theme, with `assets/`, without docs and CI files. CI (`ci.yml`) builds the base theme,
+the example subtheme, and installs Drupal on SQLite with two subthemes (one from `frame new`, one from core's `generate-theme`) to check in a browser
 that the component mounts and the runtime, CSRF token, page template, regions and blocks are inherited (`demo/smoke.mjs`), on every push and pull request.
 
 To update:
@@ -139,13 +139,13 @@ To update:
 ```bash
 # release archive: replace the folder (or `composer update` with the pinned version bumped)
 # git checkout:
-cd themes/contrib/react_scaffold && git pull && npm install && npm run dist
+cd themes/contrib/frame && git pull && npm install && npm run dist
 
 # then, per subtheme
 cd themes/custom/my_theme && npm run build && drush cr
 ```
 
-- Read [`CHANGELOG.md`](https://github.com/zviryatko/drupal-react-scaffold-theme/blob/main/CHANGELOG.md): it lists the public API, anything outside it can change in a minor version.
+- Read [`CHANGELOG.md`](https://github.com/zviryatko/frame/blob/main/CHANGELOG.md): it lists the public API, anything outside it can change in a minor version.
 - Subthemes call the base theme's tooling, so a new base version changes the build of every subtheme at the next `npm run build`. Nothing in the subtheme has to be updated.
   The runtime (`assets/`) updates with the base theme files.
 - If a release changes the React major version, rebuild all subthemes (React is an external, nothing is bundled, but the UMD API must match).
@@ -153,15 +153,15 @@ cd themes/custom/my_theme && npm run build && drush cr
 
 ## Example subtheme
 
-[`examples/react_scaffold_demo`](https://github.com/zviryatko/drupal-react-scaffold-theme/tree/main/examples/react_scaffold_demo) is a complete subtheme that lives inside the base
+[`examples/frame_demo`](https://github.com/zviryatko/frame/tree/main/examples/frame_demo) is a complete subtheme that lives inside the base
 theme repository (Drupal discovers nested themes). It contains the three example components, two views, block placement and styling, and is the
 subtheme used for the demos. Read it as a reference for how a real subtheme looks:
 
 ```
-react_scaffold_demo/
-  react_scaffold_demo.info.yml        base theme: react_scaffold, regions, libraries
-  react_scaffold_demo.libraries.yml   global-styling → assets/global.css
-  react_scaffold_demo.theme           preprocess for the tooltip
+frame_demo/
+  frame_demo.info.yml        base theme: frame, regions, libraries
+  frame_demo.libraries.yml   global-styling → assets/global.css
+  frame_demo.theme           preprocess for the tooltip
   package.json                        scripts that call the base theme, rsuite and react-tippy as dependencies
   scss/global.scss                    look of the theme
   components/{react-tooltip,node-list,recipe-explorer}/

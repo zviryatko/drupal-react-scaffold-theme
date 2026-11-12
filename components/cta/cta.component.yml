@@ -35,6 +35,6 @@ slots:
     title: Actions
     description: 'One or two buttons.'
 thirdPartySettings:
-  react_scaffold_builder:
+  frame_builder:
     icon: button
-    example: { type: 'react_scaffold:cta', props: { heading: 'Ready to tie on an apron?', text: 'Classes run every Tuesday and Saturday evening.', layout: stacked, tone: accent, actions: [ { type: 'react_scaffold:button', props: { label: 'Sign up', url: '/contact', variant: primary, size: l } } ] } }
+    example: { type: 'frame:cta', props: { heading: 'Ready to tie on an apron?', text: 'Classes run every Tuesday and Saturday evening.', layout: stacked, tone: accent, actions: [ { type: 'frame:button', props: { label: 'Sign up', url: '/contact', variant: primary, size: l } } ] } }

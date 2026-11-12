@@ -16,9 +16,9 @@ How the page builder is put together: what is stored, how a page is rendered, an
 ## Where things are
 
 ```
-react_scaffold/                         the base theme
+frame/                         the base theme
 ├── components/                         layout components: columns, flex, stack, image (Twig + CSS)
-└── modules/react_scaffold_builder/     the module (Drupal finds it inside the theme folder)
+└── modules/frame_builder/     the module (Drupal finds it inside the theme folder)
     ├── src/
     │   ├── ThemeKit.php                design tokens and feature defaults of the active theme
     │   ├── ComponentCatalog.php        what the editor can place, and the field of every prop
@@ -38,7 +38,7 @@ react_scaffold/                         the base theme
     │   ├── Routing/RouteSubscriber.php        makes the builder the edit page
     │   └── Plugin/…                    Views display "Component", Views style "React component (SDC)",
     │                                   field formatter "Responsive image" for media
-    ├── modules/react_scaffold_builder_ai/   the AI assistant (needs the AI module)
+    ├── modules/frame_builder_ai/   the AI assistant (needs the AI module)
     ├── editor/                         the editor: React sources, built with Vite into js/
     ├── js-static/                      small scripts that run inside the frames
     └── css/
@@ -46,7 +46,7 @@ react_scaffold/                         the base theme
 
 ## What is stored
 
-One base field on nodes, `react_scaffold_layout` (long text, revisionable, translatable), holds the layout as JSON:
+One base field on nodes, `frame_layout` (long text, revisionable, translatable), holds the layout as JSON:
 
 ```json
 {
@@ -54,7 +54,7 @@ One base field on nodes, `react_scaffold_layout` (long text, revisionable, trans
   "root": { "props": {} },
   "content": [
     {
-      "type": "react_scaffold_demo:section",
+      "type": "frame_demo:section",
       "version": 1,
       "props": {
         "id": "section-1",
@@ -117,7 +117,7 @@ node view (full) ──► hook_node_view_alter ──► LayoutStorage::load() 
                  one render array per item:  #type => component, #props, #slots (children, recursively)
 ```
 
-`react_scaffold_builder_node_view_alter()` runs for the full view mode of content types that use the builder. When the
+`frame_builder_node_view_alter()` runs for the full view mode of content types that use the builder. When the
 page has a layout, it replaces everything else in the build with it. Other view modes are untouched.
 
 For every item `LayoutRenderer` makes a core `#type => component` element. On the way it:
@@ -145,7 +145,7 @@ cached like any other render array.
     ├── Puck: rail │ canvas │ right column
     ├── iframe  /node/N/builder/content?part=fields    node form: Content and Menu panels   (admin theme)
     ├── iframe  /node/N/builder/content?part=page      node form: page settings             (admin theme)
-    ├── iframe  /react-scaffold-builder/media-library  Drupal's media library, in a dialog  (admin theme)
+    ├── iframe  /frame-builder/media-library  Drupal's media library, in a dialog  (admin theme)
     └── iframe  /node/N/builder/preview                the page with unsaved changes, in a dialog
 ```
 
@@ -159,22 +159,22 @@ every component's library attached. Drupal's forms must look and behave as in th
 ### The canvas
 
 Components are not React components in the editor. For each item the editor posts its type and props to
-`/react-scaffold-builder/render` and shows the HTML that comes back, then runs `Drupal.attachBehaviors()` on it, so React
+`/frame-builder/render` and shows the HTML that comes back, then runs `Drupal.attachBehaviors()` on it, so React
 islands mount as on the site.
 
 Slots need care, because the content of a slot is edited by Puck, not rendered by Drupal:
 
-1. Drupal renders the component with an empty marker in each slot: `<div data-rsb-slot="content"></div>`.
+1. Drupal renders the component with an empty marker in each slot: `<div data-frame-builder-slot="content"></div>`.
 2. The editor mounts Puck's drop zone into that marker with a React portal.
 
-So inside the editor a slot looks like `…slot container > [data-rsb-slot] > [data-puck-dropzone] > items`. Components that
+So inside the editor a slot looks like `…slot container > [data-frame-builder-slot] > [data-puck-dropzone] > items`. Components that
 lay their slot out as grid or flex account for that in their CSS, see [Layouts](/builder/layouts#your-own-layout-component).
 A component with a slot is not mounted as a React island in the editor, because mounting replaces its children.
 
 Two details that are easy to trip over:
 
 - **Type names.** Puck addresses drop zones as `<item id>:<slot>` and derives the id of a new item from its type. Drupal's
-  ids contain colons, so inside Puck types use `/` (`react_scaffold_demo/card`); `editor/src/types.js` converts when the
+  ids contain colons, so inside Puck types use `/` (`frame_demo/card`); `editor/src/types.js` converts when the
   layout is loaded and saved.
 - **Position.** A component that is placed or pinned gets its position on Puck's wrapper of it, through a small style
   sheet, not on the component itself. The wrapper is the box its parent lays out, and it is what Puck selects and drags.
@@ -226,25 +226,25 @@ another language was saved in between. There is no other protection against two 
 
 ### Endpoints
 
-All need the permission *Use the React Scaffold page builder*; those under `/node/N/` also need the builder enabled for
+All need the permission *Use the Frame page builder*; those under `/node/N/` also need the builder enabled for
 the content type and update access to the node. POST requests carry Drupal's `X-CSRF-Token` header.
 
 | Path | Purpose |
 |---|---|
 | `GET /node/N/edit`, `/node/N/builder` | the builder page (admin theme) |
 | `GET /node/N/builder/frame` | the editor (default theme) |
-| `POST /react-scaffold-builder/render` | HTML of one component, for the canvas |
-| `POST /react-scaffold-builder/node/N/save` | save the layout; `publish` or `draft` set the state |
-| `POST /react-scaffold-builder/node/N/draft` | keep or discard the unsaved layout |
+| `POST /frame-builder/render` | HTML of one component, for the canvas |
+| `POST /frame-builder/node/N/save` | save the layout; `publish` or `draft` set the state |
+| `POST /frame-builder/node/N/draft` | keep or discard the unsaved layout |
 | `GET /node/N/builder/preview` | the page with the unsaved layout and field values |
 | `GET, POST /node/N/builder/content?part=fields\|page` | the node form |
 | `GET, POST /node/N/builder/formatter-form` | formatter settings, as an HTMX fragment |
 | `GET /node/N/builder/formatter` | the same in a frame, where core has no HTMX |
-| `GET /react-scaffold-builder/media-library` | Drupal's media library |
-| `GET, POST /react-scaffold-builder/library` | the library of saved blocks: read, save, update, delete |
+| `GET /frame-builder/media-library` | Drupal's media library |
+| `GET, POST /frame-builder/library` | the library of saved blocks: read, save, update, delete |
 | `GET, POST /node/N/builder/paragraph` | the form of the paragraph of a Paragraph block |
-| `POST /react-scaffold-builder/node/N/ai` | one turn of the AI assistant (module `react_scaffold_builder_ai`) |
-| `GET /react-scaffold-builder/urls`, `/media`, `/tokens` | link autocomplete, image search without Media Library, token tree |
+| `POST /frame-builder/node/N/ai` | one turn of the AI assistant (module `frame_builder_ai`) |
+| `GET /frame-builder/urls`, `/media`, `/tokens` | link autocomplete, image search without Media Library, token tree |
 
 ## What is checked on the way out
 
@@ -260,7 +260,7 @@ The layout is data typed by editors, so nothing in it is printed as is:
 
 ## The editor's sources
 
-`modules/react_scaffold_builder/editor/src/`:
+`modules/frame_builder/editor/src/`:
 
 | File | What |
 |---|---|

@@ -1,10 +1,10 @@
 {
-  "name": "react_scaffold_starterkit",
+  "name": "frame_starterkit",
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "node ../../contrib/react_scaffold/bin/react-scaffold.mjs build",
-    "watch": "node ../../contrib/react_scaffold/bin/react-scaffold.mjs watch",
-    "test": "node ../../contrib/react_scaffold/bin/react-scaffold.mjs test"
+    "build": "node ../../contrib/frame/bin/frame.mjs build",
+    "watch": "node ../../contrib/frame/bin/frame.mjs watch",
+    "test": "node ../../contrib/frame/bin/frame.mjs test"
   }
 }

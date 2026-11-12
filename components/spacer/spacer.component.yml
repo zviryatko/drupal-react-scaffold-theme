@@ -13,7 +13,7 @@ props:
       x-builder-widget: length
       examples: ['2rem']
 thirdPartySettings:
-  react_scaffold_builder:
+  frame_builder:
     icon: stack
     features: { background: false, align: false, position: false, spacing: false }
-    example: { type: 'react_scaffold:spacer', props: { size: { size: xl } } }
+    example: { type: 'frame:spacer', props: { size: { size: xl } } }

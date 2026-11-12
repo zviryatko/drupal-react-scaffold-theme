@@ -45,9 +45,9 @@ props:
       examples: [true]
 # Page builder: the icon in the list of blocks.
 thirdPartySettings:
-  react_scaffold_builder:
+  frame_builder:
     # A typical use, as a layout item: shown to the AI assistant.
-    example: { type: 'react_scaffold:columns', props: { layout: '3', gap: { size: l }, align: stretch, stack: true, content: [ { type: 'react_scaffold:card', props: { heading: 'First' } }, { type: 'react_scaffold:card', props: { heading: 'Second' } }, { type: 'react_scaffold:card', props: { heading: 'Third' } } ] } }
+    example: { type: 'frame:columns', props: { layout: '3', gap: { size: l }, align: stretch, stack: true, content: [ { type: 'frame:card', props: { heading: 'First' } }, { type: 'frame:card', props: { heading: 'Second' } }, { type: 'frame:card', props: { heading: 'Third' } } ] } }
     icon: columns
 slots:
   content:

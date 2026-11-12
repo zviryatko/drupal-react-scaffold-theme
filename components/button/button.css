@@ -1,13 +1,13 @@
 .button-link {
-  --button-color: var(--rs-accent, #1f4fd8);
-  display: inline-block; padding: 0.7em 1.4em; border: 2px solid var(--button-color); border-radius: var(--rs-radius, 0.375rem);
+  --button-color: var(--frame-accent, #1f4fd8);
+  display: inline-block; padding: 0.7em 1.4em; border: 2px solid var(--button-color); border-radius: var(--frame-radius, 0.375rem);
   font-weight: 700; line-height: 1.2; text-align: center; text-decoration: none; cursor: pointer;
   transition: filter 0.15s ease, background-color 0.15s ease;
 }
 .button-link--s { font-size: 0.875rem; padding: 0.5em 1em; }
 .button-link--l { font-size: 1.125rem; padding: 0.85em 1.8em; }
-.button-link--primary { background: var(--button-color); color: var(--rs-accent-contrast, #fff); }
-.button-link--primary:hover, .button-link--primary:focus-visible { filter: brightness(0.9); color: var(--rs-accent-contrast, #fff); }
+.button-link--primary { background: var(--button-color); color: var(--frame-accent-contrast, #fff); }
+.button-link--primary:hover, .button-link--primary:focus-visible { filter: brightness(0.9); color: var(--frame-accent-contrast, #fff); }
 .button-link--outline { background: transparent; color: var(--button-color); }
 .button-link--outline:hover, .button-link--outline:focus-visible { background: color-mix(in srgb, var(--button-color) 10%, transparent); }
 .button-link--text { border-color: transparent; padding-inline: 0; background: none; color: var(--button-color); text-decoration: underline; text-underline-offset: 0.2em; }

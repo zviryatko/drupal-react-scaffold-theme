@@ -10,8 +10,8 @@ Compiled files (`assets/`) are not kept in git. Pick the way that fits you:
 ```bash [Release archive]
 # Compiled assets included, nothing to build to run the base theme.
 cd web/themes/contrib
-curl -L -o react_scaffold.zip https://github.com/zviryatko/drupal-react-scaffold-theme/releases/latest/download/react_scaffold-1.0.0.zip
-unzip react_scaffold.zip && rm react_scaffold.zip
+curl -L -o frame.zip https://github.com/zviryatko/frame/releases/latest/download/frame-1.0.0.zip
+unzip frame.zip && rm frame.zip
 ```
 ```json [composer]
 // composer.json: a release archive as a package (pin the version, the archive has the compiled assets)
@@ -19,45 +19,45 @@ unzip react_scaffold.zip && rm react_scaffold.zip
   {
     "type": "package",
     "package": {
-      "name": "zviryatko/drupal-react-scaffold-theme",
+      "name": "zviryatko/frame",
       "version": "1.0.0",
       "type": "drupal-theme",
       "dist": {
-        "url": "https://github.com/zviryatko/drupal-react-scaffold-theme/releases/download/v1.0.0/react_scaffold-1.0.0.zip",
+        "url": "https://github.com/zviryatko/frame/releases/download/v1.0.0/frame-1.0.0.zip",
         "type": "zip"
       }
     }
   }
 ]
-// then: composer require zviryatko/drupal-react-scaffold-theme:1.0.0
+// then: composer require zviryatko/frame:1.0.0
 ```
 ```bash [git]
 # Latest source: build the assets yourself.
 cd web/themes/contrib
-git clone https://github.com/zviryatko/drupal-react-scaffold-theme.git react_scaffold
-cd react_scaffold && npm install && npm run dist
+git clone https://github.com/zviryatko/frame.git frame
+cd frame && npm install && npm run dist
 ```
 :::
 
-Replace `1.0.0` with the [latest release](https://github.com/zviryatko/drupal-react-scaffold-theme/releases).
+Replace `1.0.0` with the [latest release](https://github.com/zviryatko/frame/releases).
 
 Then install the tooling dependencies of the base theme once. The build and the tests of your subthemes use them (the Vite plugins, Babel presets, Testing Library):
 
 ```bash
-cd web/themes/contrib/react_scaffold && npm install
+cd web/themes/contrib/frame && npm install
 ```
 
 Enable the base theme so Drupal knows its libraries:
 
 ```bash
-drush theme:install react_scaffold
+drush theme:install frame
 ```
 
 ## 2. Create a subtheme
 
 ```bash
 # from the Drupal root
-node web/themes/contrib/react_scaffold/bin/react-scaffold.mjs new my_theme --name "My Theme"
+node web/themes/contrib/frame/bin/frame.mjs new my_theme --name "My Theme"
 
 cd web/themes/custom/my_theme
 npm run build        # builds ./assets (git-ignored), nothing to install
@@ -80,7 +80,7 @@ The generated theme has a working `hello-react` component with a test, the block
 You get "Hello, World!" and a counter button, rendered by React inside a Drupal page.
 
 ::: tip drush generate theme
-`drush generate theme` asks for a base theme and creates an *empty* subtheme (info file, libraries), without components, build scripts or tests. Use it only when you want to write everything yourself: answer `react_scaffold` for the base theme and copy the
+`drush generate theme` asks for a base theme and creates an *empty* subtheme (info file, libraries), without components, build scripts or tests. Use it only when you want to write everything yourself: answer `frame` for the base theme and copy the
 regions, see [Create a subtheme](/guide/create-your-theme#by-hand).
 :::
 
@@ -105,10 +105,10 @@ The repository contains a ready subtheme with the recipe explorer, node list and
 ```bash
 composer require drupal/views_better_rest
 drush en node rest serialization views_better_rest
-cd web/themes/contrib/react_scaffold/examples/react_scaffold_demo
+cd web/themes/contrib/frame/examples/frame_demo
 npm install && npm run dist
-drush theme:install react_scaffold_demo
-drush config:set system.theme default react_scaffold_demo -y
+drush theme:install frame_demo
+drush config:set system.theme default frame_demo -y
 ```
 
 Pages: `/recipe-explorer`, `/node-list`. Installing the theme creates the two views and the block placement (`config/optional`).

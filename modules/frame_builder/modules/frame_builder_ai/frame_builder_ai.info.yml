@@ -1,0 +1,8 @@
+name: 'Frame Builder AI'
+type: module
+description: 'A chat assistant in the page builder that composes a page from the components of the theme, using the AI module and the provider configured there.'
+package: 'Frame'
+core_version_requirement: ^11
+dependencies:
+  - frame_builder:frame_builder
+  - ai:ai

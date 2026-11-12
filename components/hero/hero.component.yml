@@ -52,6 +52,6 @@ slots:
     title: Actions
     description: 'Buttons under the text.'
 thirdPartySettings:
-  react_scaffold_builder:
+  frame_builder:
     icon: section
-    example: { type: 'react_scaffold:hero', props: { heading: 'Learn to cook like an Italian', text: 'A hands-on class in the heart of Milan.', image: { media: 12 }, overlay: dark, height: m, align: center, actions: [ { type: 'react_scaffold:button', props: { label: 'Sign up', url: '/contact', variant: primary, size: l } } ] } }
+    example: { type: 'frame:hero', props: { heading: 'Learn to cook like an Italian', text: 'A hands-on class in the heart of Milan.', image: { media: 12 }, overlay: dark, height: m, align: center, actions: [ { type: 'frame:button', props: { label: 'Sign up', url: '/contact', variant: primary, size: l } } ] } }

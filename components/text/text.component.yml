@@ -18,7 +18,7 @@ props:
     - text
 # Page builder: the icon in the list of blocks.
 thirdPartySettings:
-  react_scaffold_builder:
+  frame_builder:
     # A typical use, as a layout item: shown to the AI assistant.
-    example: { type: 'react_scaffold:text', props: { text: '<h3>A sub-heading</h3><p>A paragraph with a <a href="/about">link</a> and a list:</p><ul><li>One</li><li>Two</li></ul>' } }
+    example: { type: 'frame:text', props: { text: '<h3>A sub-heading</h3><p>A paragraph with a <a href="/about">link</a> and a list:</p><ul><li>One</li><li>Two</li></ul>' } }
     icon: text

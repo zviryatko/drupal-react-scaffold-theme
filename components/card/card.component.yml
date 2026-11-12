@@ -53,9 +53,9 @@ props:
     - heading
 # Page builder: the icon in the list of blocks.
 thirdPartySettings:
-  react_scaffold_builder:
+  frame_builder:
     # A typical use, as a layout item: shown to the AI assistant.
-    example: { type: 'react_scaffold:card', props: { heading: 'Cook with a local chef', image: { media: 12 }, url: '/about', content: [ { type: 'react_scaffold:text', props: { text: '<p>Dough by hand, sauces from scratch.</p>' } } ] } }
+    example: { type: 'frame:card', props: { heading: 'Cook with a local chef', image: { media: 12 }, url: '/about', content: [ { type: 'frame:text', props: { text: '<p>Dough by hand, sauces from scratch.</p>' } } ] } }
     icon: card
 slots:
   content:

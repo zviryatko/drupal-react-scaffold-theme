@@ -31,6 +31,6 @@ props:
       description: 'A short label above the heading, such as a category.'
   required: [text]
 thirdPartySettings:
-  react_scaffold_builder:
+  frame_builder:
     icon: heading
-    example: { type: 'react_scaffold:heading', props: { text: 'Why join the class', level: h2, size: l, eyebrow: 'The course' } }
+    example: { type: 'frame:heading', props: { text: 'Why join the class', level: h2, size: l, eyebrow: 'The course' } }

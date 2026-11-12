@@ -5,12 +5,12 @@ Problems hit while building this scaffold, with the fix.
 | Symptom | Cause and fix |
 |---|---|
 | `Cannot use import statement outside a module` | Vite output has ES `import`s. Add `attributes: { type: module }` to the script in `libraryOverrides` / `libraries.yml`, or build to classic scripts (webpack sketch in [Build](/guide/build)) |
-| Component script loads but `React`, `apiClient` or `executeWhenVisible` is undefined | Missing `react_scaffold/react` / `react_scaffold/react-api-client` in the component's `libraryOverrides.dependencies` |
+| Component script loads but `React`, `apiClient` or `executeWhenVisible` is undefined | Missing `frame/react` / `frame/react-api-client` in the component's `libraryOverrides.dependencies` |
 | Old CSS/JS after a rebuild | Drupal keeps the `?query` token of asset URLs until a cache rebuild: `drush cr`. Turn aggregation off in development |
 | `Unable to render component ... A render array or a scalar is expected for the slot` | The slot value was a markup object (e.g. `TranslatableMarkup` page title). Wrap: `['#markup' => $title]` |
 | `/user/login` returns 500 after adding the page title component | Same as above: titles can be objects |
-| Blocks placed in `page_title`, `breadcrumbs`, `pre_header`... are disabled or sit in `sidebar_first` after installing the subtheme | Drupal does not inherit `regions:` from a base theme, the subtheme got core's default regions. Copy the `regions:` block of `react_scaffold.info.yml` into your `info.yml`, uninstall and install the theme again (or move the blocks) |
-| `npm run build`: `Cannot find module '.../bin/react-scaffold.mjs'` | The path to the base theme in the subtheme's `package.json` scripts is wrong (the theme was moved, or the base theme folder has another name). Fix the three scripts |
+| Blocks placed in `page_title`, `breadcrumbs`, `pre_header`... are disabled or sit in `sidebar_first` after installing the subtheme | Drupal does not inherit `regions:` from a base theme, the subtheme got core's default regions. Copy the `regions:` block of `frame.info.yml` into your `info.yml`, uninstall and install the theme again (or move the blocks) |
+| `npm run build`: `Cannot find module '.../bin/frame.mjs'` | The path to the base theme in the subtheme's `package.json` scripts is wrong (the theme was moved, or the base theme folder has another name). Fix the three scripts |
 | `The build tooling of the base theme is not installed` | Run `npm install` in the base theme folder (once) |
 | Pages 404 on `assets/react/react.js`, or `f.attachBehaviors is not a function` after an update | The base theme's compiled `assets/` are missing or stale (they are not in git): run `npm install && npm run dist` in the base theme, or use a release archive |
 | Jest: hooks error "Invalid hook call" or two Reacts | A dependency installed its own `react`. The shared Jest config (`npm test`) maps `react`/`react-dom` to the base theme copy |

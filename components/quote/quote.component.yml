@@ -33,6 +33,6 @@ props:
       examples: [m]
   required: [text]
 thirdPartySettings:
-  react_scaffold_builder:
+  frame_builder:
     icon: quote
-    example: { type: 'react_scaffold:quote', props: { text: 'I came for the pasta and left with a new way of cooking at home.', author: 'Anna K.', role: 'Took the class in spring', size: l } }
+    example: { type: 'frame:quote', props: { text: 'I came for the pasta and left with a new way of cooking at home.', author: 'Anna K.', role: 'Took the class in spring', size: l } }

@@ -2,4 +2,4 @@
 .divider--dashed { border-top-style: dashed; }
 .divider--dotted { border-top-style: dotted; border-top-width: 2px; }
 .divider--half { width: 50%; }
-.divider--short { width: 5rem; border-top-width: 3px; border-top-color: var(--rs-accent, #1f4fd8); }
+.divider--short { width: 5rem; border-top-width: 3px; border-top-color: var(--frame-accent, #1f4fd8); }

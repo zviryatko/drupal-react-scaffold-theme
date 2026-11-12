@@ -1,0 +1,21 @@
+<?php
+
+/**
+ * @file
+ * Frame base theme.
+ */
+
+use Drupal\Core\Access\CsrfRequestHeaderAccessCheck;
+use Drupal\Core\Asset\AttachedAssetsInterface;
+
+/**
+ * Implements hook_js_settings_alter().
+ *
+ * Exposes a CSRF token to apiClient() as drupalSettings.csrfToken. Base theme
+ * hooks also run for subthemes.
+ */
+function frame_js_settings_alter(array &$settings, AttachedAssetsInterface $assets) {
+  /** @var \Drupal\Core\Access\CsrfTokenGenerator $tokenGenerator */
+  $tokenGenerator = \Drupal::service('csrf_token');
+  $settings['csrfToken'] = $tokenGenerator->get(CsrfRequestHeaderAccessCheck::TOKEN_KEY);
+}

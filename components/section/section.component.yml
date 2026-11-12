@@ -26,9 +26,9 @@ props:
         - plain
 # Page builder: the icon in the list of blocks.
 thirdPartySettings:
-  react_scaffold_builder:
+  frame_builder:
     # A typical use, as a layout item: shown to the AI assistant.
-    example: { type: 'react_scaffold:section', props: { heading: 'Why join the class', variant: tinted, _spacing: { padding: { size: l, sides: vertical } }, content: [ { type: 'react_scaffold:text', props: { text: '<p>What is in the section.</p>' } } ] } }
+    example: { type: 'frame:section', props: { heading: 'Why join the class', variant: tinted, _spacing: { padding: { size: l, sides: vertical } }, content: [ { type: 'frame:text', props: { text: '<p>What is in the section.</p>' } } ] } }
     icon: section
 slots:
   content:

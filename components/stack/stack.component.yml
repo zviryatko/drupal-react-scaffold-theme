@@ -30,9 +30,9 @@ props:
       examples: [false]
 # Page builder: the icon in the list of blocks.
 thirdPartySettings:
-  react_scaffold_builder:
+  frame_builder:
     # A typical use, as a layout item: shown to the AI assistant.
-    example: { type: 'react_scaffold:stack', props: { gap: { size: m }, align: stretch, dividers: true, content: [ { type: 'react_scaffold:text', props: { text: '<p>First item.</p>' } }, { type: 'react_scaffold:text', props: { text: '<p>Second item.</p>' } } ] } }
+    example: { type: 'frame:stack', props: { gap: { size: m }, align: stretch, dividers: true, content: [ { type: 'frame:text', props: { text: '<p>First item.</p>' } }, { type: 'frame:text', props: { text: '<p>Second item.</p>' } } ] } }
     icon: stack
 slots:
   content:

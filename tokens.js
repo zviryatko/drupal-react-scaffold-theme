@@ -1,15 +1,15 @@
 // Design tokens of a theme as SCSS.
 //
 // A theme declares its tokens once, in YAML: the spacing scale, the palette and the type scale under
-// `react_scaffold_builder.uikit` of <theme>.info.yml, and its breakpoints in <theme>.breakpoints.yml. The page builder
-// (ThemeKit in the react_scaffold_builder module) reads them in PHP; this file gives the same values to the theme's SCSS:
+// `frame_builder.uikit` of <theme>.info.yml, and its breakpoints in <theme>.breakpoints.yml. The page builder
+// (ThemeKit in the frame_builder module) reads them in PHP; this file gives the same values to the theme's SCSS:
 //
-//   @use 'react-scaffold/tokens' as rs;
+//   @use 'frame/tokens' as frame;
 //
-//   .teaser { padding: rs.space(m); color: rs.color(green); @include rs.breakpoint(tablet) { padding: rs.space(l); } }
-//   @include rs.rules;   // custom properties and a utility class for every choice an editor has in the builder
+//   .teaser { padding: frame.space(m); color: frame.color(green); @include frame.breakpoint(tablet) { padding: frame.space(l); } }
+//   @include frame.rules;   // custom properties and a utility class for every choice an editor has in the builder
 //
-// The shared Vite config resolves that module; `react-scaffold tokens` prints it. Keep the rules in step with ThemeKit.
+// The shared Vite config resolves that module; `frame tokens` prints it. Keep the rules in step with ThemeKit.
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import yaml from 'js-yaml';
@@ -17,7 +17,7 @@ import yaml from 'js-yaml';
 const here = import.meta.dirname;
 
 /** The Sass module name themes import. */
-export const TOKENS_MODULE = 'react-scaffold/tokens';
+export const TOKENS_MODULE = 'frame/tokens';
 
 /** Used when no theme of the chain declares a value: the same as ThemeKit::DEFAULTS. */
 export const DEFAULTS = {
@@ -80,7 +80,7 @@ export function readTokens(root) {
   const files = [];
   for (const { name, dir, info } of [...chain].reverse()) {
     files.push(join(dir, `${name}.info.yml`));
-    const own = isMap(info.react_scaffold_builder) ? info.react_scaffold_builder : {};
+    const own = isMap(info.frame_builder) ? info.frame_builder : {};
     for (const key of ['spacing', 'colors', 'font_sizes', 'sizes']) {
       if (isMap(own.uikit) && isMap(own.uikit[key])) settings[key] = own.uikit[key];
     }
@@ -132,7 +132,7 @@ const quoted = (text) => `'${String(text).replace(/['\\]/g, '')}'`;
 
 /** The SCSS module for a set of tokens (see readTokens). */
 export function tokensScss(tokens) {
-  return `// Generated from ${tokens.theme || 'the defaults'}: .info.yml (react_scaffold_builder) and .breakpoints.yml. Do not edit.
+  return `// Generated from ${tokens.theme || 'the defaults'}: .info.yml (frame_builder) and .breakpoints.yml. Do not edit.
 @use 'sass:list';
 @use 'sass:map';
 
@@ -161,27 +161,27 @@ $line-heights: ('tight': 1.2, 'normal': 1.5, 'loose': 1.8);
   @return map.get($tokens, $name);
 }
 
-/// A step of the spacing scale: \`padding: rs.space(m)\`.
+/// A step of the spacing scale: \`padding: frame.space(m)\`.
 @function space($name) {
   @return -token($spacing, $name, 'spacing step');
 }
 
-/// A colour of the palette: \`color: rs.color(green)\`.
+/// A colour of the palette: \`color: frame.color(green)\`.
 @function color($name) {
   @return -token($colors, $name, 'colour');
 }
 
-/// A step of the type scale: \`font-size: rs.font-size(xl)\`.
+/// A step of the type scale: \`font-size: frame.font-size(xl)\`.
 @function font-size($name) {
   @return -token($font-sizes, $name, 'font size');
 }
 
-/// One of the theme's sizes: \`max-width: rs.size(l)\`.
+/// One of the theme's sizes: \`max-width: frame.size(l)\`.
 @function size($name) {
   @return -token($sizes, $name, 'size');
 }
 
-/// Styles from a breakpoint of the theme up: \`@include rs.breakpoint(tablet) { ... }\`.
+/// Styles from a breakpoint of the theme up: \`@include frame.breakpoint(tablet) { ... }\`.
 @mixin breakpoint($name) {
   $query: -token($breakpoints, $name, 'breakpoint');
   @if $query == '' {
@@ -193,28 +193,28 @@ $line-heights: ('tight': 1.2, 'normal': 1.5, 'loose': 1.8);
   }
 }
 
-/// The tokens as CSS custom properties, the names the page builder uses: --rs-space-*, --rs-font-*, --rs-color-*
-/// and --rs-accent (the palette's "accent" or "primary", else its first colour).
+/// The tokens as CSS custom properties, the names the page builder uses: --frame-space-*, --frame-font-*, --frame-color-*
+/// and --frame-accent (the palette's "accent" or "primary", else its first colour).
 @mixin custom-properties($selector: ':root') {
   #{$selector} {
     @each $name, $value in $spacing {
-      --rs-space-#{$name}: #{$value};
+      --frame-space-#{$name}: #{$value};
     }
     @each $name, $value in $font-sizes {
-      --rs-font-#{$name}: #{$value};
+      --frame-font-#{$name}: #{$value};
     }
     @each $name, $value in $colors {
-      --rs-color-#{$name}: #{$value};
+      --frame-color-#{$name}: #{$value};
     }
     @each $name, $value in $sizes {
-      --rs-size-#{$name}: #{$value};
+      --frame-size-#{$name}: #{$value};
     }
     @if map.has-key($colors, 'accent') {
-      --rs-accent: #{map.get($colors, 'accent')};
+      --frame-accent: #{map.get($colors, 'accent')};
     } @else if map.has-key($colors, 'primary') {
-      --rs-accent: #{map.get($colors, 'primary')};
+      --frame-accent: #{map.get($colors, 'primary')};
     } @else if list.length($colors) > 0 {
-      --rs-accent: #{list.nth(map.values($colors), 1)};
+      --frame-accent: #{list.nth(map.values($colors), 1)};
     }
   }
 }
@@ -288,10 +288,10 @@ $line-heights: ('tight': 1.2, 'normal': 1.5, 'loose': 1.8);
 }
 
 /// A utility class for every choice an editor has in the builder, for the features the theme offers:
-/// .rs-m-l, .rs-px-m, .rs-my-auto, .rs-gap-s, .rs-align-center, .rs-text-xl, .rs-weight-bold, .rs-leading-tight,
-/// .rs-uppercase, .rs-color-green, .rs-bg-cream, .rs-bg-cover, .rs-pin-top-right...
-/// With $responsive, each class also exists per breakpoint that has a media query: .rs-p-l\\@tablet.
-@mixin utilities($prefix: 'rs', $responsive: false) {
+/// .frame-m-l, .frame-px-m, .frame-my-auto, .frame-gap-s, .frame-align-center, .frame-text-xl, .frame-weight-bold, .frame-leading-tight,
+/// .frame-uppercase, .frame-color-green, .frame-bg-cream, .frame-bg-cover, .frame-pin-top-right...
+/// With $responsive, each class also exists per breakpoint that has a media query: .frame-p-l\\@tablet.
+@mixin utilities($prefix: 'frame', $responsive: false) {
   @include -utilities($prefix, '');
   @if $responsive {
     @each $name, $query in $breakpoints {
@@ -305,16 +305,16 @@ $line-heights: ('tight': 1.2, 'normal': 1.5, 'loose': 1.8);
 }
 
 /// Everything at once: the custom properties and the utility classes.
-@mixin rules($prefix: 'rs', $responsive: false) {
+@mixin rules($prefix: 'frame', $responsive: false) {
   @include custom-properties;
   @include utilities($prefix, $responsive);
 }
 `;
 }
 
-/** Sass importer (modern API) that serves the tokens of the theme in `root` as the module 'react-scaffold/tokens'. */
+/** Sass importer (modern API) that serves the tokens of the theme in `root` as the module 'frame/tokens'. */
 export function tokensImporter(root) {
-  const url = 'react-scaffold:tokens';
+  const url = 'frame:tokens';
   return {
     canonicalize: (name) => (name === TOKENS_MODULE || name === url ? new URL(url) : null),
     load: (canonical) => (canonical.href === url ? { contents: tokensScss(readTokens(root)), syntax: 'scss' } : null),
@@ -324,7 +324,7 @@ export function tokensImporter(root) {
 /** Vite plugin: rebuild in watch mode when the YAML the tokens come from changes. */
 export function tokensWatch(root) {
   return {
-    name: 'react-scaffold-tokens',
+    name: 'frame-tokens',
     buildStart() {
       readTokens(root).files.forEach((file) => this.addWatchFile(file));
     },

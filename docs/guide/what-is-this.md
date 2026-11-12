@@ -18,8 +18,8 @@ export. The step by step flow is in [React + Drupal behaviors](/guide/react-beha
 
 | Piece | Where |
 |---|---|
-| Global React + helpers | base theme: `assets/react/react.js`, `react-dom.js`, `assets/helpers.js` (library `react_scaffold/react`) |
-| API client | base theme: `src/apiClient.js` (library `react_scaffold/react-api-client`) |
+| Global React + helpers | base theme: `assets/react/react.js`, `react-dom.js`, `assets/helpers.js` (library `frame/react`) |
+| API client | base theme: `src/apiClient.js` (library `frame/react-api-client`) |
 | Components | your subtheme: `components/<name>/` |
 | Build and tests | the base theme: Vite, Jest and their configuration. A subtheme only has `npm run build` / `npm test` scripts that call it |
 | Views, blocks, templates | your subtheme: `config/optional/`, `templates/` |
@@ -32,8 +32,8 @@ one folder. Details: [Base theme and subthemes](/guide/base-theme).
 
 ## What you get out of the box
 
-- the **base theme** `react_scaffold` and a **subtheme generator** (a working `hello-react` component, blocks, build and tests),
-- the example subtheme `react_scaffold_demo` with `react-tooltip` (smallest component), `node-list` (rsuite table with Drupal ajax modal links) and
+- the **base theme** `frame` and a **subtheme generator** (a working `hello-react` component, blocks, build and tests),
+- the example subtheme `frame_demo` with `react-tooltip` (smallest component), `node-list` (rsuite table with Drupal ajax modal links) and
   `recipe-explorer` (data-driven filter UI on a Views REST export, see [the walkthrough](/examples/recipe-explorer)).
 
 ## Requirements

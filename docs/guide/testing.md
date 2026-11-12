@@ -3,7 +3,7 @@
 React parts are tested with Jest and Testing Library, run `npm test`.
 
 The configuration is shared and lives in the base theme (`jest.base.cjs`): a subtheme has no `jest.config.cjs`, no Babel config and no test
-dependencies. `npm test` runs `react-scaffold test`, extra arguments go to Jest: `npm test -- --watch`, `npm test -- -u`.
+dependencies. `npm test` runs `frame test`, extra arguments go to Jest: `npm test -- --watch`, `npm test -- -u`.
 
 | What the shared config does | |
 |---|---|

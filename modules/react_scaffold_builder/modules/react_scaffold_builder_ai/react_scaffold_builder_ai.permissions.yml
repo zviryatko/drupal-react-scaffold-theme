@@ -1,3 +1,0 @@
-use react scaffold builder ai:
-  title: 'Use the AI assistant of the page builder'
-  description: 'Send the layout of a page and a request to the AI provider of the site, and apply the layout it proposes. Requests cost what the provider charges.'

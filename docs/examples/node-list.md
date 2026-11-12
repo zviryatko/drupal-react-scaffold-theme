@@ -1,6 +1,6 @@
 # Node list: React table with Drupal ajax inside
 
-`components/node-list` in the `react_scaffold_demo` subtheme (`examples/react_scaffold_demo/`), page `/node-list`. Shows how React and Drupal's own ajax/dialog system live together.
+`components/node-list` in the `frame_demo` subtheme (`examples/frame_demo/`), page `/node-list`. Shows how React and Drupal's own ajax/dialog system live together.
 
 <Video src="/media/node-list-modal-demo.mp4" poster="/media/screenshots/10-node-list-modal-devtools.png" />
 
@@ -22,8 +22,8 @@
 # node-list.component.yml, libraries needed by the HTML inside the cells
 libraryOverrides:
   dependencies:
-    - react_scaffold/react
-    - react_scaffold/react-api-client
+    - frame/react
+    - frame/react-api-client
     - core/drupal.ajax
     - core/drupal.dropbutton
 ```
@@ -32,15 +32,15 @@ libraryOverrides:
 
 ::: code-group
 
-<<< ../../examples/react_scaffold_demo/components/node-list/node-list.component.yml{yaml} [node-list.component.yml]
+<<< ../../examples/frame_demo/components/node-list/node-list.component.yml{yaml} [node-list.component.yml]
 
-<<< ../../examples/react_scaffold_demo/components/node-list/node-list.twig{twig} [node-list.twig]
+<<< ../../examples/frame_demo/components/node-list/node-list.twig{twig} [node-list.twig]
 
-<<< ../../examples/react_scaffold_demo/components/node-list/index.jsx{jsx} [index.jsx]
+<<< ../../examples/frame_demo/components/node-list/index.jsx{jsx} [index.jsx]
 
-<<< ../../examples/react_scaffold_demo/components/node-list/NodeList.jsx{jsx} [NodeList.jsx]
+<<< ../../examples/frame_demo/components/node-list/NodeList.jsx{jsx} [NodeList.jsx]
 
-<<< ../../examples/react_scaffold_demo/components/node-list/node-list.scss{scss} [node-list.scss]
+<<< ../../examples/frame_demo/components/node-list/node-list.scss{scss} [node-list.scss]
 
 :::
 

@@ -56,9 +56,9 @@ props:
       examples: [true]
 # Page builder: the icon in the list of blocks.
 thirdPartySettings:
-  react_scaffold_builder:
+  frame_builder:
     # A typical use, as a layout item: shown to the AI assistant.
-    example: { type: 'react_scaffold:flex', props: { direction: row, justify: center, align: center, gap: { size: m }, wrap: true, content: [ { type: 'react_scaffold:button', props: { label: 'Sign up', url: '/contact', variant: primary } }, { type: 'react_scaffold:button', props: { label: 'See the menu', url: '/recipes', variant: outline } } ] } }
+    example: { type: 'frame:flex', props: { direction: row, justify: center, align: center, gap: { size: m }, wrap: true, content: [ { type: 'frame:button', props: { label: 'Sign up', url: '/contact', variant: primary } }, { type: 'frame:button', props: { label: 'See the menu', url: '/recipes', variant: outline } } ] } }
     icon: flex
 slots:
   content:

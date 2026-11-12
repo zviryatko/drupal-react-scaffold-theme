@@ -10,7 +10,7 @@ contract.
 |---|---|---|
 | Global look | the theme's global CSS (`scss/global.scss` in a subtheme) | fonts, colours, page layout, base elements |
 | Component look | `components/<name>/*.css` or `.scss` | everything inside a component |
-| Tokens | `react_scaffold_builder: uikit:` in the theme's `.info.yml` | the values editors can pick |
+| Tokens | `frame_builder: uikit:` in the theme's `.info.yml` | the values editors can pick |
 | Features | the same block, and a component's `thirdPartySettings` | which adjustments editors can make to a component |
 | Editor chrome | the module's `css/builder.css` | the editor's own UI, never the page |
 
@@ -23,7 +23,7 @@ Declared in the `.info.yml` of a theme. A subtheme overrides what its base theme
 replaced as a whole.
 
 ```yaml
-react_scaffold_builder:
+frame_builder:
   uikit:
     # Spacing scale: name => CSS length. Used for margin, padding, gaps and offsets.
     spacing:
@@ -71,10 +71,10 @@ puts a block with defaults into a new subtheme. After changing it, rebuild cache
 The names are what is stored in a layout (`"size": "m"`, `"color": "green"`), not the values. Changing `m` from `1rem`
 to `1.25rem` changes every page that uses it; removing a name makes the places that used it fall back to nothing.
 
-The module also prints the tokens on every page of the theme as CSS custom properties: `--rs-space-<name>` for each
-step of the scale, `--rs-font-<name>` for each font size, `--rs-color-<name>` for each colour, and `--rs-accent` (the colour named `accent` or `primary`, else
+The module also prints the tokens on every page of the theme as CSS custom properties: `--frame-space-<name>` for each
+step of the scale, `--frame-font-<name>` for each font size, `--frame-color-<name>` for each colour, and `--frame-accent` (the colour named `accent` or `primary`, else
 the first one), which the [components of the base theme](/builder/base-components#colours-and-tokens) use. Your CSS can
-use them: `padding: var(--rs-space-m)`.
+use them: `padding: var(--frame-space-m)`.
 
 ## Tokens in SCSS
 
@@ -82,30 +82,30 @@ The tokens are declared once, in YAML, and the theme's stylesheets read the same
 them as a Sass module:
 
 ```scss
-@use 'react-scaffold/tokens' as rs;
+@use 'frame/tokens' as frame;
 
 .teaser {
-  padding: rs.space(m);
-  color: rs.color(green);
-  font-size: rs.font-size(l);
+  padding: frame.space(m);
+  color: frame.color(green);
+  font-size: frame.font-size(l);
 
-  @include rs.breakpoint(tablet) {
-    padding: rs.space(l);
+  @include frame.breakpoint(tablet) {
+    padding: frame.space(l);
   }
 }
 ```
 
-So "padding M" chosen by an editor and `rs.space(m)` in a component are the same `1rem`, and changing the scale in the
+So "padding M" chosen by an editor and `frame.space(m)` in a component are the same `1rem`, and changing the scale in the
 `.info.yml` changes both. A name the theme does not declare stops the build with the list of the names it has.
 
 | In the module | Is |
 |---|---|
-| `rs.space($name)`, `rs.color($name)`, `rs.font-size($name)`, `rs.size($name)` | a value of the spacing scale, the palette, the type scale, the sizes |
-| `@include rs.breakpoint($name) { … }` | the media query of a breakpoint of `<theme>.breakpoints.yml`; the name is the part after the theme (`my_theme.tablet` is `tablet`). A breakpoint without a media query applies always |
-| `rs.$spacing`, `rs.$colors`, `rs.$font-sizes`, `rs.$sizes`, `rs.$breakpoints`, `rs.$features` | the same as maps, to loop over |
-| `@include rs.custom-properties;` | `:root { --rs-space-m: 1rem; … }`: the custom properties the module prints, for pages and tools that load only your CSS |
-| `@include rs.utilities;` | a class for every choice an editor has (below) |
-| `@include rs.rules;` | both of the above |
+| `frame.space($name)`, `frame.color($name)`, `frame.font-size($name)`, `frame.size($name)` | a value of the spacing scale, the palette, the type scale, the sizes |
+| `@include frame.breakpoint($name) { … }` | the media query of a breakpoint of `<theme>.breakpoints.yml`; the name is the part after the theme (`my_theme.tablet` is `tablet`). A breakpoint without a media query applies always |
+| `frame.$spacing`, `frame.$colors`, `frame.$font-sizes`, `frame.$sizes`, `frame.$breakpoints`, `frame.$features` | the same as maps, to loop over |
+| `@include frame.custom-properties;` | `:root { --frame-space-m: 1rem; … }`: the custom properties the module prints, for pages and tools that load only your CSS |
+| `@include frame.utilities;` | a class for every choice an editor has (below) |
+| `@include frame.rules;` | both of the above |
 
 Values are merged as the builder does: the theme's own block, else its base theme's, else the defaults. Breakpoints are
 those of the first theme in the chain that has a `.breakpoints.yml`; the base theme has `mobile`, `tablet` (48em) and
@@ -113,26 +113,26 @@ those of the first theme in the chain that has a `.breakpoints.yml`; the base th
 
 ### Rules for the features
 
-`rs.utilities` writes one class per value of each [feature](#features) the theme offers, so templates and components
+`frame.utilities` writes one class per value of each [feature](#features) the theme offers, so templates and components
 can use what editors use in the builder:
 
-| Feature | Classes (prefix `rs`) |
+| Feature | Classes (prefix `frame`) |
 |---|---|
-| spacing | `.rs-m-<step>`, `.rs-p-<step>`; a side with `x`, `y`, `t`, `b`, `s`, `e` (`.rs-px-m`, `.rs-mt-l`); `-0` and, for margin, `-auto` (`.rs-mx-auto`); `.rs-gap-<step>` |
-| size | `.rs-w-<size>` (`max-width`), `.rs-h-<size>` (`min-height`) |
-| align | `.rs-align-start`, `-center`, `-end` |
-| text | `.rs-text-<size>`, `.rs-weight-normal`/`-medium`/`-bold`, `.rs-leading-tight`/`-normal`/`-loose`, `.rs-italic`, `.rs-uppercase`/`-lowercase`/`-capitalize`, `.rs-color-<colour>` |
-| background | `.rs-bg-<colour>`, `.rs-bg-cover`/`-contain`/`-stretch`/`-auto` |
-| position | `.rs-relative`, `.rs-pin-top-left`/`-top-right`/`-bottom-left`/`-bottom-right` |
+| spacing | `.frame-m-<step>`, `.frame-p-<step>`; a side with `x`, `y`, `t`, `b`, `s`, `e` (`.frame-px-m`, `.frame-mt-l`); `-0` and, for margin, `-auto` (`.frame-mx-auto`); `.frame-gap-<step>` |
+| size | `.frame-w-<size>` (`max-width`), `.frame-h-<size>` (`min-height`) |
+| align | `.frame-align-start`, `-center`, `-end` |
+| text | `.frame-text-<size>`, `.frame-weight-normal`/`-medium`/`-bold`, `.frame-leading-tight`/`-normal`/`-loose`, `.frame-italic`, `.frame-uppercase`/`-lowercase`/`-capitalize`, `.frame-color-<colour>` |
+| background | `.frame-bg-<colour>`, `.frame-bg-cover`/`-contain`/`-stretch`/`-auto` |
+| position | `.frame-relative`, `.frame-pin-top-left`/`-top-right`/`-bottom-left`/`-bottom-right` |
 
 Sides are logical (`s` is the start of the line: left in English, right in Arabic). A feature switched off in the
 theme's `features:` writes no classes.
 
 ```scss
-@include rs.utilities($prefix: 'u', $responsive: true);
+@include frame.utilities($prefix: 'u', $responsive: true);
 ```
 
-`$prefix` changes `rs`; `$responsive` adds each class per breakpoint that has a media query, as `.u-p-l\@tablet`
+`$prefix` changes `frame`; `$responsive` adds each class per breakpoint that has a media query, as `.u-p-l\@tablet`
 (`class="u-p-m u-p-l@tablet"`).
 
 The builder itself does not need these classes: what an editor chooses is printed as inline declarations on the
@@ -140,11 +140,11 @@ component. They are for the markup you write.
 
 ### Outside the shared build
 
-`@use 'react-scaffold/tokens'` is resolved by the base theme's Vite config (`vite.base.js`). With your own build, write
+`@use 'frame/tokens'` is resolved by the base theme's Vite config (`vite.base.js`). With your own build, write
 the module to a file and import that:
 
 ```bash
-node ../../contrib/react_scaffold/bin/react-scaffold.mjs tokens --out scss/_tokens.scss
+node ../../contrib/frame/bin/frame.mjs tokens --out scss/_tokens.scss
 ```
 
 Run it again after changing the YAML (or in a `prebuild` script). Without `--out` it prints the SCSS.
@@ -175,7 +175,7 @@ Which features a component has:
 
 ```yaml
 thirdPartySettings:
-  react_scaffold_builder:
+  frame_builder:
     features: { background: false }
 ```
 
@@ -199,7 +199,7 @@ draws its own, padding on one whose layout depends on exact spacing.
 - **Background image.** *Cover* fills and crops, *Fit* shows the whole image, *Stretch* distorts it to the box,
   *Original size* does not scale. The small picture with a frame chooses which part shows (`background-position`).
 - **Responsive background.** With a responsive image style the image is not inline: it is set by media queries in the
-  head of the page, on a `data-rsb-bg` attribute. The queries are the breakpoints of the responsive image style, or for a
+  head of the page, on a `data-frame-builder-bg` attribute. The queries are the breakpoints of the responsive image style, or for a
   style that uses `sizes`, steps by the width of each image.
 
 ## Images
@@ -224,8 +224,8 @@ my_theme.tablet:  { label: Tablet,  mediaQuery: 'all and (min-width: 48em)', wei
 my_theme.desktop: { label: Desktop, mediaQuery: 'all and (min-width: 75em)', weight: 2, multipliers: [1x] }
 ```
 
-A subtheme without the file uses the breakpoints of its base theme; React Scaffold has `mobile`, `tablet` (48em) and
-`desktop` (75em). In SCSS they are `@include rs.breakpoint(tablet)`, see [Tokens in SCSS](#tokens-in-scss).
+A subtheme without the file uses the breakpoints of its base theme; Frame has `mobile`, `tablet` (48em) and
+`desktop` (75em). In SCSS they are `@include frame.breakpoint(tablet)`, see [Tokens in SCSS](#tokens-in-scss).
 
 The preview is a real page in a frame of that width, so your media queries apply. The canvas of the editor does not
 change width.
@@ -241,13 +241,13 @@ prop whether editors may switch format (`x-builder-format` pins one).
 A **Field** block prints a field of the page with a formatter and a label position. Its **Label style** sets the
 size, weight, case, line height and colour of the label alone, from the same type scale and palette; the Text feature
 of the block applies to label and value together. The label style reaches the label as custom properties
-(`--rsb-label-font-size`, `--rsb-label-color`…), which a field template of your own can use too. Core's field template has no classes,
-so the builder wraps a field in `.rsb-field` and styles the label by position: bold; *inline* puts label and value on one
+(`--frame-builder-label-font-size`, `--frame-builder-label-color`…), which a field template of your own can use too. Core's field template has no classes,
+so the builder wraps a field in `.frame-builder-field` and styles the label by position: bold; *inline* puts label and value on one
 line with a colon. If your theme has its own field template with `.field__label`, that styling is left alone. Override
 either in your theme's CSS:
 
 ```css
-.rsb-field--label-inline > div > div:first-child { font-weight: 400; text-transform: uppercase; }
+.frame-builder-field--label-inline > div > div:first-child { font-weight: 400; text-transform: uppercase; }
 ```
 
 ## Right-to-left
@@ -258,11 +258,11 @@ right-to-left language mirrors without separate values. Do the same in your comp
 
 ## What exists only in the editor
 
-The editor adds a little CSS to the canvas, scoped to `#react-scaffold-builder`, and two attributes your CSS can see:
+The editor adds a little CSS to the canvas, scoped to `#frame-builder`, and two attributes your CSS can see:
 
 | | |
 |---|---|
-| `[data-rsb-slot]` | the marker Drupal renders in a slot, where the editor mounts its drop zone |
+| `[data-frame-builder-slot]` | the marker Drupal renders in a slot, where the editor mounts its drop zone |
 | `[data-puck-dropzone]` | the drop zone; the items of a slot are inside it |
 | a 12px strip above and below the content of a slot | room to drop next to a child that has a slot of its own |
 | a placeholder for an empty Image, field, view or block | so that it can be seen and selected |

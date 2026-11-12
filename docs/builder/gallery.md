@@ -1,7 +1,7 @@
 # Gallery
 
 The page builder, feature by feature. Click a picture for the full size. The screenshots are from the example
-subtheme (`react_scaffold_demo`) on the Umami demo content; the page was composed by the
+subtheme (`frame_demo`) on the Umami demo content; the page was composed by the
 [AI assistant](/builder/ai) and then changed by hand, as in the video.
 
 <Video src="/media/page-builder-ai.mp4" poster="/media/builder/ai-assistant.png" />

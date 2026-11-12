@@ -42,6 +42,6 @@ props:
       examples: [false]
   required: [label, url]
 thirdPartySettings:
-  react_scaffold_builder:
+  frame_builder:
     icon: button
-    example: { type: 'react_scaffold:button', props: { label: 'Sign up for the next class', url: '/contact', variant: primary, size: l } }
+    example: { type: 'frame:button', props: { label: 'Sign up for the next class', url: '/contact', variant: primary, size: l } }

@@ -40,8 +40,8 @@ Deleting a saved block does not touch copies. Pages that link to it show nothing
 
 ## How it is stored
 
-A saved block is a content entity, `react_scaffold_saved` (class `SavedBlock`): a name and, in the same field and
-format as the layout of a page, a document with one item. `Library` (the service `react_scaffold_builder.library`)
+A saved block is a content entity, `frame_saved` (class `SavedBlock`): a name and, in the same field and
+format as the layout of a page, a document with one item. `Library` (the service `frame_builder.library`)
 reads and writes them.
 
 In a layout:
@@ -65,7 +65,7 @@ The first is a link, the second a copy.
   was typed in the form even when the page was never saved; an update is a new revision of it. A copy on a page gets
   a paragraph of its own when the page is saved. So a page and the library never write to the same paragraph.
 - With the Paragraphs Library module, a paragraph saved from the builder is an item of that library, not a
-  `react_scaffold_saved` entity; a layout links to it the same way, `drupal_saved:<uuid of the item>`, and also names
+  `frame_saved` entity; a layout links to it the same way, `drupal_saved:<uuid of the item>`, and also names
   the page's *From library* paragraph. See [Reusing a paragraph](/builder/paragraphs#reusing-a-paragraph).
 - A saved block may contain other saved blocks; one that would contain itself is shown once.
 - With [Entity Usage](/builder/architecture#what-a-layout-uses), pages are listed as using the saved blocks they link

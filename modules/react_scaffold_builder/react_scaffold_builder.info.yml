@@ -1,8 +1,0 @@
-name: 'React Scaffold Builder'
-type: module
-description: 'Visual page builder for themes based on React Scaffold: a Puck editor over Single Directory Components, rendered by Drupal.'
-# Developed and tested on Drupal 11.4.
-core_version_requirement: ^11
-package: Scaffold
-dependencies:
-  - drupal:node

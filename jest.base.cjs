@@ -1,5 +1,5 @@
-// Shared Jest configuration for the React Scaffold base theme and subthemes.
-// Used by `react-scaffold test`. A theme that needs its own jest.config.cjs: module.exports = require('<base theme>/jest.base.cjs')(__dirname, { ...overrides });
+// Shared Jest configuration for the Frame base theme and subthemes.
+// Used by `frame test`. A theme that needs its own jest.config.cjs: module.exports = require('<base theme>/jest.base.cjs')(__dirname, { ...overrides });
 // Babel presets are resolved from the base theme, so subthemes need no .babelrc.
 const path = require('path');
 

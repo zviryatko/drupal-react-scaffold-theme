@@ -7,7 +7,7 @@ Whatever the tool, the output must satisfy the Drupal side:
 1. **One bundle per component**, named after the component folder, written to the subtheme's `assets/` (`assets/<name>.js`, `assets/<name>.css`),
    because the component's `libraryOverrides` points there.
 2. **React and ReactDOM are externals** mapped to the globals `React` / `ReactDOM`, and the UMD builds are copied to `assets/react/`
-   (library `react_scaffold/react`, provided by the base theme, a subtheme does not copy it).
+   (library `frame/react`, provided by the base theme, a subtheme does not copy it).
 3. **Shared helpers** (`helpers.jsx`, `apiClient.js`) are built once by the base theme and loaded by its libraries, not bundled into components.
 4. **CSS is extracted** from the `import './x.scss'` in the entry.
 5. No JS dependency on jQuery or on Drupal internals except the globals `Drupal`, `once`, `drupalSettings`.
@@ -15,7 +15,7 @@ Whatever the tool, the output must satisfy the Drupal side:
 ## Vite (what the scaffold uses)
 
 The configuration lives once, in the base theme: `vite.base.js`. Subthemes do not have a `vite.config.js`, their `npm run build` runs
-`react-scaffold build` of the base theme, which calls the factory for the current folder:
+`frame build` of the base theme, which calls the factory for the current folder:
 
 ```js
 createViteConfig({ root: process.cwd(), mode, entries: { global: './scss/global.scss' } })   // `global` only when the file exists
@@ -106,12 +106,12 @@ What differs from the Vite build:
 
 - `optimization.splitChunks: false` gives one self-contained **classic** script per entry, so drop `attributes: { type: module }` from the `libraryOverrides`
   (it also works with the attribute, a classic script is valid as a module).
-- The React runtime is not built here: the base theme provides it (`react_scaffold/react`), so there is no UMD copy step.
+- The React runtime is not built here: the base theme provides it (`frame/react`), so there is no UMD copy step.
 - Classic JSX needs `React` in scope: `ProvidePlugin` injects the external `window.React`. The automatic JSX runtime would import `react/jsx-runtime`, which the UMD build does not have.
 - webpack also emits an empty `global.js` for the SCSS-only entry, ignore it.
-- `@use 'react-scaffold/tokens'` (the theme's [design tokens in SCSS](/builder/styling#tokens-in-scss)) is resolved by the shared Vite
-  config only. With webpack, write the module to a file before the build, `react-scaffold tokens --out scss/_tokens.scss`, and
-  `@use 'tokens' as rs;`.
+- `@use 'frame/tokens'` (the theme's [design tokens in SCSS](/builder/styling#tokens-in-scss)) is resolved by the shared Vite
+  config only. With webpack, write the module to a file before the build, `frame tokens --out scss/_tokens.scss`, and
+  `@use 'tokens' as frame;`.
 - Keep `assets/` as the output folder, the libraries point there. Do not run both tools into the same folder.
 - Build and tests of the **base theme** itself stay on Vite. Subthemes can use any bundler.
 
@@ -120,5 +120,5 @@ What differs from the Vite build:
 1. `ls assets/` has `<name>.js` and `<name>.css`.
 2. The path in `libraryOverrides` matches (`../../assets/<name>.js`), and `drush cr` was run after editing the yml.
 3. Page source contains the script, is it `type="module"`? If the console says "Cannot use import statement outside a module", it is not.
-4. `React`, `ReactDOM`, `apiClient` are defined: the component library depends on `react_scaffold/react` / `react-api-client`.
+4. `React`, `ReactDOM`, `apiClient` are defined: the component library depends on `frame/react` / `react-api-client`.
 5. The mount element has the class your `once()` selector uses.
