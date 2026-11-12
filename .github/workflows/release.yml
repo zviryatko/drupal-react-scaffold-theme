@@ -46,7 +46,7 @@ jobs:
           # The sources of the editor are in the repository; the archive has what Drupal runs.
           rm -rf dist/frame/modules/frame_builder/editor
           # Release info for the Drupal UI and composer.
-          sed -i "s/^package: Scaffold$/package: Scaffold\nversion: $v/" dist/frame/frame.info.yml
+          sed -i "s/^package: Frame$/package: Frame\nversion: $v/" dist/frame/frame.info.yml
           cd dist
           zip -qr "frame-$v.zip" frame
           tar -czf "frame-$v.tar.gz" frame

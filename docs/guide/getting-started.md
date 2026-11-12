@@ -103,7 +103,7 @@ pages from your components, follow [Build a site](/guide/build-a-site).
 The repository contains a ready subtheme with the recipe explorer, node list and tooltip, for sites with the `demo_umami` content:
 
 ```bash
-composer require drupal/views_better_rest
+composer require 'drupal/views_better_rest:^1.3'
 drush en node rest serialization views_better_rest
 cd web/themes/contrib/frame/examples/frame_demo
 npm install && npm run dist
@@ -116,8 +116,7 @@ Pages: `/recipe-explorer`, `/node-list`. Installing the theme creates the two vi
 Spanish translations are an extra step, see [Translations](/guide/translations): import `translations/es.po` in the UI (JS strings) and import `config/optional/language/es/*.yml`
 through your config sync directory (view labels).
 
-::: warning views_better_rest and Drupal 11.4-dev
-`views_better_rest` 1.2.0 and the 1.x branch fatal on Drupal 11.4-dev: `UrlNormalizer` extends `ComplexDataNormalizer`, whose
-`normalize()` now returns `array`. Extending `NormalizerBase` instead fixes it (a two-line change). Until it is released upstream,
-patch the module locally. Released Drupal 10/11 versions are not affected.
+::: tip views_better_rest 1.3
+Use version 1.3 or newer. It supports Drupal 11, including 11.4 where 1.2.0 fatals
+(`UrlNormalizer::normalize() must be compatible`), and views of Search API with Facets.
 :::

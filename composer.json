@@ -15,6 +15,7 @@
         "drupal/paragraphs": "Paragraph types as blocks of the page builder, with the Paragraphs Library for reused ones (recipe frame_builder_paragraphs)",
         "drupal/entity_usage": "Shows where media, paragraphs and saved blocks are used by layouts (recipe frame_builder_paragraphs)",
         "drupal/metatag": "Meta tags on landing pages, filled by the AI assistant on request (recipe frame_builder_seo)",
+        "drupal/views_better_rest": "^1.3: a view as the JSON API of an interactive component, with its exposed filters, sorts and pager; also for Search API views with Facets",
         "drupal/ai": "The AI assistant of the page builder (recipe frame_builder_ai)"
     }
 }

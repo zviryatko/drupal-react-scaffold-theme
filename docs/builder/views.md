@@ -48,8 +48,9 @@ Add a display that exports the view as JSON, with a path, for example `api/recip
 Set fields, aliases and the pager **on this display**; a REST display does not inherit the pager. The
 [recipe explorer example](/examples/recipe-explorer) walks through such a view and shows the JSON.
 
-::: warning views_better_rest and Drupal 11.4
-See the note in [Getting started](/guide/getting-started): version 1.2.0 needs a two-line patch on Drupal 11.4.
+::: tip views_better_rest 1.3
+Install version 1.3 or newer (`composer require 'drupal/views_better_rest:^1.3'`): it supports Drupal 11, and views of
+Search API with Facets.
 :::
 
 ### 2. The style

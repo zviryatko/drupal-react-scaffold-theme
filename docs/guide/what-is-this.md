@@ -54,5 +54,5 @@ one folder. Details: [Base theme and subthemes](/guide/base-theme).
 
 - Drupal 10.3+ / 11 (SDC in core). Developed against 11.4-dev.
 - Node.js 20+ to build.
-- For the data-driven examples: [`drupal/views_better_rest`](https://www.drupal.org/project/views_better_rest), `rest`, `serialization`, `views`.
+- For the data-driven examples: [`drupal/views_better_rest`](https://www.drupal.org/project/views_better_rest) 1.3+, `rest`, `serialization`, `views`.
 - The example subtheme targets the content of the `demo_umami` profile (recipes, articles), the base theme and the generated subthemes do not depend on it.

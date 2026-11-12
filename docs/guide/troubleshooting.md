@@ -20,7 +20,7 @@ Problems hit while building this scaffold, with the fix.
 | Page display shows an empty title | Override the title on that display (`defaults: { title: false }`) |
 | Each row appears twice in the API | A relationship (media) joins translations. Filter the related entity's language too |
 | REST display ignores the pager / `total_pages` is 0 | The REST display has its own pager. Set it on the display (`defaults: { pager: false }`) |
-| `views_better_rest` fatal `UrlNormalizer::normalize() must be compatible` | Drupal 11.4-dev change. Extend `NormalizerBase` instead of `ComplexDataNormalizer` in `UrlNormalizer` |
+| `views_better_rest` fatal `UrlNormalizer::normalize() must be compatible` | Version 1.2.0 on Drupal 11.4. Update: `composer require 'drupal/views_better_rest:^1.3'` |
 | Umami header (logo, menu) is empty in a subtheme | Umami's `region--header.html.twig` reads `elements.umami_branding` and `elements.umami_main_menu`. Block IDs are global, so a subtheme's blocks have other IDs: override the template with your block IDs |
 | No blocks at all in the subtheme | Blocks are placed per theme. Ship them as `config/optional/block.block.*.yml` for your theme (or place them in the UI) |
 | Ajax links inside React markup do nothing | Use `rawHtml()` / `attachBehaviors()` and add `core/drupal.ajax` to the library dependencies, see [Ajax](/guide/ajax) |

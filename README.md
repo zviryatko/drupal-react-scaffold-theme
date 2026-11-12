@@ -119,7 +119,7 @@ for composer and git installs.
 For sites with the `demo_umami` content:
 
 ```bash
-composer require drupal/views_better_rest
+composer require 'drupal/views_better_rest:^1.3'
 drush en node rest serialization views_better_rest
 cd examples/frame_demo && npm install && npm run dist   # needs `npm install` in the base theme first
 drush theme:install frame_demo && drush config:set system.theme default frame_demo -y
@@ -135,8 +135,7 @@ drush theme:install frame_demo && drush config:set system.theme default frame_de
 
 [Full video (mp4)](docs/public/media/node-list-modal-demo.mp4)
 
-> `views_better_rest` 1.2.0 / 1.x fatals on Drupal 11.4-dev (`UrlNormalizer` must extend `NormalizerBase`), see
-> [Getting started](https://zviryatko.github.io/frame/guide/getting-started).
+> Use `views_better_rest` 1.3 or newer: it supports Drupal 11 (1.2.0 fatals on Drupal 11.4), and views of Search API with Facets.
 
 ## Documentation
 
