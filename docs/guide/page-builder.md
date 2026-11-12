@@ -60,11 +60,40 @@ For such a content type:
 | Where | What |
 |---|---|
 | Left: **Content**, **Menu** | The fields of the page and its menu settings. This is Drupal's node form, with every widget. |
+| Left: your **field groups** | With the [Field Group](https://www.drupal.org/project/field_group) module, each top-level group of the form is a panel of its own. See [Field groups](#field-groups). |
 | Left: **Blocks** | What can be placed: your components by group, **Fields** of the page, **Views**, Drupal **Blocks**. The search at the top forgives typos. |
 | Left: **Structure** | The tree of the layout. |
 | Left: **AI** | With the module *Frame Builder AI*: a chat that composes the page from your components. See [AI assistant](/builder/ai). |
 | Right | The selected component: its fields, then **Layout and style** (spacing, alignment, background, position). With nothing selected: the **page settings** (title, state, URL alias, authoring…), also Drupal's node form. |
 | Top | Undo, redo and **History** (a timeline of the changes since the page was opened or saved; click a step to go to it), **Preview** (or **View** when nothing is unsaved), **Publish**, **Draft**, **Delete**. |
+
+### Field groups
+
+A content type with many fields is easier to edit in parts. Install
+[Field Group](https://www.drupal.org/project/field_group) and group the fields on *Manage form display* of the content
+type: the editor shows every **top-level group** as a panel, with a button in the rail on the left, after **Content**.
+
+<Video src="/media/page-builder-field-groups.mp4" poster="/media/builder/field-groups.png" />
+
+The recipes of the Umami demo, with the fields of the form in four groups: *Ingredients*, *Method*, *Time and servings*
+and *Categories*. The canvas follows what is typed in any of them, and **Publish** saves them all.
+
+- Fields in no group stay in **Content**. When every field is in a group, there is no Content panel.
+- The format of a top-level group does not matter (details, fieldset, HTML element): the panel replaces it. Of a
+  top-level **Tabs** group, each tab is a panel.
+- Groups inside a group keep their format, inside the panel.
+- A **Details sidebar** group is where the sidebar of the edit page is: in the page settings on the right.
+- A group with nothing to show (no fields, or none the user may edit) has no panel.
+
+The button of a panel shows the initials of its label. To give it an icon, open the settings of the group (the cog on
+*Manage form display*) and fill **Icon in the page builder**: a name of the
+[editor's set](/builder/components#the-icon) (`search`, `image`, `list`, `link`…) or the CSS classes of an icon font.
+
+<div class="shots">
+<Shot src="/media/builder/field-groups.png" title="A group is a panel">The <em>Ingredients</em> group of the recipe form, with the icon <code>list</code>.</Shot>
+<Shot src="/media/builder/field-groups-initials.png" title="Without an icon">The button of <em>Time and servings</em> shows initials.</Shot>
+<Shot src="/media/builder/field-group-icon.png" title="The icon of a group">The settings of a group on <em>Manage form display</em>.</Shot>
+</div>
 
 Links inside the editor's forms and inside the preview (help links of a field, links of the page) open in a new tab,
 so the editor keeps its place.

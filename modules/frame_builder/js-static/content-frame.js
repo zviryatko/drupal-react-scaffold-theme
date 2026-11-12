@@ -24,12 +24,21 @@
       }
       once('frame-builder-content', 'body').forEach(() => {
         const form = document.querySelector('form.node-form, form');
-        // The panel of this part of the form to show: the editor says which one is open.
-        document.body.setAttribute('data-frame-builder-show', frame.part === 'page' ? 'page' : 'content');
+        // The browser would stop a save at an empty required field without telling the editor, and cannot show its
+        // hint on a field of a panel that is not open. Drupal validates: its messages are above every panel.
+        form?.setAttribute('novalidate', '');
+        // The panel of this part of the form to show: the editor says which one is open. Panels are "content",
+        // "menu" and the groups of the Field Group module, so the rule that hides the others is written here.
+        const rule = document.head.appendChild(document.createElement('style'));
+        const show = (section) => {
+          document.body.setAttribute('data-frame-builder-show', section);
+          rule.textContent = `[data-frame-builder-section]:not([data-frame-builder-section="${CSS.escape(section)}"]) { display: none !important; }`;
+        };
+        show(frame.part === 'page' ? 'page' : 'content');
         window.addEventListener('message', (event) => {
           if (event.origin !== window.location.origin) return;
-          if (event.data?.type === 'frame-builder:section' && frame.part !== 'page') {
-            document.body.setAttribute('data-frame-builder-show', event.data.section);
+          if (event.data?.type === 'frame-builder:section' && frame.part !== 'page' && typeof event.data.section === 'string') {
+            show(event.data.section);
             document.querySelector('[data-frame-builder-section="menu"]')?.setAttribute('open', '');
           }
           if (event.data?.type === 'frame-builder:submit') {
@@ -37,7 +46,8 @@
           }
         });
 
-        if (document.querySelector('.messages--error, .form-item--error-message')) {
+        // Drupal marks the fields that failed validation whatever the theme prints for its messages.
+        if (document.querySelector('.messages--error, .form-item--error-message, form [aria-invalid="true"]')) {
           post('error');
         }
         else {

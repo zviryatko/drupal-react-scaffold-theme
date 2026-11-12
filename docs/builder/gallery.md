@@ -32,6 +32,8 @@ subtheme (`frame_demo`) on the Umami demo content; the page was composed by the
 <div class="shots">
 <Shot src="/media/builder/paragraph.png" title="Paragraphs">A paragraph type is a block, edited with the paragraph's own form and saved as you type. <a href="./paragraphs">Paragraphs</a></Shot>
 <Shot src="/media/builder/content-form.png" title="Content">The fields of the page are Drupal's node form, with every widget; the canvas follows what is typed.</Shot>
+<Shot src="/media/builder/field-groups.png" title="Field groups">With the Field Group module, each top-level group of the form is a panel with its own button in the rail. <a href="../guide/page-builder#field-groups">Field groups</a></Shot>
+<Shot src="/media/builder/field-groups-categories.png" title="A panel per group">Long forms in parts: here the categories and tags of a recipe.</Shot>
 <Shot src="/media/builder/page-settings.png" title="Page settings">With nothing selected: title, state, revision, meta tags, translation, URL alias, authoring.</Shot>
 </div>
 

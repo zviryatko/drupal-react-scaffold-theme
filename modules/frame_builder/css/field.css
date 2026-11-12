@@ -38,3 +38,5 @@
   height: 1px;
   word-wrap: normal;
 }
+/* An image of a field (an image field, a media item) is never wider than the place the block is in. */
+.frame-builder-field img { max-width: 100%; height: auto; }

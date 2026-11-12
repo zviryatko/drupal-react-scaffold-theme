@@ -1,11 +1,9 @@
 /*
- * The node form in the Content, Page and Menu panels of the page builder: one form, the panel that is open shows its
- * part ([data-frame-builder-section], set by BuilderContentForm::tagSections()).
+ * The node form in the Content, Page and Menu panels of the page builder, and in the panels of the groups of the
+ * Field Group module: one form, the panel that is open shows its part ([data-frame-builder-section], set by
+ * BuilderContentForm::limitToPart(); content-frame.js hides the others).
  */
 body { margin: 0; padding: 12px 16px 24px; background: #fff; }
-body[data-frame-builder-show="content"] [data-frame-builder-section]:not([data-frame-builder-section="content"]),
-body[data-frame-builder-show="page"] [data-frame-builder-section]:not([data-frame-builder-section="page"]),
-body[data-frame-builder-show="menu"] [data-frame-builder-section]:not([data-frame-builder-section="menu"]),
 /* The editor has one button for everything. */
 form .form-actions {
   display: none !important;

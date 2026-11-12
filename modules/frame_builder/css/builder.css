@@ -14,6 +14,9 @@
 /* The preview is the page: no gutter of its own, a thin one from the editor around it. */
 .frame-builder-root { min-height: 100%; }
 #frame-builder [class*="PuckCanvas_"] { padding: 8px; }
+/* The rail of panels. Labels of field groups are words of the site: a little smaller and with the whole width of the
+   rail, so a long word fits; a longer one wraps instead of leaving it. */
+#frame-builder [class*="NavItem-link"] > span:last-child { max-width: calc(100% + 16px); margin-inline: -8px; font-size: 11px; overflow-wrap: anywhere; }
 /* The admin page around the editor already shows the title: the spot holds a short note about translations, if any. */
 #frame-builder:not([data-note]) [class*="PuckHeader-title"] { visibility: hidden; }
 #frame-builder[data-note] [class*="PuckHeader-title"] { display: flex; align-items: center; justify-content: center; cursor: help; }
@@ -349,6 +352,8 @@
 .frame-builder-block.is-disabled { opacity: 0.5; cursor: not-allowed; }
 .frame-builder-block-icon { display: block; width: 20px; height: 20px; font-size: 18px; line-height: 20px; text-align: center; color: #55565b; }
 .frame-builder-block:hover .frame-builder-block-icon { color: #003ecc; }
+/* Icon font on the button of a panel made of a field group (Field Group module), in the rail of the editor. */
+.frame-builder-panel-icon { display: block; width: 24px; height: 24px; font-size: 22px; line-height: 24px; text-align: center; }
 .frame-builder-block__label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 14px; }
 .frame-builder-block__label small { margin-left: 8px; font-size: 11px; color: #75767b; }
 .frame-builder-block__grip { color: #a8a9ae; }

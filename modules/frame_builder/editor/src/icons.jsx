@@ -46,3 +46,33 @@ export function BlockIcon({ icon }) {
     </svg>
   );
 }
+
+/** At most two letters that stand for a label: the initials of its first two words, or its first two letters. */
+export const initials = (label) => {
+  const words = String(label || '').match(/[\p{L}\p{N}]+/gu) || [];
+  const letters = words.length > 1 ? [...words[0]][0] + [...words[1]][0] : [...(words[0] || '')].slice(0, 2).join('');
+  return letters ? letters[0].toUpperCase() + letters.slice(1).toLowerCase() : '?';
+};
+
+/**
+ * Icon of a side panel made of a group of the Field Group module, in the size of the rail of the editor. The group
+ * names it as a component does (a name of the set, or classes of an icon font); without one, the initials of its
+ * label.
+ */
+export function PanelIcon({ icon, label }) {
+  if (icon && !paths[icon] && /^[\w -]+$/.test(icon)) {
+    return <i className={`frame-builder-panel-icon ${icon}`} aria-hidden="true" />;
+  }
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      {paths[icon]
+        ? <path d={paths[icon]} />
+        : (
+          <>
+            <rect x="3" y="3" width="18" height="18" rx="3" />
+            <text x="12" y="16" textAnchor="middle" fill="currentColor" stroke="none" fontSize="10" fontWeight="700" fontFamily="system-ui, sans-serif">{initials(label)}</text>
+          </>
+        )}
+    </svg>
+  );
+}

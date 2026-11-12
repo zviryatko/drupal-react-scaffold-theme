@@ -14,6 +14,7 @@ use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\Url;
 use Drupal\media_library\MediaLibraryState;
 use Drupal\node\NodeInterface;
+use Drupal\frame_builder\Form\BuilderContentForm;
 use Drupal\frame_builder\ComponentCatalog;
 use Drupal\frame_builder\Form\FormatterSettingsForm;
 use Drupal\frame_builder\LayoutRenderer;
@@ -258,7 +259,8 @@ class BuilderController extends ControllerBase {
       'data' => $data ?: NULL,
       'components' => $this->catalog->editorConfig($node),
       // Panels that show a part of the node form (BuilderContentForm).
-      'sections' => array_merge(['content'], $this->hasMenuSettings($node) ? ['menu'] : []),
+      // One per top-level group of the Field Group module, between the two.
+      'sections' => array_merge(BuilderContentForm::sections($node), $this->hasMenuSettings($node) ? [['name' => 'menu']] : []),
       'formats' => $formats,
       'defaultFormat' => $formats ? filter_default_format($this->currentUser()) : NULL,
       'translation' => $this->translationInfo($node),

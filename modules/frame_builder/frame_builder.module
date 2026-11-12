@@ -211,3 +211,54 @@ function frame_builder_node_form_to_builder(array $form, FormStateInterface $for
     $form_state->setRedirect('entity.node.edit_form', ['node' => $node->id()]);
   }
 }
+
+/**
+ * Implements hook_form_FORM_ID_alter() for the "Manage form display" page.
+ *
+ * With the Field Group module, top-level groups of the form of a node are
+ * panels of the page builder (BuilderContentForm::groupSections()). The
+ * settings of a group get the icon of its panel, kept with the other
+ * settings of the group.
+ */
+function frame_builder_form_entity_form_display_edit_form_alter(array &$form, FormStateInterface $form_state) {
+  if ($form_state->getFormObject()->getEntity()->getTargetEntityTypeId() === 'node' && \Drupal::moduleHandler()->moduleExists('field_group')) {
+    // Field Group adds its rows in a form alter that runs after this one:
+    // the form is processed after all of them.
+    $form['#process'][] = 'frame_builder_field_group_icon';
+  }
+}
+
+/**
+ * Form #process callback: the icon setting of field groups.
+ */
+function frame_builder_field_group_icon(array $form, FormStateInterface $form_state): array {
+  $groups = $form_state->get('field_group') ?? [];
+  foreach (is_array($form['#fieldgroups'] ?? NULL) ? $form['#fieldgroups'] : [] as $name) {
+    // The settings of a group are there while its row is being edited.
+    if (!isset($form['fields'][$name]['format']['format_settings']['settings'])) {
+      continue;
+    }
+    $form['fields'][$name]['format']['format_settings']['settings']['frame_builder_icon'] = [
+      '#type' => 'textfield',
+      '#title' => t('Icon in the page builder'),
+      '#description' => t('A top-level group is a panel of the page builder, with this icon on its button. A name of the icon set of the builder (@names…) or CSS classes of an icon font the builder loads. Empty: the initials of the label.', ['@names' => 'image, text, list, link, search, table, form, video, map']),
+      '#default_value' => $groups[$name]->format_settings['frame_builder_icon'] ?? '',
+      '#size' => 30,
+      '#weight' => 50,
+    ];
+  }
+  return $form;
+}
+
+/**
+ * Implements hook_config_schema_info_alter().
+ */
+function frame_builder_config_schema_info_alter(array &$definitions) {
+  // The icon of frame_builder_form_entity_form_display_edit_form_alter().
+  if (isset($definitions['field_group.field_group_formatter_plugin.base']['mapping'])) {
+    $definitions['field_group.field_group_formatter_plugin.base']['mapping']['frame_builder_icon'] = [
+      'type' => 'string',
+      'label' => 'Icon in the page builder',
+    ];
+  }
+}

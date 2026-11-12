@@ -27,6 +27,16 @@ The public API of the base theme, which follows semantic versioning:
   - classes, attributes and custom properties of the builder: `frame-builder-*`, `data-frame-builder-*`,
     `--frame-builder-*` (were `rsb-*`, `data-rsb-*`, `--rsb-*`).
 
+- Page builder: **Field Group**. With the Field Group module, every top-level group of the form of a content type is a
+  panel of the editor, next to *Content*, with its own button in the rail on the left; of a top-level *Tabs* group the
+  tabs are the panels. Groups inside a panel stay groups, a *Details sidebar* group is in the page settings. The
+  settings of a group have **Icon in the page builder** (a name of the editor's icon set or classes of an icon font;
+  without one the button shows the initials of the label). `drupalSettings.frameBuilder.sections` is now a list of
+  `{ name, label, icon }`.
+- Page builder: an image of a Field block (an image field, a media item) is never wider than the place the block is in.
+  Labels in the rail of the editor are a little smaller and wrap, so a long name of a panel stays inside.
+- Page builder: an empty required field no longer leaves a save waiting for half a minute. The browser's own check of
+  the node form is off, Drupal's messages say what is missing, whatever panel is open and whatever the admin theme.
 - Page builder: a new feature **Size** in *Layout and style*: how wide a component may be (`max-width`) and how tall it
   is at least (`min-height`), one of the theme's sizes or a custom length. Sizes are a new token, `uikit: sizes:` in the
   theme's `.info.yml` (defaults `xs` 20rem to `xl` 75rem and `full`), with `features: size:`; in the Sass module

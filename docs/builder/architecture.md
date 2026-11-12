@@ -143,7 +143,7 @@ cached like any other render array.
 /node/N/edit  (admin theme: toolbar, navigation, breadcrumb)
 └── iframe  /node/N/builder/frame        (default theme: its CSS and JS, all component libraries)
     ├── Puck: rail │ canvas │ right column
-    ├── iframe  /node/N/builder/content?part=fields    node form: Content and Menu panels   (admin theme)
+    ├── iframe  /node/N/builder/content?part=fields    node form: Content, field group and Menu panels   (admin theme)
     ├── iframe  /node/N/builder/content?part=page      node form: page settings             (admin theme)
     ├── iframe  /frame-builder/media-library  Drupal's media library, in a dialog  (admin theme)
     └── iframe  /node/N/builder/preview                the page with unsaved changes, in a dialog
@@ -186,11 +186,18 @@ there. It is shown twice, as two parts:
 
 | Part | Where | Contains |
 |---|---|---|
-| `fields` | left: **Content** and **Menu** | the fields of the content type; the menu settings |
+| `fields` | left: **Content**, **Menu** and one panel per field group | the fields of the content type; the menu settings |
 | `page` | right, with nothing selected | title, state, and the sidebar of the edit page: URL alias, authoring, promotion, revision log, translation, whatever modules add |
 
 A form-level `#process` callback decides for every element which part it belongs to (the "advanced" group of the edit
 page is the page part) and removes the elements of the other part, so they are neither validated nor saved by this form.
+
+The panels on the left are one form: every element carries `data-frame-builder-section` with the name of its panel, and
+the frame hides the others. With the Field Group module, `BuilderContentForm::groupSections()` turns the top-level
+groups of the form display into panels (the tabs of a top-level *Tabs* group; a *Details sidebar* group goes to the page
+part). The same `#process` callback runs before Field Group builds its groups and rewrites `$form['#fieldgroups']`: a
+group that is a panel becomes a plain container with the mark of the panel, groups of the other part are dropped.
+`BuilderContentForm::sections()` gives the editor the list of panels without building the form.
 
 The two parts are separate forms that can be changed at the same time. `save()` therefore does not save the node it was
 built with: it takes the **latest revision**, puts only its own fields on it, and saves that.

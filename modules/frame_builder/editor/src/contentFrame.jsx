@@ -1,6 +1,7 @@
 // The node form of Drupal inside the editor (every widget, everything modules add to it), in frames rendered by the
 // admin theme. Two frames, each with a part of the form (BuilderContentForm):
-// - "fields": the fields of the content type and the menu settings, shown in the Content and Menu panels on the left;
+// - "fields": the fields of the content type and the menu settings, shown in the Content and Menu panels on the left,
+//   and in one panel per top-level group of the Field Group module;
 // - "page": title, state, URL alias, authoring..., shown on the right when no component is selected.
 //
 // Puck unmounts a panel when another one is opened, which would reload a frame and lose what was typed. So the frames
@@ -13,7 +14,7 @@ const FRAMES = ['fields', 'page'];
 // --- state shared by the panels, the frames and the Save button
 let state = {
   frames: { fields: { rect: null, dirty: false }, page: { rect: null, dirty: false } },
-  // The panel of the "fields" frame that is open: "content" or "menu".
+  // The panel of the "fields" frame that is open: "content", "menu" or the name of a field group.
   section: 'content',
   // Changes when field values changed (autosaved or saved): previews render again.
   version: 0,

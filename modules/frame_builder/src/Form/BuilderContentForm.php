@@ -2,12 +2,14 @@
 
 namespace Drupal\frame_builder\Form;
 
+use Drupal\Core\Entity\Entity\EntityFormDisplay;
 use Drupal\Core\Entity\EntityConstraintViolationListInterface;
 use Drupal\Core\Entity\Plugin\Validation\Constraint\EntityChangedConstraint;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Render\Element;
 use Drupal\Core\Url;
 use Drupal\node\NodeForm;
+use Drupal\node\NodeInterface;
 
 /**
  * The node form inside the page builder.
@@ -16,7 +18,9 @@ use Drupal\node\NodeForm;
  * works as on the edit page. The editor shows it in two frames, each with a
  * part of the form (the `frame_builder_part` of the form state):
  * - "fields", on the left: the fields of the content type (Content panel)
- *   and the menu settings (Menu panel).
+ *   and the menu settings (Menu panel). With the Field Group module every
+ *   top-level group of the form display is a panel of its own, see
+ *   groupSections().
  * - "page", on the right: title, publishing or moderation state and what the
  *   edit page has in its sidebar: URL alias, authoring information,
  *   promotion, revision log, translation, and whatever modules put there.
@@ -37,6 +41,101 @@ class BuilderContentForm extends NodeForm {
    * Groups whose elements belong to the Page part.
    */
   protected const PAGE_GROUPS = ['advanced', 'footer', 'meta', 'revision_information'];
+
+  /**
+   * The panels of the fields part, for the editor.
+   *
+   * "content" for the fields that are in no group (always there without
+   * groups), then one per top-level group of the Field Group module that has
+   * fields of this part. Same rules as limitToPart(), without building the
+   * form: fields of the node type the user may edit count, base fields and
+   * what modules add to the form are in the sidebar (the Page part).
+   *
+   * @return array[]
+   *   Panels with `name` and, for groups, `label` and `icon` (the "Icon in
+   *   the page builder" setting of the group, may be empty).
+   */
+  public static function sections(NodeInterface $node): array {
+    $groups = [];
+    $display = EntityFormDisplay::collectRenderDisplay($node, 'edit');
+    if (\Drupal::moduleHandler()->moduleExists('field_group')) {
+      $groups = field_group_info_groups('node', $node->bundle(), 'form', $display->getMode());
+    }
+    $layout = self::groupSections($groups);
+    $used = [];
+    foreach (array_keys($display->getComponents()) as $name) {
+      if (in_array($name, self::PAGE, TRUE) || $name === 'frame_layout' || !$node->hasField($name)) {
+        continue;
+      }
+      if ($node->getFieldDefinition($name)->getFieldStorageDefinition()->isBaseField() || !$node->get($name)->access('edit')) {
+        continue;
+      }
+      $used[$layout['sections'][$name] ?? 'content'] = TRUE;
+    }
+    $panels = array_intersect_key($layout['panels'], $used);
+    $sections = !$panels || !empty($used['content']) ? [['name' => 'content']] : [];
+    foreach ($panels as $name => $group) {
+      $sections[] = [
+        'name' => $name,
+        'label' => (string) ($group->label ?? $name),
+        'icon' => (string) ($group->format_settings['frame_builder_icon'] ?? ''),
+      ];
+    }
+    return $sections;
+  }
+
+  /**
+   * Sorts the groups of the Field Group module into panels of the editor.
+   *
+   * A top-level group is a panel, whatever its format: the rail of the
+   * editor is the switch, the group itself is not printed. Of a top-level
+   * "Tabs" group the tabs are the panels. A "Details sidebar" group is in
+   * the sidebar of the edit page, so it belongs to the Page part. Groups
+   * inside a panel stay what they are.
+   *
+   * @param object[] $groups
+   *   The groups of the form display, by name.
+   *
+   * @return array
+   *   - panels: the groups that are panels, by name, in their order.
+   *   - sections: for every field and group in a group, the panel it is in:
+   *     the name of a group, or "page".
+   *   - tabs: names of the "Tabs" groups whose tabs became panels.
+   */
+  public static function groupSections(array $groups): array {
+    $layout = ['panels' => [], 'sections' => [], 'tabs' => []];
+    $assign = function (object $group, string $section, int $depth = 0) use (&$assign, &$layout, $groups): void {
+      foreach ($group->children ?? [] as $child) {
+        $layout['sections'][$child] = $section;
+        if (isset($groups[$child]) && $depth < 10) {
+          $assign($groups[$child], $section, $depth + 1);
+        }
+      }
+    };
+    $by_weight = fn(object $a, object $b): int => ($a->weight ?? 0) <=> ($b->weight ?? 0);
+    $top = array_filter($groups, fn(object $group): bool => empty($group->parent_name) || !isset($groups[$group->parent_name]));
+    uasort($top, $by_weight);
+    foreach ($top as $name => $group) {
+      $type = $group->format_type ?? '';
+      if ($type === 'details_sidebar') {
+        $layout['sections'][$name] = 'page';
+        $assign($group, 'page');
+        continue;
+      }
+      $panels = [$name => $group];
+      if ($type === 'tabs') {
+        $layout['tabs'][] = $name;
+        $panels = array_intersect_key($groups, array_flip($group->children ?? []));
+        uasort($panels, $by_weight);
+      }
+      foreach ($panels as $panel => $panel_group) {
+        $layout['panels'][$panel] = $panel_group;
+        $layout['sections'][$panel] = $panel;
+        $assign($panel_group, $panel);
+      }
+    }
+    return $layout;
+  }
 
   /**
    * {@inheritdoc}
@@ -82,7 +181,13 @@ class BuilderContentForm extends NodeForm {
    * the Page part, except the menu settings. The rest are fields. Elements of
    * the other part are removed, so they are neither validated nor saved by
    * this form. What stays is marked with its panel ("content", "menu",
-   * "page") for content-frame.js.
+   * "page", or the name of a group of the Field Group module) for
+   * content-frame.js.
+   *
+   * Field Group builds its groups after this, from $form['#fieldgroups'].
+   * The list is rewritten here: groups that are panels are replaced by a
+   * plain container with the mark of the panel, groups of the other part
+   * are dropped, and fields of the other part are taken out of the rest.
    */
   public static function limitToPart(array &$form, FormStateInterface $form_state): array {
     // Which group every grouped element is in, at any depth: a widget can
@@ -114,16 +219,21 @@ class BuilderContentForm extends NodeForm {
 
     $part = $form_state->get('frame_builder_part') === 'page' ? 'page' : 'fields';
     $entity = $form_state->getFormObject()->getEntity();
+    $field_groups = is_array($form['#fieldgroups'] ?? NULL) ? $form['#fieldgroups'] : [];
+    $layout = self::groupSections($field_groups);
+    // Panels that have something to show.
+    $used = [];
     $fields = [];
     foreach (Element::children($form) as $key) {
       if (in_array($form[$key]['#type'] ?? '', ['hidden', 'token', 'value', 'actions'], TRUE) || in_array($key, ['advanced', 'actions'], TRUE)) {
         continue;
       }
       $grouped = !empty($form[$key]['#group']) && $in_page($form[$key]['#group']);
+      $in_group = $layout['sections'][$key] ?? 'content';
       $section = match (TRUE) {
         $key === 'menu' => 'menu',
-        $grouped, in_array($key, self::PAGE, TRUE), $has_page_inside($form[$key]) => 'page',
-        default => 'content',
+        $grouped, in_array($key, self::PAGE, TRUE), $has_page_inside($form[$key]), $in_group === 'page' => 'page',
+        default => $in_group,
       };
       if (($section === 'page') !== ($part === 'page')) {
         unset($form[$key]);
@@ -131,8 +241,35 @@ class BuilderContentForm extends NodeForm {
       }
       $form[$key]['#attributes']['data-frame-builder-section'] = $section;
       $form[$key]['#wrapper_attributes']['data-frame-builder-section'] = $section;
+      if (($form[$key]['#access'] ?? TRUE) !== FALSE) {
+        $used[$section] = TRUE;
+      }
       if ($entity->hasField($key)) {
         $fields[] = $key;
+      }
+    }
+    foreach ($field_groups as $name => $group) {
+      $section = $layout['sections'][$name] ?? '';
+      $is_panel = isset($layout['panels'][$name]);
+      // A group stays a group when it is inside a panel of this part.
+      if (in_array($name, $layout['tabs'], TRUE) || $is_panel || ($section === 'page') !== ($part === 'page') || empty($used[$section])) {
+        unset($form['#fieldgroups'][$name]);
+      }
+      else {
+        $group->children = array_values(array_filter($group->children ?? [], fn($child) => isset($form[$child]) || isset($field_groups[$child])));
+      }
+      if ($is_panel && $part !== 'page' && !empty($used[$name])) {
+        // Groups inside the panel find it by its name (their parent).
+        foreach ($group->children ?? [] as $child) {
+          if (isset($form[$child]) && !isset($field_groups[$child])) {
+            $form[$child]['#group'] = $name;
+          }
+        }
+        $form[$name] = [
+          '#type' => 'container',
+          '#weight' => $group->weight ?? 0,
+          '#attributes' => ['data-frame-builder-section' => $name],
+        ];
       }
     }
     // Modules add their submit handlers to every button of the node form

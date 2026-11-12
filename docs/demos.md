@@ -12,6 +12,14 @@ screenshot: [Gallery](/builder/gallery).
 
 <Video src="/media/page-builder-ai.mp4" poster="/media/builder/ai-assistant.png" />
 
+## Page builder: field groups
+
+With the Field Group module, the groups of the recipe form are panels of the editor: an ingredient, the preparation
+time, the difficulty and a category are changed in four panels, the canvas follows, and one **Publish** saves them all.
+See [Field groups](/guide/page-builder#field-groups).
+
+<Video src="/media/page-builder-field-groups.mp4" poster="/media/builder/field-groups.png" />
+
 ## Recipe explorer with DevTools
 
 Search, difficulty, category and preparation time filters, sorting and pager. Every change is one `fetch` to `/api/recipes`

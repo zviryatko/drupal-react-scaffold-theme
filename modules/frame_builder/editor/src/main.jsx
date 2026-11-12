@@ -12,6 +12,7 @@ import { startFormat, toPuckField } from './fields';
 import { ContentFrames, ContentPanel, saveContent, useContentDirty, useContentVersion } from './contentFrame';
 import { Modal } from './ui';
 import { BlocksPanel } from './BlocksPanel';
+import { PanelIcon } from './icons';
 import { HistoryButton, HistoryPanel, markSaved, useHistoryOpen } from './History';
 import { fromDrupal, toDrupalLayout, toDrupalType, toPuckType } from './types';
 import { subscribeLibrary } from './library';
@@ -225,13 +226,18 @@ const icon = (children) => (
 );
 
 // Side panels, in this order: the fields and the menu settings of the page (Drupal's node form), the components to
-// add, the structure of the layout.
+// add, the structure of the layout. With the Field Group module, each top-level group of the form is a panel of its
+// own, after Content: the rail of icons switches between them.
 const formPanels = {
   content: { label: 'Content', icon: icon(<><path d="M5 4h14v16H5z" strokeLinejoin="round" /><path d="M8.5 9h7M8.5 13h7M8.5 17h4" /></>) },
   menu: { label: 'Menu', icon: icon(<path d="M4 6h16M4 12h16M4 18h10" />) },
 };
 const plugins = [
-  ...settings.sections.map((section) => ({ name: section, ...formPanels[section], render: () => <ContentPanel frame="fields" section={section} /> })),
+  ...settings.sections.map(({ name, label, icon: groupIcon }) => ({
+    name,
+    ...(formPanels[name] || { label, icon: <PanelIcon icon={groupIcon} label={label} /> }),
+    render: () => <ContentPanel frame="fields" section={name} />,
+  })),
   // Puck's own Blocks tab (its name and icon) with our list in it: groups, icons and a search.
   { ...blocksPlugin(), render: () => <BlocksPanel disabled={locked} /> },
   // Three lines, each one further in: a tree.
@@ -366,7 +372,7 @@ function Editor() {
     autosave.current.pending = null;
     // Fields changed in the Content panel are saved first, by Drupal's own form.
     if (!(await saveContent())) {
-      setStatus({ type: 'error', messages: ['The page could not be saved. Check the Content and Menu panels and the page settings for what needs fixing; the layout was not saved.'] });
+      setStatus({ type: 'error', messages: ['The page could not be saved. Check the panels with the fields of the page and the page settings for what needs fixing; the layout was not saved.'] });
       return;
     }
     const { ok, body } = await postJson(settings.endpoints.save, { data: layoutOf(data), draft: as === 'draft', publish: as === 'publish' });
