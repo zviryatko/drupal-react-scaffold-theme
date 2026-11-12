@@ -5,7 +5,7 @@ hero:
   text: The Last Page Builder You'll Ever Need. Drupal Edition.
   tagline: Editors build pages by dragging the components your theme already has. Drupal renders them. Works with SDC and UI Patterns 2 components, Paragraphs, Token, Metatag and an AI chat that builds the page for you. Free and open source.
   image:
-    src: /logo.svg
+    src: /frame-logo-animated.svg
     alt: Frame
   actions:
     - theme: brand
@@ -191,6 +191,12 @@ See the [full walkthrough](/examples/tooltip) and the bigger [recipe explorer](/
 </div>
 
 <style>
+/* The animated logo: the mark is a small part of its canvas, so the picture is larger than the default 320px. */
+.VPHero .VPImage.image-src { width: 560px !important; max-width: 160vw !important; max-height: none !important; }
+/* Its transparent canvas may reach past the page: no horizontal scroll for that. */
+.VPHome { overflow-x: clip; }
+.dark .VPHero .VPImage.image-src { filter: brightness(1.35) drop-shadow(0 0 20px rgb(255 255 255 / 18%)); }
+@media (min-width: 960px) { .VPHero .VPImage.image-src { width: 900px !important; } }
 .landing { margin-top: 3rem; }
 .landing h2 { margin-top: 4rem; border-top: 0; padding-top: 0; font-size: 1.9rem; letter-spacing: -0.02em; }
 .landing .pitch { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 26rem), 1fr)); gap: 1rem; margin-top: 1.5rem; }
