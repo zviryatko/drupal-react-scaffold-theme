@@ -1,8 +1,7 @@
 # Library of saved blocks
 
-A component with everything in it (a section with its cards, a call to action, a footer strip) can be saved to the
-library and used on other pages. The same mechanism serves as a component library: save one configured component, and
-it is one drag away everywhere.
+A Paragraph block can be saved to the library and used on other pages: a call to action, a contact strip, a notice
+that must read the same everywhere. Change it once, and every page that uses it changes.
 
 ## In the editor
 
