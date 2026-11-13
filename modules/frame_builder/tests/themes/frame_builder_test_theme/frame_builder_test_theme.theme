@@ -1,0 +1,20 @@
+<?php
+
+/**
+ * @file
+ * Hooks of the test theme of the page builder.
+ */
+
+declare(strict_types=1);
+
+/**
+ * Implements hook_frame_builder_item_migrate_alter().
+ *
+ * Writes every call for the "mig-hook" component to "_steps", after the
+ * modules (LayoutMigratorTest). Other components are left alone.
+ */
+function frame_builder_test_theme_frame_builder_item_migrate_alter(array &$props, array $context): void {
+  if ($context['type'] === 'frame_builder_test_theme:mig-hook') {
+    $props['_steps'][] = 'theme:' . $context['from'] . '>' . $context['to'];
+  }
+}

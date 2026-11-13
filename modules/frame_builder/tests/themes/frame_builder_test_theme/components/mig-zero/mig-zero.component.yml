@@ -1,0 +1,13 @@
+$schema: https://git.drupalcode.org/project/drupal/-/raw/HEAD/core/assets/schemas/v1/metadata.schema.json
+name: 'Version zero'
+description: 'A component that declares a version below 1 (LayoutMigratorTest).'
+group: Test
+props:
+  type: object
+  properties:
+    text:
+      type: string
+      title: Text
+thirdPartySettings:
+  frame_builder:
+    version: 0

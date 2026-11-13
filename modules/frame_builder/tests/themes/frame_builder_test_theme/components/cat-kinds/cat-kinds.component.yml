@@ -1,0 +1,142 @@
+$schema: https://git.drupalcode.org/project/drupal/-/raw/HEAD/core/assets/schemas/v1/metadata.schema.json
+name: 'Catalog kinds'
+description: 'One prop of every kind the catalog turns into an editor field, and some it does not.'
+group: 'Catalog test'
+props:
+  type: object
+  required: [plain]
+  properties:
+    plain:
+      type: string
+      title: Plain
+      description: 'A line of text.'
+      examples: ['From examples']
+      default: 'From default'
+    untitled:
+      type: string
+    fixed:
+      type: string
+      title: Fixed
+      x-builder-translatable: false
+    long:
+      type: string
+      title: Long
+      x-builder-widget: textarea
+    rich:
+      type: string
+      title: Rich
+      contentMediaType: text/html
+      examples: ['<p>Rich</p>']
+    pinned:
+      type: string
+      title: Pinned
+      contentMediaType: text/html
+      x-builder-format: plain_text
+    amount:
+      type: number
+      title: Amount
+      default: 1.5
+    whole:
+      type: integer
+      title: Whole
+    flag:
+      type: boolean
+      title: Flag
+      default: false
+    choice:
+      type: string
+      title: Choice
+      enum: [a, b]
+      meta:enum: { a: 'Option A' }
+      default: a
+    mood:
+      type: string
+      title: Mood
+      enum: [calm, loud]
+      examples: [loud]
+    open:
+      type: string
+      title: Open
+      enum: [x, y]
+    link:
+      type: string
+      title: Link
+      format: uri-reference
+    picture:
+      type: string
+      title: Picture
+      contentMediaType: 'image/*'
+      x-builder-picture: picture_markup
+      x-builder-srcset: picture_srcset
+      x-builder-sizes: picture_sizes
+      x-builder-alt: picture_alt
+    picture_markup:
+      type: string
+      x-builder-widget: hidden
+    picture_srcset:
+      type: string
+      x-builder-widget: hidden
+    picture_sizes:
+      type: string
+      x-builder-widget: hidden
+    picture_alt:
+      type: string
+      x-builder-widget: hidden
+    photo:
+      type: string
+      title: Photo
+      contentMediaType: image/png
+    tint:
+      type: string
+      title: Tint
+      x-builder-widget: color
+      default: brand
+    gap:
+      type: string
+      title: Gap
+      x-builder-widget: length
+      examples: ['1rem']
+    inset:
+      type: string
+      title: Inset
+      x-builder-widget: length
+      default: 3px
+    loose:
+      type: string
+      title: Loose
+      x-builder-widget: length
+      default: wide
+    symbol:
+      type: string
+      title: Symbol
+      x-builder-widget: icon
+      enum: [star, heart]
+      x-builder-icon-class: 'icon icon-{name}'
+    glyph:
+      type: string
+      title: Glyph
+      x-builder-widget: icon
+      enum: [star]
+    maybe:
+      type: [string, 'null']
+      title: Maybe
+    maybe_count:
+      type: ['null', integer]
+      title: 'Maybe count'
+    options:
+      type: object
+      title: Options
+    entries:
+      type: array
+      title: Entries
+      items:
+        type: string
+slots:
+  main:
+    title: Main
+  aside: {}
+thirdPartySettings:
+  frame_builder:
+    icon: star
+    features: { position: false }
+    example: { type: 'frame_builder_test_theme:cat-kinds', props: { plain: 'An example', main: [ { type: 'frame:divider', props: { style: solid } } ] } }

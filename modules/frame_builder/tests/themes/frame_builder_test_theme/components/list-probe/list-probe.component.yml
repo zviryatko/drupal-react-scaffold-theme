@@ -1,0 +1,92 @@
+$schema: https://git.drupalcode.org/project/drupal/-/raw/HEAD/core/assets/schemas/v1/metadata.schema.json
+name: 'List probe'
+description: 'Props of the types array and object, for the tests of lists and groups.'
+group: Test
+help: 'How to use the list probe.'
+props:
+  type: object
+  properties:
+    words:
+      type: array
+      title: Words
+      items:
+        type: string
+        title: Word
+    rows:
+      type: array
+      title: Rows
+      maxItems: 3
+      items:
+        type: object
+        properties:
+          label:
+            type: string
+            title: Label
+          url:
+            type: string
+            title: Link
+            format: uri-reference
+          body:
+            type: string
+            title: Body
+            contentMediaType: text/html
+          tone:
+            type: string
+            title: Tone
+            enum: [calm, loud]
+          shown:
+            type: boolean
+            title: Shown
+          count:
+            type: integer
+            title: Count
+        required: [label]
+    sizes:
+      type: array
+      title: Sizes
+      x-builder-translatable: false
+      items:
+        type: integer
+    figure:
+      type: object
+      title: Figure
+      properties:
+        image:
+          type: string
+          title: Image
+          contentMediaType: image/*
+        caption:
+          type: string
+          title: Caption
+    gallery:
+      type: array
+      title: Gallery
+      minItems: 2
+      x-builder-summary: caption
+      items:
+        type: object
+        properties:
+          credit:
+            type: string
+            title: Credit
+          caption:
+            type: string
+            title: Caption
+          picture:
+            type: object
+            title: Picture
+            x-builder-widget: image
+            properties:
+              url: { type: string }
+              alt: { type: string }
+              width: { type: integer }
+              height: { type: integer }
+        required: [picture, caption]
+        examples:
+          - { caption: 'A new picture', credit: 'Staff' }
+    free:
+      type: object
+      title: 'An object that does not say what is in it'
+    any:
+      type: array
+      title: 'A list that does not say what its values are'

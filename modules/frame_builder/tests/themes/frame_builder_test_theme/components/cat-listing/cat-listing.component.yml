@@ -1,0 +1,16 @@
+$schema: https://git.drupalcode.org/project/drupal/-/raw/HEAD/core/assets/schemas/v1/metadata.schema.json
+name: 'Catalog listing'
+description: 'A component that reads a REST display of a view: it has an "endpoint" prop. It has no group and no features.'
+props:
+  type: object
+  required: [endpoint]
+  properties:
+    endpoint:
+      type: string
+      title: Endpoint
+    heading:
+      type: string
+      title: Heading
+thirdPartySettings:
+  frame_builder:
+    features: { spacing: false, size: false, align: false, text: false, background: false, border: false, position: false }

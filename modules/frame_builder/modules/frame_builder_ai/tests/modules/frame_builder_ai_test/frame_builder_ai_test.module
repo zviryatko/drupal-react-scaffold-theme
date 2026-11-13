@@ -1,0 +1,22 @@
+<?php
+
+/**
+ * @file
+ * Hooks for the tests of the AI assistant of the page builder.
+ */
+
+declare(strict_types=1);
+
+use Drupal\node\NodeInterface;
+
+/**
+ * Implements hook_frame_builder_ai_instructions_alter().
+ *
+ * Adds the house style a test put in the state, with the title of the page.
+ */
+function frame_builder_ai_test_frame_builder_ai_instructions_alter(string &$instructions, NodeInterface $node): void {
+  $style = \Drupal::state()->get('frame_builder_ai_test.house_style');
+  if (is_string($style)) {
+    $instructions .= "\n\n# House style\n" . $style . ' (page: ' . $node->label() . ')';
+  }
+}

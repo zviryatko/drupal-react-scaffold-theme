@@ -1,0 +1,41 @@
+name: 'Frame Builder test theme'
+description: 'Subtheme of Frame for the tests of the page builder: known tokens and components.'
+type: theme
+base theme: frame
+core_version_requirement: ^11
+package: Testing
+
+regions:
+  header: Header
+  content: Content
+  footer: Footer
+  page_top: 'Page top'
+  page_bottom: 'Page bottom'
+
+# Tokens with values the tests know (ThemeKit).
+frame_builder:
+  uikit:
+    spacing:
+      s: 0.5rem
+      m: 1rem
+      l: 2rem
+    colors:
+      brand: { label: 'Brand', value: '#112233' }
+      paper: { label: 'Paper', value: '#ffffff' }
+    font_sizes:
+      s: 0.875rem
+      m: 1rem
+      l: 1.5rem
+    sizes:
+      s: 30rem
+      m: 45rem
+      full: 100%
+    image_styles:
+      - thumbnail
+  features:
+    spacing: true
+    size: true
+    align: true
+    text: true
+    background: true
+    position: true

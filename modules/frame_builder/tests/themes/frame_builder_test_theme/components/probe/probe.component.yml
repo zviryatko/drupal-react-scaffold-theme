@@ -1,0 +1,27 @@
+$schema: https://git.drupalcode.org/project/drupal/-/raw/HEAD/core/assets/schemas/v1/metadata.schema.json
+name: Probe
+description: 'A component with one prop of every kind the tests need.'
+group: Test
+props:
+  type: object
+  properties:
+    title:
+      type: string
+      title: Title
+      default: 'Probe title'
+    count:
+      type: integer
+      title: Count
+      default: 3
+    shown:
+      type: boolean
+      title: Shown
+      default: true
+    tone:
+      type: string
+      title: Tone
+      enum: [calm, loud]
+      default: calm
+slots:
+  content:
+    title: Content

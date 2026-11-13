@@ -1,0 +1,10 @@
+$schema: https://git.drupalcode.org/project/drupal/-/raw/HEAD/core/assets/schemas/v1/metadata.schema.json
+name: 'Catalog hidden'
+description: 'A component that is not for a user interface.'
+noUi: true
+props:
+  type: object
+  properties:
+    text:
+      type: string
+      title: Text

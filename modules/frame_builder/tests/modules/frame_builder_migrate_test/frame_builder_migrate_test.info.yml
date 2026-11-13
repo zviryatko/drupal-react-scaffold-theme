@@ -1,0 +1,5 @@
+name: 'Frame Builder migration test'
+description: 'Migrates the "mig-hook" test component in code, for LayoutMigratorTest.'
+type: module
+package: Testing
+core_version_requirement: ^11

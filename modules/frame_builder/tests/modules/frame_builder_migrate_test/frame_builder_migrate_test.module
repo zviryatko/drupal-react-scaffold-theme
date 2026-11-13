@@ -1,0 +1,25 @@
+<?php
+
+/**
+ * @file
+ * Migrates the "mig-hook" test component in code, for LayoutMigratorTest.
+ */
+
+declare(strict_types=1);
+
+/**
+ * Implements hook_frame_builder_item_migrate_alter().
+ *
+ * Version 2 of "mig-hook" split "name" into "first" and "last". Every call
+ * for the component is written to "_steps".
+ */
+function frame_builder_migrate_test_frame_builder_item_migrate_alter(array &$props, array $context): void {
+  if ($context['type'] !== 'frame_builder_test_theme:mig-hook') {
+    return;
+  }
+  $props['_steps'][] = 'module:' . $context['from'] . '>' . $context['to'];
+  if ($context['to'] === 2 && array_key_exists('name', $props)) {
+    [$props['first'], $props['last']] = explode(' ', (string) $props['name'], 2) + [1 => ''];
+    unset($props['name']);
+  }
+}

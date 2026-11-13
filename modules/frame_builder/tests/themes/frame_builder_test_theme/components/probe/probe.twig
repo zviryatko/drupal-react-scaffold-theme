@@ -1,0 +1,4 @@
+<div{{ attributes.addClass('probe', 'probe--' ~ tone) }} data-count="{{ count }}">
+  {% if shown %}<h2 class="probe__title">{{ title }}</h2>{% endif %}
+  <div class="probe__content">{% block content %}{% endblock %}</div>
+</div>

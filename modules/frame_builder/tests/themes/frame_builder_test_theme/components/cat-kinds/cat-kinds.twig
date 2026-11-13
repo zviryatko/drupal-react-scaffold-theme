@@ -1,0 +1,18 @@
+<div{{ attributes.addClass('cat-kinds') }}>
+  <span class="cat-kinds__plain">{{ plain }}</span>
+  <span class="cat-kinds__fixed">{{ fixed }}</span>
+  <span class="cat-kinds__long">{{ long }}</span>
+  <div class="cat-kinds__rich">{{ rich }}</div>
+  <div class="cat-kinds__pinned">{{ pinned }}</div>
+  <span class="cat-kinds__amount">{{ amount }}</span>
+  <span class="cat-kinds__whole">{{ whole }}</span>
+  <span class="cat-kinds__flag">{{ flag ? 'on' : 'off' }}</span>
+  <span class="cat-kinds__choice">{{ choice }}</span>
+  <a class="cat-kinds__link" href="{{ link }}">Link</a>
+  <div class="cat-kinds__picture" data-src="{{ picture }}" data-srcset="{{ picture_srcset }}" data-sizes="{{ picture_sizes }}" data-alt="{{ picture_alt }}">{{ picture_markup }}</div>
+  <span class="cat-kinds__tint">{{ tint }}</span>
+  <span class="cat-kinds__gap">{{ gap }}</span>
+  <span class="cat-kinds__maybe">{{ maybe }}</span>
+  <div class="cat-kinds__main">{% block main %}{% endblock %}</div>
+  <div class="cat-kinds__aside">{% block aside %}{% endblock %}</div>
+</div>

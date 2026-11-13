@@ -1,0 +1,13 @@
+$schema: https://git.drupalcode.org/project/drupal/-/raw/HEAD/core/assets/schemas/v1/metadata.schema.json
+name: Utility
+description: 'A part of other components, left out of the page builder by its theme.'
+group: Interface
+props:
+  type: object
+  properties:
+    label:
+      type: string
+      title: Label
+thirdPartySettings:
+  frame_builder:
+    offer: false

@@ -1,0 +1,35 @@
+$schema: https://git.drupalcode.org/project/drupal/-/raw/HEAD/core/assets/schemas/v1/metadata.schema.json
+name: 'Migrated card'
+description: 'A component at version 3 that declares every kind of migration step (LayoutMigratorTest).'
+group: Test
+props:
+  type: object
+  properties:
+    heading:
+      type: string
+      title: Heading
+    summary:
+      type: string
+      title: Summary
+    tone:
+      type: string
+      title: Tone
+      enum: [calm, loud]
+    url:
+      type: string
+      title: Link
+      format: uri-reference
+slots:
+  items:
+    title: Items
+thirdPartySettings:
+  frame_builder:
+    version: 3
+    migrations:
+      2:
+        rename: { title: heading }
+        values: { tone: { big: loud, 7: calm } }
+        defaults: { tone: calm }
+        remove: [subtitle]
+      3:
+        rename: { body: summary, children: items }

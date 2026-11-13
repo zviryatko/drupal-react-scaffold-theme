@@ -1,0 +1,43 @@
+name: 'Frame Builder catalog test theme'
+description: 'Subtheme of the test theme for the tests of the catalog and the tokens: replaced and hidden components, tokens that override a base theme and unsafe values.'
+type: theme
+base theme: frame_builder_test_theme
+core_version_requirement: ^11
+package: Testing
+
+regions:
+  header: Header
+  content: Content
+  footer: Footer
+  page_top: 'Page top'
+  page_bottom: 'Page bottom'
+
+# Font sizes and sizes are left to the base theme; the rest replaces it.
+frame_builder:
+  uikit:
+    spacing:
+      tiny: 4px
+      half: 50%
+      back: -1.5em
+      none: 0
+      bare: 12
+      sum: 'calc(1px + 1px)'
+      evil: '1px; color: red'
+      word: wide
+    colors:
+      ink: '#000'
+      primary: { label: 'Primary', value: 'rgb(1, 2, 3)' }
+      glass: { value: 'hsla(120, 50%, 50%, 0.5)' }
+      named: { label: 'Named', value: red }
+      'two words': { label: 'Two words', value: '#abcdef' }
+      script: { label: 'Script', value: 'url(javascript:alert(1))' }
+      expr: { label: 'Expression', value: 'expression(alert(1))' }
+      semi: { label: 'Semicolon', value: 'red; background: blue' }
+    image_styles:
+      - medium
+      - 'style:thumbnail'
+      - 'responsive:cat_wide'
+      - missing
+  features:
+    position: false
+    background: 0

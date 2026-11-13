@@ -1,0 +1,119 @@
+$schema: https://git.drupalcode.org/project/drupal/-/raw/HEAD/core/assets/schemas/v1/metadata.schema.json
+name: 'Schema probe'
+description: 'Ways a schema can say what a prop is, for the tests of how the builder reads them.'
+group: Test
+props:
+  type: object
+  properties:
+    id:
+      type: string
+      title: 'An id of the component'
+    kind:
+      const: fixed
+      title: Kind
+    either:
+      title: Either
+      oneOf:
+        - { type: 'null' }
+        - { type: integer, minimum: 1 }
+        - { type: string }
+    both:
+      title: Both
+      allOf:
+        - { type: string }
+        - { maxLength: 5 }
+    elsewhere:
+      title: Elsewhere
+      $ref: '#/$defs/thing'
+    unknown:
+      title: Unknown
+      anyOf:
+        - { $ref: '#/$defs/thing' }
+    flag:
+      type: boolean
+      title: Flag
+      enum: [true, false]
+    amount:
+      type: number
+      title: Amount
+      minimum: 0
+      maximum: 10
+      multipleOf: 0.5
+    code:
+      type: string
+      title: Code
+      pattern: '^[A-Z]{3}$'
+      minLength: 3
+    mail:
+      type: string
+      title: Mail
+      format: email
+    day:
+      type: string
+      title: Day
+      format: date
+    hour:
+      type: string
+      title: Hour
+      format: time
+    when:
+      type: string
+      title: When
+      format: date-time
+    tone:
+      type: string
+      title: Tone
+      enum: [calm, loud]
+    days:
+      type: array
+      title: Days
+      uniqueItems: true
+      items:
+        type: string
+        enum: [mon, tue, wed]
+        meta:enum: { mon: Monday, tue: Tuesday, wed: Wednesday }
+    mixed:
+      type: [integer, string]
+      title: Mixed
+    table:
+      type: array
+      title: Table
+      items:
+        type: array
+        title: Row
+        items: { type: string, title: Cell }
+    target:
+      type: object
+      title: Target
+      properties:
+        url: { type: string, title: Address, format: uri-reference }
+        window:
+          type: string
+          title: Window
+          enum: [_self, _blank]
+          default: _self
+    deep:
+      type: object
+      title: Deep
+      properties:
+        a:
+          type: object
+          title: A
+          properties:
+            b:
+              type: object
+              title: B
+              properties:
+                c:
+                  type: object
+                  title: C
+                  properties:
+                    d:
+                      type: object
+                      title: D
+                      properties:
+                        e: { type: string, title: E }
+                    here: { type: string, title: Here }
+thirdPartySettings:
+  frame_builder:
+    help: 'Help from the settings of the builder.'

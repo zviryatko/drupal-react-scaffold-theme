@@ -1,0 +1,5 @@
+<div{{ attributes.addClass('mig-card', 'mig-card--' ~ tone) }}>
+  <h3>{{ heading }}</h3>
+  <p>{{ summary }}</p>
+  <div class="mig-card__items">{% block items %}{% endblock %}</div>
+</div>

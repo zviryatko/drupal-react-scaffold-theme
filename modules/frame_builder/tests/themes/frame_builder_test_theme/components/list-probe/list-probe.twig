@@ -1,0 +1,12 @@
+<div{{ attributes.addClass('list-probe') }}>
+  {% for word in words %}<span class="list-probe__word">{{ word }}</span>{% endfor %}
+  {% for row in rows %}
+    <div class="list-probe__row list-probe__row--{{ row.tone|default('none') }}" data-count="{{ row.count }}"{% if row.shown %} data-shown{% endif %}>
+      {% if row.url %}<a href="{{ row.url }}">{{ row.label }}</a>{% else %}{{ row.label }}{% endif %}
+      <div class="list-probe__body">{{ row.body }}</div>
+    </div>
+  {% endfor %}
+  {% for size in sizes %}<i class="list-probe__size">{{ size }}</i>{% endfor %}
+  {% for shot in gallery %}<img class="list-probe__shot" src="{{ shot.picture.url }}" alt="{{ shot.picture.alt }}" width="{{ shot.picture.width }}" height="{{ shot.picture.height }}" data-srcset="{{ shot.picture.srcset }}" title="{{ shot.caption }}">{% endfor %}
+  {% if figure %}<figure>{% if figure.image %}<img src="{{ figure.image }}" alt="">{% endif %}<figcaption>{{ figure.caption }}</figcaption></figure>{% endif %}
+</div>

@@ -1,0 +1,23 @@
+$schema: https://git.drupalcode.org/project/drupal/-/raw/HEAD/core/assets/schemas/v1/metadata.schema.json
+name: 'Catalog divider'
+description: 'The divider of this theme: it replaces the one of Frame.'
+group: Layout
+replaces: 'frame:divider'
+props:
+  type: object
+  properties:
+    style:
+      type: string
+      title: Line
+      enum: [solid, dashed, dotted]
+      examples: [solid]
+    width:
+      type: string
+      title: Width
+      enum: [full, half, short]
+      examples: [full]
+    space:
+      type: string
+      title: 'Space above and below'
+      x-builder-widget: length
+      examples: ['2rem']

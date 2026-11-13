@@ -1,0 +1,7 @@
+name: 'Frame Builder AI test'
+type: module
+description: 'A chat provider that answers from a script, and an implementation of the instructions hook, for the tests of the assistant.'
+package: Testing
+core_version_requirement: ^11
+dependencies:
+  - frame_builder:frame_builder_ai

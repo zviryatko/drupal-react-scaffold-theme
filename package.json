@@ -35,7 +35,8 @@
     "builder:install": "npm --prefix modules/frame_builder/editor ci",
     "builder:build": "npm --prefix modules/frame_builder/editor run build",
     "builder:watch": "npm --prefix modules/frame_builder/editor run watch",
-    "builder:smoke": "npm --prefix demo run builder-smoke"
+    "builder:smoke": "npm --prefix demo run builder-smoke",
+    "builder:e2e": "npm --prefix demo run e2e"
   },
   "bin": {
     "frame": "bin/frame.mjs"
