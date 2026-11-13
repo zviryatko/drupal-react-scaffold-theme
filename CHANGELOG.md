@@ -33,6 +33,89 @@ The public API of the base theme, which follows semantic versioning:
   settings of a group have **Icon in the page builder** (a name of the editor's icon set or classes of an icon font;
   without one the button shows the initials of the label). `drupalSettings.frameBuilder.sections` is now a list of
   `{ name, label, icon }`. The recipe `frame_builder_field_group` installs the module; `frame_builder_full` includes it.
+- Page builder: **lists and groups**. A prop of the type `array` is a field with several values, as a multiple value
+  field of Drupal and drawn as Claro draws one: a table with the label in its header, a row per value with a handle,
+  the field of its kind (or the fields of an object) and Remove, *Add another item*, *Show row weights* with an Order
+  column, the marks and the warning of a changed order, and the column scrolls while dragging near its edge. A prop of the type `object` is a group of fields. Tokens, links to content,
+  rich text and images work inside them; the AI assistant fills them; in the synced translation mode a list is
+  translated as a whole. New base component **Links** (`frame:link-list`).
+- Page builder: **what a component requires is checked when a page is saved**: props listed under `required`, also
+  in the values of lists and in groups, and `minItems`. The message names the component and the field. A page with a
+  required prop that is empty must be completed before it can be saved again.
+- Page builder, **schemas of props** (from audits of two design systems): `oneOf`, `anyOf` and `allOf` are read (one
+  part, or all together) instead of becoming a text field that loses its value; `const` has no field and is always
+  passed; a prop named `id` no longer receives the id of the layout item; a yes/no `enum` is a checkbox; a number or a
+  text (`type: [integer, string]`) keeps texts; `format: date`, `time`, `email` have their inputs; a list of an `enum`
+  is checkboxes; limits of the schema (`minimum`, `maxLength`, `pattern`, `uniqueItems`…) and choices are checked on
+  save; a choice that is no longer one of the `enum` is not passed; empty cells keep their place in a list of lists; a
+  group with nothing set is not passed; text in square brackets that is no token of Drupal is no longer deleted.
+- Page builder, lists: `examples` of `items` is what a new value starts with; `x-builder-summary` names the property
+  shown for a folded value; an image can be an object (`type: object`, `x-builder-widget: image`) with `url`, `alt`,
+  `width`, `height`, `srcset` and `sizes`. `MediaItems::resolve()` also gives `width` and `height`.
+- Page builder: a **Border** feature on every component: a width of the theme on the sides chosen, a line style, a colour
+  of the palette, and rounded corners, per breakpoint too. New tokens `border_widths` and `radii` (with defaults), as
+  `--frame-border-*` and `--frame-radius-*`, `frame.border-width()` and `frame.radius()` in SCSS, and
+  `.frame-border-*`, `.frame-rounded-*` classes; the AI assistant can set borders.
+- Page builder: the title of the right column shows a house that goes back to the page and the component the selected
+  one is in, small, above its name, in place of Puck's breadcrumbs.
+- Page builder: a component can be left out of the list of blocks by the site (*Components of the page builder* under
+  Content authoring) or by its theme (`thirdPartySettings.frame_builder.offer: false`); pages that have it still show it.
+- Page builder: messages of the editor are notifications at the bottom right; the widths of the canvas are a bar across
+  its top; Full width fills the space between the panels.
+- Page builder: **Structure** has a search at its top that opens the tree to the component found and selects it, and
+  several components are selected with Ctrl/Cmd + click,
+  Shift + click or Shift + arrows, put into a new component of the group Layout with **+**, moved together (dragged,
+  buttons or Alt + arrows) and deleted together (the panel, the Delete key, or **Delete *n*** in the header). Each is one step
+  of Undo. Undo and redo keep the side panel that is open.
+- Page builder: a component can have **help** for editors (`help:` in its `*.component.yml`, or
+  `thirdPartySettings.frame_builder.help`): a **?** at the end of its name in the right column opens it. Columns, Hero,
+  Button and Links have one.
+- Page builder: the suggestions of a link field are chosen with the arrow keys, Enter or Tab, and closed with Escape.
+- Page builder: the breakpoints are tabs in the look of Claro's tabs, above the features and at the top of the canvas;
+  choosing one makes the canvas as wide as that breakpoint starts.
+- Page builder: text, link and plain long text fields have two buttons at their end, shown on hover and focus: **T**
+  opens the list of tokens (filtered by every word typed) and inserts the one picked where the caret was, **×** clears
+  the field. Email fields have **×**. They replace the *Browse available tokens* link under each field; typing `[`
+  still suggests tokens. The selected component's bar (name, duplicate, delete) is no longer under the header; long names in the Blocks
+  panel take two lines; paired controls stack in a narrow column; a long choice of a select is its tooltip.
+- Page builder: **layout and style per breakpoint**. Spacing, size, alignment, text and background of a component can
+  differ from a breakpoint of the theme on (*All*, *Tablet*, *Desktop* above the features). The canvas shows the
+  breakpoint being edited; on the page they are media query rules. `drupalSettings.frameBuilder.breakpoints`,
+  `ThemeKit::breakpoints()`, `ComponentFeatures::responsive()`.
+- Page builder: **Size** sets width and height each *at most*, *at least* or *exactly*; *Advanced* shows the four that
+  are not shown at first, *Simple* hides and clears them, *Reset* clears every size. The format of layouts is
+  version 2: `_size.width` and `_size.height` of saved layouts are read as `max_width` and `min_height`.
+- Page builder: **content export and import**. Layouts are part of Drupal's content export (`content:export`, the
+  `content` folder of a recipe): the layout is exported as a readable document, the media, pages, paragraphs and saved
+  blocks it refers to are named by UUID and exported as dependencies of the page, and an import gives them the ids of
+  the importing site.
+- Page builder: the selected item, the heading above its fields and the Structure tree name the group an item comes
+  from: *Fields: Title*, *Layout: Columns*, *Views: …*.
+- Page builder: the **Content** panel is left out when the content type has no fields to edit in it.
+- **Tests of the page builder.** PHPUnit Kernel and Functional tests for `frame_builder` and `frame_builder_ai`
+  (`modules/frame_builder/tests`, run with `tests/run.sh`; the plan of what is covered is `tests/README.md`), and
+  Playwright tests of the editor's workflows (`demo/e2e`, `npm run builder:e2e`): build and publish, unsaved work,
+  revisions, translations, paragraphs and the library, field groups, moderation, preview.
+- Page builder, found by those tests and by trial themes over two design systems:
+  - synced translations: a default of a component migration no longer replaces the original's text in a translation;
+    a translation that differs from the original only as text ("10" and "10.0") is stored,
+  - link suggestions leave out unpublished content the user may not view; the image search and the media library frame
+    ask for the right to view media; the media library frame answers 404 without Media Library and 400 without a state,
+  - the editor of the original says that its structure is shared as soon as a translation exists,
+  - a new page made by someone who may not use the builder stays on the page,
+  - a component the theme replaced still renders in layouts that name it, and is known to the editor without being
+    offered; a replacement with `noUi: true` hides the base component, as documented,
+  - Entity Usage: what a paragraph of a layout uses counts for its page (the plugin of Entity Usage 5 was not found),
+  - an image picked with an image style depends on that style (cache tags); a custom image link to content that has no
+    page is no link instead of an error; a spacing, size or font size token of `0` is kept,
+  - the React component style of Views ignores extra props that are no JSON object; the *Component* display of Views
+    has a config schema,
+  - the preview marks the chosen width; checkboxes of the editor keep their look under a reset of the theme.
+- Page builder AI: the **Size** of an item is applied; a choice given as a number is the option; date tokens are listed
+  without the Token module; the media search asks for the right to view media.
+- Base theme: wide content no longer widens `.page__columns`.
+- Base theme: templates of themes kept inside the folder of Frame (`examples/`) that are not installed are no longer
+  used by other themes based on Frame.
 - Page builder: an image of a Field block (an image field, a media item) is never wider than the place the block is in.
   Labels in the rail of the editor are a little smaller and wrap, so a long name of a panel stays inside.
 - Page builder: an empty required field no longer leaves a save waiting for half a minute. The browser's own check of

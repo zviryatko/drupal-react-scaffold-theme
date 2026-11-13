@@ -3,6 +3,10 @@ name: Columns
 status: experimental
 description: 'Places what is put in it side by side, in a number of columns. Every item is one cell; more items than columns continue on the next row.'
 group: Layout
+help: |
+  Puts what you drop into it side by side: one block per column, in order. On a phone the columns are one under the other unless "One column on small screens" is off.
+
+  For more than one row, add a second Columns, or use Flex for items that wrap.
 props:
   type: object
   properties:

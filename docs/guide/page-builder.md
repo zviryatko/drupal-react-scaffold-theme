@@ -59,13 +59,36 @@ For such a content type:
 
 | Where | What |
 |---|---|
-| Left: **Content**, **Menu** | The fields of the page and its menu settings. This is Drupal's node form, with every widget. |
+| Left: **Content**, **Menu** | The fields of the page and its menu settings. This is Drupal's node form, with every widget. A content type without fields of its own (Landing page: its title is in the page settings) has no Content panel. |
 | Left: your **field groups** | With the [Field Group](https://www.drupal.org/project/field_group) module, each top-level group of the form is a panel of its own. See [Field groups](#field-groups). |
 | Left: **Blocks** | What can be placed: your components by group, **Fields** of the page, **Views**, Drupal **Blocks**. The search at the top forgives typos. |
-| Left: **Structure** | The tree of the layout. |
+| Left: **Structure** | The tree of the layout, where several components can be selected and moved, deleted or put into a layout together. See [Structure](#structure). |
 | Left: **AI** | With the module *Frame Builder AI*: a chat that composes the page from your components. See [AI assistant](/builder/ai). |
 | Right | The selected component: its fields, then **Layout and style** (spacing, alignment, background, position). With nothing selected: the **page settings** (title, state, URL alias, authoring…), also Drupal's node form. |
 | Top | Undo, redo and **History** (a timeline of the changes since the page was opened or saved; click a step to go to it), **Preview** (or **View** when nothing is unsaved), **Publish**, **Draft**, **Delete**. |
+
+### Structure
+
+The **Structure** panel shows the components of the page as a tree. A click selects one, as a click on the canvas does.
+
+The field **Search the page** at its top finds a component by its name or its text: as you type, the first one found is
+opened in the tree, selected and scrolled to on the canvas. Enter or down goes to the next one, up to the one before,
+Escape empties the field.
+
+To work on several at once:
+
+| To | Do |
+|---|---|
+| add one to the selection, or take it away | Ctrl + click (Cmd + click on a Mac) |
+| select all from the last one clicked | Shift + click |
+| go through the tree | up and down; with Shift the selection grows |
+| put them into a new layout component (Columns, Stack, Section…) | **+** in the panel's title and the component: it takes the place of the first one, and they are in its first slot, in their order |
+| move them together | drag one of them, in the tree or on the canvas: the others follow it; or the arrows next to **Collapse all** in the panel's title, or Alt + up and down |
+| delete them | the bin next to **Collapse all**, the Delete key, or **Delete *n*** in the header |
+| select one again | a click on a component without a key, in the panel or on the canvas; Escape |
+
+Each of these is one step of **Undo**. The selected components are outlined on the canvas. On a translation that shares
+its structure, components can be selected but not moved, put together or deleted.
 
 ### Field groups
 

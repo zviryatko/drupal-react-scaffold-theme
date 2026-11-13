@@ -1,0 +1,5 @@
+frame_builder.components:
+  title: 'Components of the page builder'
+  description: 'Choose which components of the theme the page builder offers.'
+  parent: system.admin_config_content
+  route_name: frame_builder.components

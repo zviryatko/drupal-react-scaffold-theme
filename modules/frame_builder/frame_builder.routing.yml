@@ -188,3 +188,12 @@ frame_builder.paragraph_form:
     parameters:
       node:
         type: entity:node
+
+# Which components of the theme the page builder offers.
+frame_builder.components:
+  path: '/admin/config/content/frame-builder/components'
+  defaults:
+    _form: '\Drupal\frame_builder\Form\ComponentsForm'
+    _title: 'Components of the page builder'
+  requirements:
+    _permission: 'administer site configuration'

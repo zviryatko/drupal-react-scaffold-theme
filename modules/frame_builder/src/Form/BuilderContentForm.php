@@ -45,8 +45,8 @@ class BuilderContentForm extends NodeForm {
   /**
    * The panels of the fields part, for the editor.
    *
-   * "content" for the fields that are in no group (always there without
-   * groups), then one per top-level group of the Field Group module that has
+   * "content" for the fields that are in no group, when there are any, then
+   * one per top-level group of the Field Group module that has
    * fields of this part. Same rules as limitToPart(), without building the
    * form: fields of the node type the user may edit count, base fields and
    * what modules add to the form are in the sidebar (the Page part).
@@ -73,7 +73,9 @@ class BuilderContentForm extends NodeForm {
       $used[$layout['sections'][$name] ?? 'content'] = TRUE;
     }
     $panels = array_intersect_key($layout['panels'], $used);
-    $sections = !$panels || !empty($used['content']) ? [['name' => 'content']] : [];
+    // A content type whose fields are all in the page settings (or in
+    // groups) has no Content panel: there would be nothing in it.
+    $sections = !empty($used['content']) ? [['name' => 'content']] : [];
     foreach ($panels as $name => $group) {
       $sections[] = [
         'name' => $name,

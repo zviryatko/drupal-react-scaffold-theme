@@ -26,6 +26,7 @@ a description, an icon and an example for the editor and the [AI assistant](/bui
 | **Heading** | A heading on its own, with an optional line above | level H1–H4 (the outline), size (the look) |
 | **Text** | Formatted text, with the editor of a Drupal text format | — |
 | **Image** | An image of the media library | image style, loading, link, caption |
+| **Links** | A list of links: related pages, downloads, a footer column | heading; the links (text, link, new tab), added and ordered in a list; one per line or in a row; arrow, dot or no marker |
 | **Button** | A link that looks like a button | filled, outline, text; size; colour of the palette; new tab |
 | **Card** | Picture, heading with an optional link, free content | slot *Content* |
 | **Quote** | A testimonial or pull quote with its source | name, role, portrait, size |

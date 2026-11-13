@@ -27,9 +27,13 @@ use Drupal\Core\Theme\ThemeManagerInterface;
  *     font_sizes: { s: 0.875rem, m: 1rem, l: 1.25rem, xl: 1.5rem }
  *     # Sizes: name => CSS length. How wide and how tall a component can be.
  *     sizes: { s: 30rem, m: 45rem, l: 60rem, xl: 75rem, full: 100% }
+ *     # Widths of a border: name => CSS length.
+ *     border_widths: { thin: 1px, medium: 2px, thick: 4px }
+ *     # Rounding of corners: name => CSS length.
+ *     radii: { s: 0.25rem, m: 0.5rem, l: 1rem, full: 9999px }
  *   # Features offered on every component (a component.yml can override,
  *   # see ComponentFeatures).
- *   features: { spacing: true, size: true, align: true, text: true, background: true, position: true }
+ *   features: { spacing: true, size: true, align: true, text: true, background: true, border: true, position: true }
  * @endcode
  *
  * Editors never type free values for colours; lengths are a token, or a
@@ -46,8 +50,10 @@ class ThemeKit {
       'colors' => [],
       'font_sizes' => ['xs' => '0.75rem', 's' => '0.875rem', 'm' => '1rem', 'l' => '1.25rem', 'xl' => '1.5rem', '2xl' => '2rem', '3xl' => '3rem'],
       'sizes' => ['xs' => '20rem', 's' => '30rem', 'm' => '45rem', 'l' => '60rem', 'xl' => '75rem', 'full' => '100%'],
+      'border_widths' => ['thin' => '1px', 'medium' => '2px', 'thick' => '4px'],
+      'radii' => ['s' => '0.25rem', 'm' => '0.5rem', 'l' => '1rem', 'full' => '9999px'],
     ],
-    'features' => ['spacing' => TRUE, 'size' => TRUE, 'align' => TRUE, 'text' => TRUE, 'background' => TRUE, 'position' => TRUE],
+    'features' => ['spacing' => TRUE, 'size' => TRUE, 'align' => TRUE, 'text' => TRUE, 'background' => TRUE, 'border' => TRUE, 'position' => TRUE],
   ];
 
   public function __construct(
@@ -95,7 +101,7 @@ class ThemeKit {
     foreach ($extensions as $extension) {
       $own = $extension->info['frame_builder'] ?? [];
       // A scale or palette is replaced as a whole: it is an ordered set.
-      foreach (['spacing', 'colors', 'image_styles', 'font_sizes', 'sizes'] as $key) {
+      foreach (['spacing', 'colors', 'image_styles', 'font_sizes', 'sizes', 'border_widths', 'radii'] as $key) {
         if (isset($own['uikit'][$key]) && is_array($own['uikit'][$key])) {
           $settings['uikit'][$key] = $own['uikit'][$key];
         }
@@ -109,14 +115,14 @@ class ThemeKit {
    * The spacing scale: name => CSS length, smallest first as declared.
    */
   public function spacing(): array {
-    return array_filter(array_map(fn ($value) => $this->cssLength((string) $value), $this->settings()['uikit']['spacing']));
+    return array_filter(array_map(fn ($value) => $this->cssLength((string) $value), $this->settings()['uikit']['spacing']), static fn ($length) => $length !== NULL);
   }
 
   /**
    * The type scale: name => CSS length, smallest first as declared.
    */
   public function fontSizes(): array {
-    return array_filter(array_map(fn ($value) => $this->cssLength((string) $value), $this->settings()['uikit']['font_sizes']));
+    return array_filter(array_map(fn ($value) => $this->cssLength((string) $value), $this->settings()['uikit']['font_sizes']), static fn ($length) => $length !== NULL);
   }
 
   /**
@@ -124,7 +130,93 @@ class ThemeKit {
    * declared.
    */
   public function sizes(): array {
-    return array_filter(array_map(fn ($value) => $this->cssLength((string) $value), $this->settings()['uikit']['sizes']));
+    return array_filter(array_map(fn ($value) => $this->cssLength((string) $value), $this->settings()['uikit']['sizes']), static fn ($length) => $length !== NULL);
+  }
+
+  /**
+   * The widths a border can have: name => CSS length, thinnest first.
+   */
+  public function borderWidths(): array {
+    return $this->scale('border_widths');
+  }
+
+  /**
+   * How round corners can be: name => CSS length, least first.
+   */
+  public function radii(): array {
+    return $this->scale('radii');
+  }
+
+  /**
+   * A width of a border as the editor stores a choice: a name of the scale or
+   * a custom length. NULL when it is neither.
+   */
+  public function borderWidth(mixed $value): ?string {
+    return $this->choice($value, $this->borderWidths());
+  }
+
+  /**
+   * A rounding of corners as the editor stores a choice. NULL when none.
+   */
+  public function radius(mixed $value): ?string {
+    return $this->choice($value, $this->radii());
+  }
+
+  /**
+   * A scale of the kit with only valid lengths.
+   */
+  protected function scale(string $key): array {
+    return array_filter(array_map(fn ($value) => $this->cssLength((string) $value), (array) ($this->settings()['uikit'][$key] ?? [])), static fn ($length) => $length !== NULL);
+  }
+
+  /**
+   * ['size' => name | 'custom', 'custom' => length] as a CSS length of a scale.
+   */
+  protected function choice(mixed $value, array $scale): ?string {
+    $size = is_array($value) ? (string) ($value['size'] ?? '') : (string) $value;
+    if ($size === 'custom') {
+      return $this->cssLength((string) ($value['custom'] ?? ''));
+    }
+    return $scale[$size] ?? NULL;
+  }
+
+  /**
+   * The breakpoints of the theme that start at a width: those a component
+   * can have its own layout and style from (Drupal's Breakpoint module,
+   * <theme>.breakpoints.yml, of the active theme or the first base theme
+   * that has any). Narrowest first.
+   *
+   * @return array
+   *   By the name of the breakpoint without its theme ("tablet"): 'label',
+   *   'query' (its media query) and 'width' (pixels it starts at).
+   */
+  public function breakpoints(): array {
+    if (!$this->moduleHandler->moduleExists('breakpoint')) {
+      return [];
+    }
+    $theme = $this->themeManager->getActiveTheme();
+    foreach (array_merge([$theme->getName()], array_keys($theme->getBaseThemeExtensions())) as $group) {
+      $found = [];
+      foreach (\Drupal::service('breakpoint.manager')->getBreakpointsByGroup($group) as $id => $breakpoint) {
+        $query = trim(preg_replace('/[{}<>;]/', '', (string) $breakpoint->getMediaQuery()));
+        // Without a query it is every width: what a component has anyway.
+        if ($query === '' || !preg_match('/min-width:\s*([\d.]+)(px|em|rem)/', $query, $match)) {
+          $all = TRUE;
+          continue;
+        }
+        $name = preg_replace('/[^a-z0-9_]/', '_', strtolower(substr((string) $id, strrpos((string) $id, '.') + (str_contains((string) $id, '.') ? 1 : 0))));
+        $found[$name] = [
+          'label' => (string) $breakpoint->getLabel(),
+          'query' => $query,
+          'width' => (int) round($match[1] * ($match[2] === 'px' ? 1 : 16)),
+        ];
+      }
+      if ($found || !empty($all)) {
+        uasort($found, static fn (array $a, array $b): int => $a['width'] <=> $b['width']);
+        return $found;
+      }
+    }
+    return [];
   }
 
   /**

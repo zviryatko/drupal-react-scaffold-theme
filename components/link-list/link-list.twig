@@ -1,0 +1,18 @@
+{#
+/**
+ * @file
+ * Links: a heading and a list of links. `links` is a list of { label, url, new_tab }.
+ */
+#}
+<nav {{ attributes.addClass('link-list', 'link-list--' ~ layout|default('stacked'), 'link-list--' ~ marker|default('arrow')) }}{% if heading %} aria-label="{{ heading }}"{% endif %}>
+  {% if heading %}<h3 class="link-list__heading">{{ heading }}</h3>{% endif %}
+  {% if links %}
+    <ul class="link-list__items">
+      {% for link in links %}
+        {% if link.label and link.url %}
+          <li class="link-list__item"><a class="link-list__link" href="{{ link.url }}"{% if link.new_tab %} target="_blank" rel="noopener"{% endif %}>{{ link.label }}</a></li>
+        {% endif %}
+      {% endfor %}
+    </ul>
+  {% endif %}
+</nav>

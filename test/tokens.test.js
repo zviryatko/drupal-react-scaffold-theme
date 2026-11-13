@@ -39,6 +39,7 @@ frame_builder:
       brand: { label: Brand, value: '#123456' }
       plain: '#fff'
       evil: 'url(x)'
+    radii: { s: 2px, round: 50%, bad: 'x' }
   features: { position: false }
 `, `my_theme.small:
   label: Small
@@ -57,7 +58,10 @@ my_theme.wide:
     expect(scss).toContain("$breakpoints: ('small': '', 'wide': 'all and (min-width: 60em)');");
     // Not declared by the theme: the default type scale. Features are merged over the defaults.
     expect(scss).toContain("'2xl': 2rem");
-    expect(scss).toContain("'text': true, 'background': true, 'position': false");
+    expect(scss).toContain("'text': true, 'background': true, 'border': true, 'position': false");
+    // Border widths: the defaults; corner radii: the theme's, without what is not a length.
+    expect(scss).toContain("$border-widths: ('thin': 1px, 'medium': 2px, 'thick': 4px);");
+    expect(scss).toContain("$radii: ('s': 2px, 'round': 50%);");
   });
 
   it('gives functions, a breakpoint mixin and the rules of the builder features', () => {

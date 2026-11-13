@@ -13,7 +13,7 @@ function Item({ component, disabled, group }) {
       {() => (
         <div className={`frame-builder-block${disabled ? ' is-disabled' : ''}`} title={component.description || component.label}>
           <BlockIcon icon={component.icon} />
-          <span className="frame-builder-block__label">{component.label}{group && <small>{group}</small>}</span>
+          <span className="frame-builder-block__label" title={group ? `${component.label} (${group})` : component.label}>{component.label}{group && <small>{group}</small>}</span>
           <svg className="frame-builder-block__grip" width="8" height="14" viewBox="0 0 8 14" aria-hidden="true">
             {[1, 7].flatMap((x) => [1.5, 7, 12.5].map((y) => <circle key={`${x}-${y}`} cx={x} cy={y} r="1.2" fill="currentColor" />))}
           </svg>

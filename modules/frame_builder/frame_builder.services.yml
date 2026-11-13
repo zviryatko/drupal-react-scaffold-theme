@@ -1,7 +1,7 @@
 services:
   frame_builder.catalog:
     class: Drupal\frame_builder\ComponentCatalog
-    arguments: ['@plugin.manager.sdc', '@theme.manager', '@module_handler', '@entity_type.manager', '@plugin.manager.field.formatter', '@plugin.manager.field.field_type', '@plugin.manager.block', '@frame_builder.features', '@frame_builder.library', '@frame_builder.paragraphs']
+    arguments: ['@plugin.manager.sdc', '@theme.manager', '@module_handler', '@entity_type.manager', '@plugin.manager.field.formatter', '@plugin.manager.field.field_type', '@plugin.manager.block', '@frame_builder.features', '@frame_builder.library', '@frame_builder.paragraphs', '@config.factory']
   frame_builder.layouts:
     class: Drupal\frame_builder\LayoutStorage
     arguments: ['@frame_builder.catalog', '@frame_builder.migrator', '@frame_builder.paragraphs']
@@ -45,3 +45,9 @@ services:
   frame_builder.field_drafts:
     class: Drupal\frame_builder\FieldDrafts
     arguments: ['@tempstore.private']
+  # Layouts in Drupal's content export and import (content:export, the content of a recipe).
+  frame_builder.content_export:
+    class: Drupal\frame_builder\EventSubscriber\ContentExport
+    arguments: ['@entity_type.manager', '@entity.repository']
+    tags:
+      - { name: event_subscriber }

@@ -1,3 +1,14 @@
+frame_builder.settings:
+  type: config_object
+  label: 'Page builder settings'
+  mapping:
+    hidden_components:
+      type: sequence
+      label: 'Components the page builder does not offer'
+      sequence:
+        type: string
+        label: 'Component id'
+
 views.style.frame_component:
   type: views_style
   label: 'React component (SDC)'
@@ -39,3 +50,7 @@ field.formatter.settings.frame_builder_media_responsive:
     image_loading:
       type: string
       label: 'Image loading'
+
+views.display.frame_builder:
+  type: views_display
+  label: 'Component display of the page builder'

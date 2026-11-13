@@ -6,6 +6,66 @@ import { getJson, postJson, settings } from './api';
 import { ImagePicker, imageUrl } from './fields';
 import { dropSavedBlock, fromSavedItem, linkedItem, putSavedBlock, savedBlock, toSavedItem } from './library';
 import { toDrupalType } from './types';
+import { joinValue, setBreakpoint, splitValue, useBreakpoint } from './breakpoint';
+
+const breakpoints = settings.breakpoints || [];
+const breakpointLabel = (id) => breakpoints.find((entry) => entry.id === id)?.label || id;
+
+/**
+ * Which breakpoint of the theme the layout and style are edited for: every width, or from a breakpoint on. Shown
+ * once, above the features of a component.
+ */
+/**
+ * The breakpoints of the theme as tabs, in the look of Claro's secondary tabs: All (every width), then each breakpoint
+ * that starts at a width. Above the features of a component and at the top of the canvas; both show the same choice.
+ * `widths`: the tabs say from which width a breakpoint starts.
+ */
+export function BreakpointTabs({ widths = false, label = 'Width the layout and style are for' }) {
+  const current = useBreakpoint();
+  if (!breakpoints.length) return null;
+  const options = [
+    { id: '', label: widths ? 'Full width' : 'All', title: widths ? 'The whole width of the canvas, with what components have at every width' : 'At every width' },
+    ...breakpoints.map((entry) => ({ ...entry, title: `From ${entry.width}px on: what is set here replaces what the component has at every width` })),
+  ];
+  // The arrow keys go from tab to tab, as in a tab list.
+  const keys = (event, index) => {
+    const step = { ArrowRight: 1, ArrowLeft: -1, ArrowDown: 1, ArrowUp: -1 }[event.key];
+    if (!step) return;
+    event.preventDefault();
+    const next = options[(index + step + options.length) % options.length];
+    setBreakpoint(next.id);
+    event.currentTarget.parentElement.children[options.indexOf(next)]?.focus();
+  };
+  return (
+    <div className={`frame-builder-tabs${widths ? ' frame-builder-tabs--canvas' : ''}`} role="tablist" aria-label={label}>
+      {options.map((option, index) => (
+        <button type="button" role="tab" key={option.id} className={`frame-builder-tabs__tab${current === option.id ? ' is-active' : ''}`}
+                aria-selected={current === option.id} tabIndex={current === option.id ? 0 : -1} title={option.title}
+                onClick={() => setBreakpoint(option.id)} onKeyDown={(event) => keys(event, index)}>
+          <span className="frame-builder-tabs__label">{option.label}</span>
+          {widths && option.width && <span className="frame-builder-tabs__width">{option.width}px</span>}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+function BreakpointSwitch() {
+  return <BreakpointTabs />;
+}
+
+/**
+ * Makes a feature editable per breakpoint: the widget gets the value of the breakpoint being edited and changes only
+ * that. `plain`: the value of the feature is a word, not an object.
+ */
+const responsive = (Widget, plain = false) => function Responsive(props) {
+  const at = useBreakpoint();
+  const { base, overrides } = splitValue(props.value, plain);
+  const change = (next) => props.onChange(at ? joinValue(base, { ...overrides, [at]: next }, plain) : joinValue(next, overrides, plain));
+  const others = Object.keys(overrides).filter((id) => id !== at && breakpoints.some((entry) => entry.id === id));
+  // A widget of its own per breakpoint: what is open and typed belongs to one of them.
+  return <Widget {...props} key={`${props.id}-${at}`} value={at ? overrides[at] ?? (plain ? '' : null) : base} onChange={change} field={{ ...props.field, at, others }} />;
+};
 
 /**
  * A feature as a section that folds: closed while nothing is set in it, open when something is, so a component
@@ -18,10 +78,13 @@ function Feature({ field, changed, summary, children }) {
   return (
     <div className="frame-builder-form-item">
       {field.heading && <div className="frame-builder-form-heading">{field.heading}</div>}
+      {field.heading && <BreakpointSwitch />}
       <details className={`frame-builder-feature${changed ? ' is-changed' : ''}`} open={open} onToggle={(event) => setOpen(event.currentTarget.open)}>
         <summary className="frame-builder-feature__title">
           {field.label}
+          {field.at && <span className="frame-builder-feature__at">from {breakpointLabel(field.at)}</span>}
           {changed && <span className="frame-builder-feature__summary">{summary}</span>}
+          {field.others?.length > 0 && <span className="frame-builder-feature__summary">{field.at ? 'also' : 'differs'} from {field.others.map(breakpointLabel).join(', ')}</span>}
         </summary>
         <div className="frame-builder-feature__body">
           {children}
@@ -60,7 +123,7 @@ export function LengthPicker({ id, value, onChange, sizes, readOnly, label, auto
 const SIDES = [['all', 'All sides'], ['horizontal', 'Horizontal'], ['vertical', 'Vertical']];
 
 /** Margin and padding. Value: `{ margin: { size, custom, sides }, padding: { ... } }`. */
-export function SpacingWidget({ id, value, onChange, readOnly, field }) {
+function SpacingFields({ id, value, onChange, readOnly, field }) {
   const current = value || {};
   const row = (property, label) => {
     const part = current[property] || {};
@@ -87,33 +150,67 @@ export function SpacingWidget({ id, value, onChange, readOnly, field }) {
   );
 }
 
+const DIMENSIONS = [
+  ['max_width', 'Width, at most', 'max width'],
+  ['min_width', 'Width, at least', 'min width'],
+  ['exact_width', 'Width, exactly', 'width'],
+  ['min_height', 'Height, at least', 'min height'],
+  ['max_height', 'Height, at most', 'max height'],
+  ['exact_height', 'Height, exactly', 'height'],
+];
+
 /**
- * How large the component is: at most this wide, at least this tall. Each is one of the theme's sizes
- * (`uikit.sizes`) or a custom length. Value: `{ width: { size, custom }, height: { size, custom } }`.
+ * How large the component is: its width and its height, each at most, at least or exactly one of the theme's sizes
+ * (`uikit.sizes`) or a custom length. Value: `{ max_width: { size, custom }, min_height: { size, custom }, ... }`.
+ * "At most" is the one for most widths: on a narrow screen the component is then as wide as its place.
  */
-export function SizeWidget({ id, value, onChange, readOnly, field }) {
+function SizeFields({ id, value, onChange, readOnly, field }) {
   const current = value || {};
-  const row = (property, label) => {
+  const row = ([property, label]) => {
     const set = (next) => {
       const all = { ...current, [property]: next?.size ? next : undefined };
       const kept = Object.fromEntries(Object.entries(all).filter(([, part]) => part?.size));
       onChange(Object.keys(kept).length ? kept : null);
     };
     return (
-      <div className="frame-builder-feature__field">
+      <div className="frame-builder-feature__field" key={property}>
         <label className="frame-builder-label" htmlFor={`${id}-${property}`}>{label}</label>
         <LengthPicker id={`${id}-${property}`} label={label} value={current[property] || {}} sizes={field.sizes || []} readOnly={readOnly} onChange={set} />
       </div>
     );
   };
-  const set = ['width', 'height'].filter((property) => current[property]?.size);
+  const set = DIMENSIONS.filter(([property]) => current[property]?.size);
+  // The two that most components need are always there; the others in Advanced, open when one of them has a value.
+  const simple = ['max_width', 'min_height'];
+  const [advanced, setAdvanced] = useState(set.some(([property]) => !simple.includes(property)));
+  const shown = DIMENSIONS.filter(([property]) => advanced || simple.includes(property));
+  const keep = (properties) => {
+    const kept = Object.fromEntries(Object.entries(current).filter(([property, part]) => properties.includes(property) && part?.size));
+    onChange(Object.keys(kept).length ? kept : null);
+  };
   return (
-    <Feature field={field} changed={set.length > 0} summary={set.map((property) => `${property} ${sizeText(current[property])}`).join(', ')}>
-      {row('width', 'Width, at most')}
-      {row('height', 'Height, at least')}
+    <Feature field={field} changed={set.length > 0} summary={set.map(([property, , short]) => `${short} ${sizeText(current[property])}`).join(', ')}>
+      {shown.map(row)}
+      {!readOnly && (
+        <div className="frame-builder-feature__buttons">
+          {advanced
+            ? (
+              <button type="button" className="frame-builder-button frame-builder-button--small" title="Hide the other sizes and clear what is set in them"
+                      onClick={() => { keep(simple); setAdvanced(false); }}>Simple</button>
+            )
+            : (
+              <button type="button" className="frame-builder-button frame-builder-button--small" aria-expanded="false" title="At least and exactly for the width, at most and exactly for the height"
+                      onClick={() => setAdvanced(true)}>Advanced</button>
+            )}
+          {set.length > 0 && (
+            <button type="button" className="frame-builder-button frame-builder-button--small" title="Clear every size of this component" onClick={() => keep([])}>Reset</button>
+          )}
+        </div>
+      )}
     </Feature>
   );
 }
+export const SizeWidget = responsive(SizeFields);
 
 // Three bars per icon, the way a text editor draws alignment.
 const bars = (xs) => (
@@ -128,7 +225,7 @@ const ALIGNMENTS = [
 ];
 
 /** Alignment of the content of a component. Value: "start", "center", "end" or nothing (as the theme has it). */
-export function AlignWidget({ value, onChange, readOnly, field }) {
+function AlignFields({ value, onChange, readOnly, field }) {
   return (
     <Feature field={field} changed={Boolean(value)} summary={{ start: 'start', center: 'centre', end: 'end' }[value]}>
       <div className="frame-builder-segments" role="group" aria-label={field.label}>
@@ -272,7 +369,7 @@ function FocusPicker({ url, fill, x, y, componentId, onChange, readOnly }) {
 }
 
 /** Background colour (from the theme's palette) and image. Value: `{ color, image, size, x, y }`. */
-export function BackgroundWidget({ id, value, onChange, readOnly, field }) {
+function BackgroundFields({ id, value, onChange, readOnly, field }) {
   const current = value || {};
   const set = (patch) => onChange({ ...current, ...patch });
   const url = imageUrl(current.image);
@@ -313,6 +410,65 @@ export function BackgroundWidget({ id, value, onChange, readOnly, field }) {
           </div>
         </>
       )}
+    </Feature>
+  );
+}
+
+const BORDER_SIDES = [['all', 'All sides'], ['top', 'Top'], ['bottom', 'Bottom'], ['start', 'Start (left)'], ['end', 'End (right)'], ['vertical', 'Top and bottom'], ['horizontal', 'Start and end']];
+const BORDER_STYLES = [['solid', 'Solid'], ['dashed', 'Dashed'], ['dotted', 'Dotted'], ['double', 'Double']];
+
+/**
+ * A border: a width of the theme, the sides it is on, a line style and a colour of the palette; rounded corners.
+ * Value: `{ width: { size, custom }, sides, style, color, radius: { size, custom } }`.
+ */
+function BorderFields({ id, value, onChange, readOnly, field }) {
+  const current = value || {};
+  const set = (patch) => onChange({ ...current, ...patch });
+  const line = Boolean(current.width?.size);
+  const colour = field.colors.find((entry) => entry.value === current.color);
+  const summary = [
+    line && `${sizeText(current.width)}${current.sides && current.sides !== 'all' ? ` ${BORDER_SIDES.find(([side]) => side === current.sides)?.[1].toLowerCase()}` : ''}`,
+    line && colour?.label,
+    current.radius?.size && `rounded ${sizeText(current.radius)}`,
+  ].filter(Boolean).join(', ');
+  return (
+    <Feature field={field} changed={Boolean(line || current.radius?.size)} summary={summary}>
+      <div className="frame-builder-feature__field">
+        <label className="frame-builder-label" htmlFor={`${id}-width`}>Width</label>
+        <div className="frame-builder-pair">
+          <LengthPicker id={`${id}-width`} label="Border width" value={current.width || {}} sizes={field.widths} readOnly={readOnly} onChange={(width) => set({ width })} />
+          <select className="frame-builder-select" aria-label="Border: sides" value={current.sides || 'all'} disabled={readOnly || !line}
+                  onChange={(event) => set({ sides: event.target.value })}>
+            {BORDER_SIDES.map(([side, text]) => <option key={side} value={side}>{text}</option>)}
+          </select>
+        </div>
+      </div>
+      {line && (
+        <>
+          <div className="frame-builder-feature__field">
+            <label className="frame-builder-label" htmlFor={`${id}-style`}>Line</label>
+            <select id={`${id}-style`} className="frame-builder-select" aria-label="Border: line" value={current.style || 'solid'} disabled={readOnly} onChange={(event) => set({ style: event.target.value })}>
+              {BORDER_STYLES.map(([style, text]) => <option key={style} value={style}>{text}</option>)}
+            </select>
+          </div>
+          <div className="frame-builder-feature__field">
+            <span className="frame-builder-label">Colour</span>
+            <div className="frame-builder-swatches" role="group" aria-label="Border colour">
+              <button type="button" className={`frame-builder-swatch frame-builder-swatch--current${current.color ? '' : ' is-selected'}`} title="The colour of the text"
+                      aria-label="The colour of the text" aria-pressed={!current.color} disabled={readOnly} onClick={() => set({ color: '' })} />
+              {field.colors.map((color) => (
+                <button type="button" key={color.value} className={`frame-builder-swatch${current.color === color.value ? ' is-selected' : ''}`} title={color.label}
+                        aria-label={color.label} aria-pressed={current.color === color.value} style={{ backgroundColor: color.color }} disabled={readOnly}
+                        onClick={() => set({ color: color.value })} />
+              ))}
+            </div>
+          </div>
+        </>
+      )}
+      <div className="frame-builder-feature__field">
+        <label className="frame-builder-label" htmlFor={`${id}-radius`}>Rounded corners</label>
+        <LengthPicker id={`${id}-radius`} label="Rounded corners" value={current.radius || {}} sizes={field.radii} readOnly={readOnly} onChange={(radius) => set({ radius })} />
+      </div>
     </Feature>
   );
 }
@@ -481,7 +637,7 @@ const LEADINGS = [['', 'As the theme has it'], ['tight', 'Tight'], ['normal', 'N
  * and a colour of the palette. Value: `{ size, custom, weight, italic, transform, leading, color }`. Used for the text
  * of a component (the "Text" feature) and for the label of a Field block.
  */
-export function TextStyleWidget({ id, value, onChange, readOnly, field }) {
+function TextStyleFields({ id, value, onChange, readOnly, field }) {
   const current = value || {};
   // Nothing set is no value at all, so the section shows as unchanged.
   const set = (patch) => {
@@ -507,10 +663,8 @@ export function TextStyleWidget({ id, value, onChange, readOnly, field }) {
         <label className="frame-builder-label" htmlFor={`${id}-size`}>Size</label>
         <LengthPicker id={`${id}-size`} label="Size" value={current} sizes={field.sizes || []} readOnly={readOnly} onChange={(next) => set({ size: next.size, custom: next.custom })} />
       </div>
-      <div className="frame-builder-pair">
-        {select('weight', 'Weight', WEIGHTS)}
-        {select('leading', 'Line height', LEADINGS)}
-      </div>
+      {select('weight', 'Weight', WEIGHTS)}
+      {select('leading', 'Line height', LEADINGS)}
       {select('transform', 'Case', CASES)}
       <label className="frame-builder-checkbox">
         <input type="checkbox" checked={Boolean(current.italic)} disabled={readOnly} onChange={(event) => set({ italic: event.target.checked })} /> Italic
@@ -530,3 +684,13 @@ export function TextStyleWidget({ id, value, onChange, readOnly, field }) {
     </Feature>
   );
 }
+
+export const SpacingWidget = responsive(SpacingFields);
+
+export const AlignWidget = responsive(AlignFields, true);
+
+export const BackgroundWidget = responsive(BackgroundFields);
+
+export const BorderWidget = responsive(BorderFields);
+
+export const TextStyleWidget = responsive(TextStyleFields);

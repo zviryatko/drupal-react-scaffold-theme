@@ -3,6 +3,10 @@ name: Hero
 status: experimental
 description: 'The opening of a page: a large heading and a short text over a picture or a colour, with room for buttons. Use it once, at the top.'
 group: Layout
+help: |
+  The opening of a page: one per page, at the top. Keep the heading to a few words and the text to one or two sentences; put one or two Buttons into Actions.
+
+  A picture works best wide, with the subject away from the text; "Shade over the picture" keeps the text readable on it.
 props:
   type: object
   properties:

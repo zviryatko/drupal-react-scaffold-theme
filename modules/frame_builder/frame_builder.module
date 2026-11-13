@@ -5,7 +5,9 @@
  * Frame Builder: Puck editor over Single Directory Components.
  */
 
+use Drupal\Component\Serialization\Json;
 use Drupal\Core\Field\FieldStorageDefinitionInterface;
+use Drupal\frame_builder\LayoutStorage;
 use Drupal\frame_builder\Paragraphs;
 use Drupal\Core\Entity\Display\EntityViewDisplayInterface;
 use Drupal\Core\Entity\EntityInterface;
@@ -65,7 +67,8 @@ function frame_builder_entity_type_build(array &$entity_types) {
  *
  * The design tokens of the theme (its .info.yml, see ThemeKit) as CSS custom
  * properties, on pages of a theme based on Frame: --frame-space-<name>,
- * --frame-font-<name>, --frame-color-<name>, and --frame-accent, the colour the base theme's components
+ * --frame-font-<name>, --frame-color-<name>, --frame-border-<name>,
+ * --frame-radius-<name>, and --frame-accent, the colour the base theme's components
  * use for buttons and highlights. The accent is the palette's "accent" or
  * "primary" colour, else its first one; a theme can also set --frame-accent in
  * its own CSS.
@@ -82,6 +85,12 @@ function frame_builder_page_attachments(array &$attachments) {
   }
   foreach ($kit->fontSizes() as $name => $value) {
     $declarations[] = '--frame-font-' . preg_replace('/[^a-z0-9-]/i', '-', $name) . ': ' . $value;
+  }
+  foreach ($kit->borderWidths() as $name => $value) {
+    $declarations[] = '--frame-border-' . preg_replace('/[^a-z0-9-]/i', '-', $name) . ': ' . $value;
+  }
+  foreach ($kit->radii() as $name => $value) {
+    $declarations[] = '--frame-radius-' . preg_replace('/[^a-z0-9-]/i', '-', $name) . ': ' . $value;
   }
   $colors = $kit->colors();
   foreach ($colors as $name => $color) {
@@ -197,7 +206,8 @@ function frame_builder_node_type_builder(string $entity_type, NodeTypeInterface 
  */
 function frame_builder_form_node_form_alter(array &$form, FormStateInterface $form_state) {
   $node = $form_state->getFormObject()->getEntity();
-  if ($node->isNew() && \Drupal::service('frame_builder.layouts')->isEnabled($node) && isset($form['actions']['submit'])) {
+  // Who may not use the builder stays on the page they made.
+  if ($node->isNew() && \Drupal::service('frame_builder.layouts')->isEnabled($node) && \Drupal::currentUser()->hasPermission('use frame builder') && isset($form['actions']['submit'])) {
     $form['actions']['submit']['#submit'][] = 'frame_builder_node_form_to_builder';
   }
 }
@@ -260,5 +270,41 @@ function frame_builder_config_schema_info_alter(array &$definitions) {
       'type' => 'string',
       'label' => 'Icon in the page builder',
     ];
+  }
+}
+
+/**
+ * Implements hook_ENTITY_TYPE_insert() for nodes.
+ *
+ * A page imported with Drupal's content import that links to itself: the
+ * import could not know its id. The layout names it by UUID until now.
+ */
+function frame_builder_node_insert(EntityInterface $node) {
+  if (!$node->hasField(LayoutStorage::FIELD)) {
+    return;
+  }
+  $own = 'entity:node/' . $node->uuid();
+  $changed = FALSE;
+  foreach ($node->getTranslationLanguages() as $langcode => $language) {
+    $translation = $node->getTranslation($langcode);
+    $data = Json::decode((string) $translation->get(LayoutStorage::FIELD)->value);
+    if (!is_array($data)) {
+      continue;
+    }
+    $found = FALSE;
+    array_walk_recursive($data, static function (&$value) use ($own, $node, &$found): void {
+      if (is_string($value) && str_contains($value, $own)) {
+        $value = str_replace($own, 'entity:node/' . $node->id(), $value);
+        $found = TRUE;
+      }
+    });
+    if ($found) {
+      $translation->set(LayoutStorage::FIELD, Json::encode($data));
+      $changed = TRUE;
+    }
+  }
+  if ($changed) {
+    $node->setNewRevision(FALSE);
+    $node->save();
   }
 }

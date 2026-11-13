@@ -7,6 +7,7 @@ use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Field\FieldConfigInterface;
 use Drupal\node\NodeInterface;
 use Drupal\frame_builder\LayoutMigrator;
+use Drupal\frame_builder\ComponentFeatures;
 use Drupal\frame_builder\MediaItems;
 
 /**
@@ -17,7 +18,8 @@ use Drupal\frame_builder\MediaItems;
  * - items of components that exist, with ids that are unique;
  * - for every prop, a value of the kind its field takes, and for choices one
  *   of the options;
- * - spacing, alignment and background colours from the theme's tokens.
+ * - spacing, alignment, background and border colours, border widths and
+ *   corner radii from the theme's tokens.
  *
  * - images only as media items of the library that exist and that the user
  *   may see (the model finds them with its media search), never as a URL.
@@ -100,7 +102,7 @@ class LayoutSanitizer {
       return $result;
     }
     foreach (array_slice(array_values($items), 0, 200) as $item) {
-      $type = is_array($item) ? (string) ($item['type'] ?? '') : '';
+      $type = is_array($item) && is_string($item['type'] ?? NULL) ? $item['type'] : '';
       if (!isset($components[$type])) {
         continue;
       }
@@ -124,6 +126,11 @@ class LayoutSanitizer {
           $value = ($field['widget'] ?? '') === 'paragraph'
             ? $this->paragraph($given[$name] ?? NULL, $field, $before['props'][$name] ?? NULL, $id)
             : $this->value($given[$name] ?? NULL, $field, $before['props'][$name] ?? NULL);
+        }
+        // What an item has from a breakpoint of the theme on is not for the
+        // model to change: a kept item keeps it.
+        if (is_array($value) && is_array($before['props'][$name]['at'] ?? NULL) && in_array($widget, ['spacing', 'size', 'textstyle', 'background', 'border'], TRUE)) {
+          $value['at'] = $before['props'][$name]['at'];
         }
         if ($value === NULL && !empty($field['required']) && isset($field['default'])) {
           $value = $widget === 'html' ? $this->html($field['default'], $field, NULL) : $field['default'];
@@ -152,8 +159,23 @@ class LayoutSanitizer {
     $options = array_column($field['options'] ?? [], 'value');
     $sizes = array_column($field['sizes'] ?? [], 'value');
     switch ($field['widget'] ?? 'text') {
+      case 'choices':
+        // Several of the choices, each once.
+        $chosen = [];
+        foreach (is_array($value) ? $value : [] as $entry) {
+          foreach (is_scalar($entry) ? $options : [] as $option) {
+            if ((string) $option === (string) $entry && !in_array($option, $chosen, TRUE)) {
+              $chosen[] = $option;
+            }
+          }
+        }
+        return $chosen ?: NULL;
+
       case 'text':
       case 'textarea':
+      case 'email':
+      case 'date':
+      case 'time':
       case 'url':
         return is_scalar($value) ? mb_substr((string) $value, 0, 5000) : NULL;
 
@@ -162,7 +184,13 @@ class LayoutSanitizer {
 
       case 'select':
       case 'icon':
-        return is_scalar($value) && in_array((string) $value, array_map('strval', $options), TRUE) ? $value : NULL;
+        // The option itself: a model may give the option "3" as the number 3.
+        foreach (is_scalar($value) ? $options : [] as $option) {
+          if ((string) $option === (string) $value) {
+            return $option;
+          }
+        }
+        return NULL;
 
       case 'color':
         return is_string($value) && in_array($value, array_column($field['colors'] ?? [], 'value'), TRUE) ? $value : NULL;
@@ -175,6 +203,41 @@ class LayoutSanitizer {
 
       case 'length':
         return $this->length($value, $sizes, FALSE);
+
+      case 'list':
+        // Several values, each as the field of a value takes it.
+        if (!is_array($value)) {
+          return NULL;
+        }
+        $list = [];
+        $limit = ($field['max'] ?? 0) ?: 50;
+        foreach (array_slice(array_values($value), 0, 200) as $index => $entry) {
+          if (count($list) >= $limit) {
+            break;
+          }
+          $kept = is_array($before) ? ($before[$index] ?? NULL) : NULL;
+          $entry = isset($field['fields']) ? $this->group($entry, $field['fields'], $kept) : $this->value($entry, $field['item'] ?? [], $kept);
+          if ($entry !== NULL) {
+            $list[] = $entry;
+          }
+        }
+        return $list ?: NULL;
+
+      case 'group':
+        return $this->group($value, $field['fields'] ?? [], $before);
+
+      case 'size':
+        // Width and height, each exactly, at least or at most: sizes of the
+        // theme. "width" and "height" are what models know from before: at
+        // most that wide, at least that tall.
+        $size = [];
+        $value = is_array($value) ? $value + array_filter(['max_width' => $value['width'] ?? NULL, 'min_height' => $value['height'] ?? NULL]) : [];
+        foreach (array_keys(ComponentFeatures::DIMENSIONS) as $side) {
+          if ($length = $this->length($value[$side] ?? NULL, $sizes, FALSE)) {
+            $size[$side] = $length;
+          }
+        }
+        return $size ?: NULL;
 
       case 'align':
         return in_array($value, ['start', 'center', 'end'], TRUE) ? $value : NULL;
@@ -228,6 +291,30 @@ class LayoutSanitizer {
         }
         return NULL;
 
+      case 'border':
+        // A width and a radius of the theme's scales, a colour of the palette.
+        if (!is_array($value)) {
+          return NULL;
+        }
+        $border = [];
+        $width = $value['width']['size'] ?? $value['width'] ?? NULL;
+        if (is_string($width) && in_array($width, array_column($field['widths'] ?? [], 'value'), TRUE)) {
+          $border['width'] = ['size' => $width];
+          $sides = $value['sides'] ?? 'all';
+          $border['sides'] = in_array($sides, ['all', 'top', 'bottom', 'start', 'end', 'vertical', 'horizontal'], TRUE) ? $sides : 'all';
+          if (in_array($value['style'] ?? NULL, ['solid', 'dashed', 'dotted', 'double'], TRUE)) {
+            $border['style'] = $value['style'];
+          }
+          if (is_string($value['color'] ?? NULL) && in_array($value['color'], array_column($field['colors'] ?? [], 'value'), TRUE)) {
+            $border['color'] = $value['color'];
+          }
+        }
+        $radius = $value['radius']['size'] ?? $value['radius'] ?? NULL;
+        if (is_string($radius) && in_array($radius, array_column($field['radii'] ?? [], 'value'), TRUE)) {
+          $border['radius'] = ['size' => $radius];
+        }
+        return $border ?: NULL;
+
       case 'background':
         // A colour of the palette and an image of the media library.
         $background = is_array($before) ? array_intersect_key($before, ['image' => 1, 'size' => 1, 'x' => 1, 'y' => 1]) : [];
@@ -245,6 +332,24 @@ class LayoutSanitizer {
         return $background ?: NULL;
     }
     return NULL;
+  }
+
+  /**
+   * Values that belong together: each as its field takes it.
+   */
+  protected function group(mixed $value, array $fields, mixed $before): ?array {
+    if (!is_array($value)) {
+      return NULL;
+    }
+    $group = [];
+    foreach ($fields as $field) {
+      $name = $field['name'];
+      $part = $this->value($value[$name] ?? NULL, $field, is_array($before) ? ($before[$name] ?? NULL) : NULL);
+      if ($part !== NULL) {
+        $group[$name] = $part;
+      }
+    }
+    return $group ?: NULL;
   }
 
   /**

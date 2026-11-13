@@ -47,7 +47,7 @@ class LayoutMigrator {
    * 1: {"version", "root", "content": [{"type", "version", "props"}]}; a
    *    synced translation: {"version", "strings", "versions"}.
    */
-  public const VERSION = 1;
+  public const VERSION = 2;
 
   public function __construct(
     protected ComponentPluginManager $components,
@@ -83,9 +83,38 @@ class LayoutMigrator {
     // A document of a newer module version is left as it is.
     $data['version'] = max($version, self::VERSION);
     if (is_array($data['content'] ?? NULL)) {
+      $this->sizes($data['content']);
       $data['content'] = $this->migrateItems($data['content'], $from_editor);
     }
     return $data;
+  }
+
+  /**
+   * The Size of items as it is stored since version 2 of the format.
+   *
+   * It was "width" (at most) and "height" (at least); it is now any of
+   * exact_width, min_width, max_width, exact_height, min_height, max_height.
+   * The old names are not used by the new format, so this can be done to
+   * any document, whatever it says its version is: an unsaved draft kept by
+   * an older version of the editor, an item on its way to the library.
+   */
+  protected function sizes(array &$items): void {
+    foreach ($items as &$item) {
+      if (!is_array($item) || !is_array($item['props'] ?? NULL)) {
+        continue;
+      }
+      $size = $item['props']['_size'] ?? NULL;
+      if (is_array($size) && (isset($size['width']) || isset($size['height']))) {
+        $size += array_filter(['max_width' => $size['width'] ?? NULL, 'min_height' => $size['height'] ?? NULL]);
+        unset($size['width'], $size['height']);
+        $item['props']['_size'] = $size;
+      }
+      foreach ($item['props'] as &$value) {
+        if (self::isItems($value)) {
+          $this->sizes($value);
+        }
+      }
+    }
   }
 
   /**
@@ -163,6 +192,9 @@ class LayoutMigrator {
    */
   protected function migrateDocument(array $data, int $from): array {
     // 0 → 1: versions were added; nothing else changed.
+    // 1 → 2: the Size feature can set a width and a height exactly, at least
+    // and at most. What it had was "width, at most" and "height, at least":
+    // see sizes(), which also covers what carries no version.
     return $data;
   }
 
@@ -180,6 +212,10 @@ class LayoutMigrator {
 
   /**
    * Migrates one item, step by step, to the version of its component.
+   *
+   * Without $nested the props are the values a translation has of its own
+   * (migrateStrings()): there are no slots in them, and a prop that is not
+   * there is the original's, so it gets no default.
    */
   protected function migrateItem(array $item, bool $from_editor, bool $nested = TRUE): array {
     $type = (string) ($item['type'] ?? '');
@@ -188,7 +224,7 @@ class LayoutMigrator {
     $props = is_array($item['props'] ?? NULL) ? $item['props'] : [];
     $steps = $this->settings($type)['migrations'] ?? [];
     for ($to = $version + 1; $to <= $current; $to++) {
-      $props = $this->applyStep($props, is_array($steps[$to] ?? NULL) ? $steps[$to] : []);
+      $props = $this->applyStep($props, is_array($steps[$to] ?? NULL) ? $steps[$to] : [], $nested);
       $context = ['type' => $type, 'from' => $to - 1, 'to' => $to];
       $this->moduleHandler->alter('frame_builder_item_migrate', $props, $context);
       // The theme that owns the components, whatever theme this request uses.
@@ -210,7 +246,7 @@ class LayoutMigrator {
   /**
    * Applies one declared step to the props of an item.
    */
-  protected function applyStep(array $props, array $step): array {
+  protected function applyStep(array $props, array $step, bool $defaults = TRUE): array {
     foreach (is_array($step['rename'] ?? NULL) ? $step['rename'] : [] as $from => $to) {
       if (array_key_exists($from, $props)) {
         if (!array_key_exists($to, $props)) {
@@ -225,7 +261,7 @@ class LayoutMigrator {
         $props[$name] = $map[$value];
       }
     }
-    foreach (is_array($step['defaults'] ?? NULL) ? $step['defaults'] : [] as $name => $value) {
+    foreach ($defaults && is_array($step['defaults'] ?? NULL) ? $step['defaults'] : [] as $name => $value) {
       if (!isset($props[$name]) || $props[$name] === '') {
         $props[$name] = $value;
       }

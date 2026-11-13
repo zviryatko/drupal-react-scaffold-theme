@@ -32,6 +32,11 @@ class LayoutRenderer {
    */
   protected array $building = [];
 
+  /**
+   * See showAt().
+   */
+  protected ?string $showAt = NULL;
+
   public function __construct(
     protected ComponentCatalog $catalog,
     protected Token $token,
@@ -48,6 +53,14 @@ class LayoutRenderer {
   /**
    * Render array of a whole layout.
    */
+  /**
+   * Shows components as they are from this breakpoint on, whatever the
+   * width of the window: for the canvas of the editor. NULL: as on a page.
+   */
+  public function showAt(?string $breakpoint): void {
+    $this->showAt = $breakpoint;
+  }
+
   public function build(array $data, ?ContentEntityInterface $entity = NULL): array {
     $build = [];
     foreach ($data['content'] ?? [] as $item) {
@@ -93,6 +106,14 @@ class LayoutRenderer {
         'frame_builder_background_' . $background['key'],
       ];
     }
+    // Layout and style that differ per breakpoint: the same way.
+    if ($responsive = $this->features->responsive($definition, $values, $this->showAt)) {
+      $attributes['data-frame-builder-at'] = $responsive['key'];
+      $attached['html_head'][] = [
+        ['#tag' => 'style', '#value' => Markup::create($responsive['css'])],
+        'frame_builder_at_' . $responsive['key'],
+      ];
+    }
     if ($style) {
       $attributes['style'] = ComponentFeatures::css($style);
     }
@@ -112,7 +133,8 @@ class LayoutRenderer {
       }
       return $build;
     }
-    if (!isset($this->catalog->definitions()[$id])) {
+    // Also a component the theme replaced: core renders its replacement.
+    if (!$this->catalog->definition($id)) {
       return [];
     }
 
@@ -120,6 +142,10 @@ class LayoutRenderer {
     $props = [];
     $schemas = $this->catalog->props($id);
     foreach ($schemas as $name => $schema) {
+      // The id of the item in the layout is not a prop of the component.
+      if ($name === 'id') {
+        continue;
+      }
       if (str_starts_with($schema['contentMediaType'] ?? '', 'image/')) {
         // A picked image: its URL (of the chosen image style), and for the
         // props the component names, its srcset, sizes and alternative text.
@@ -247,12 +273,44 @@ class LayoutRenderer {
    *
    * Empty optional values are dropped, so the Twig `|default()` applies.
    */
-  protected function value(mixed $value, array $schema, ?ContentEntityInterface $entity, BubbleableMetadata $metadata): mixed {
+  protected function value(mixed $value, array $schema, ?ContentEntityInterface $entity, BubbleableMetadata $metadata, int $depth = 0, bool $in_list = FALSE): mixed {
+    // As the builder reads the schema: one part of a "oneOf", all of an "allOf".
+    $schema = ComponentCatalog::schema($schema);
+    if (!$schema) {
+      return NULL;
+    }
+    // What the schema fixes is what the component gets.
+    if (array_key_exists('const', $schema)) {
+      return $schema['const'];
+    }
     if ($value === NULL || $value === '') {
       return NULL;
     }
     if (($schema['contentMediaType'] ?? '') === 'text/html') {
       return $this->formattedText($value, $schema, $entity, $metadata);
+    }
+    if (str_starts_with($schema['contentMediaType'] ?? '', 'image/')) {
+      // A picked image in a list or a group: its URL, of the chosen image style.
+      $url = $this->mediaItems->resolve($value)['url'];
+      return $url !== '' ? UrlHelper::stripDangerousProtocols($url) : NULL;
+    }
+    if (($schema['x-builder-widget'] ?? '') === 'image') {
+      // An image as an object, for components that take more than its URL:
+      // url, alt, width, height, and with a responsive image style srcset
+      // and sizes. Only what the schema names, when it names properties.
+      $image = $this->mediaItems->resolve($value);
+      if (($image['url'] ?? '') === '') {
+        return NULL;
+      }
+      $image['url'] = UrlHelper::stripDangerousProtocols($image['url']);
+      $image = array_filter($image, static fn ($part): bool => $part !== '' && $part !== NULL);
+      // For components that choose the image by the width of the window
+      // themselves: the images of a responsive image style with their media
+      // queries, the first for every width.
+      if (isset($schema['properties']['sources']) && ($sources = $this->mediaItems->backgroundSources($value))) {
+        $image['sources'] = array_map(static fn (array $source): array => ['media' => $source[0], 'url' => UrlHelper::stripDangerousProtocols($source[1])], $sources);
+      }
+      return is_array($schema['properties'] ?? NULL) ? array_intersect_key($image, $schema['properties']) : $image;
     }
     if (($schema['x-builder-widget'] ?? '') === 'color') {
       // A name of the theme's palette, as its CSS colour.
@@ -264,7 +322,18 @@ class LayoutRenderer {
     }
     $type = $schema['type'] ?? 'string';
     if (is_array($type)) {
-      $type = current(array_diff($type, ['null'])) ?: 'string';
+      // A number or a text: the first of the types the value is one of.
+      foreach (array_diff($type, ['null']) as $one) {
+        $as = $this->value($value, ['type' => $one] + $schema, $entity, $metadata, $depth, $in_list);
+        if ($as !== NULL) {
+          return $as;
+        }
+      }
+      return NULL;
+    }
+    // A choice that is none of the choices (the component changed) is no value.
+    if (!empty($schema['enum']) && $type !== 'boolean' && (!is_scalar($value) || !in_array((string) $value, array_map('strval', $schema['enum']), TRUE))) {
+      return NULL;
     }
     switch ($type) {
       case 'integer':
@@ -282,12 +351,52 @@ class LayoutRenderer {
         }
         $value = (string) $value;
         if (str_contains($value, '[')) {
-          $value = $this->token->replacePlain($value, $this->tokenData($entity), $this->tokenOptions($entity), $metadata);
+          $value = $this->tokens($value, $entity, $metadata, TRUE);
         }
         if (isset($schema['format']) && str_contains($schema['format'], 'ri')) {
           $value = $this->url($value, $entity, $metadata);
         }
         return $value === '' ? NULL : $value;
+
+      case 'array':
+        // A list: each of its values as the schema of the values says.
+        if (!is_array($value) || !is_array($schema['items'] ?? NULL) || $depth >= ComponentCatalog::DEPTH) {
+          return NULL;
+        }
+        $list = [];
+        $filled = FALSE;
+        foreach (array_slice(array_values($value), 0, 200) as $entry) {
+          $entry = $this->value($entry, $schema['items'], $entity, $metadata, $depth + 1, TRUE);
+          $filled = $filled || $entry !== NULL;
+          // In a list of lists (the rows of a table) a value keeps its
+          // place: a cell without text is an empty cell, not a missing one.
+          if ($entry !== NULL || $in_list) {
+            $list[] = $entry ?? '';
+          }
+        }
+        return $filled ? $list : NULL;
+
+      case 'object':
+        // A group: its properties, those that have a value.
+        if (!is_array($value) || !is_array($schema['properties'] ?? NULL) || $depth >= ComponentCatalog::DEPTH) {
+          return NULL;
+        }
+        $group = [];
+        $filled = FALSE;
+        foreach ($schema['properties'] as $name => $property) {
+          $part = is_array($property) ? $this->value($value[$name] ?? NULL, $property, $entity, $metadata, $depth + 1) : NULL;
+          // What the schema fixes does not make a group one with content.
+          $filled = $filled || ($part !== NULL && !(is_array($property) && array_key_exists('const', $property)));
+          if ($part === NULL && is_array($property) && !empty($property['enum'])) {
+            $part = $property['default'] ?? $property['examples'][0] ?? NULL;
+          }
+          if ($part !== NULL) {
+            $group[$name] = $part;
+          }
+        }
+        // A group with nothing set in it is no group: the default of a
+        // choice in it does not make it one.
+        return $filled ? $group : NULL;
     }
     return NULL;
   }
@@ -337,7 +446,7 @@ class LayoutRenderer {
       $format = filter_fallback_format();
     }
     if (str_contains($text, '[')) {
-      $text = $this->token->replace($text, $this->tokenData($entity), $this->tokenOptions($entity), $metadata);
+      $text = $this->tokens($text, $entity, $metadata);
     }
     $metadata->addCacheTags(['config:filter.format.' . $format]);
     return check_markup($text, $format, $entity?->language()->getId() ?? '');
@@ -351,10 +460,32 @@ class LayoutRenderer {
   }
 
   /**
-   * Token options: unknown tokens removed, values in the page's language.
+   * Token options: values in the page's language.
    */
   protected function tokenOptions(?ContentEntityInterface $entity): array {
-    return ['clear' => TRUE] + ($entity ? ['langcode' => $entity->language()->getId()] : []);
+    return ['clear' => FALSE] + ($entity ? ['langcode' => $entity->language()->getId()] : []);
+  }
+
+  /**
+   * Replaces the tokens in a text.
+   *
+   * A token of a kind Drupal knows that has no value here ([node:summary]
+   * of a page without one) leaves nothing. Other text in square brackets is
+   * text: "See [note: below]" stays as it was typed.
+   */
+  protected function tokens(string $text, ?ContentEntityInterface $entity, BubbleableMetadata $metadata, bool $plain = FALSE): string {
+    $text = (string) ($plain
+      ? $this->token->replacePlain($text, $this->tokenData($entity), $this->tokenOptions($entity), $metadata)
+      : $this->token->replace($text, $this->tokenData($entity), $this->tokenOptions($entity), $metadata));
+    if (str_contains($text, '[')) {
+      $types = $this->token->getInfo()['types'] ?? [];
+      foreach ($this->token->scan($text) as $type => $left) {
+        if (isset($types[$type])) {
+          $text = str_replace(array_values($left), '', $text);
+        }
+      }
+    }
+    return $text;
   }
 
   /**
@@ -419,7 +550,7 @@ class LayoutRenderer {
     $metadata = new BubbleableMetadata();
     $title = is_scalar($values['title'] ?? NULL) ? trim((string) $values['title']) : '';
     if (str_contains($title, '[')) {
-      $title = $this->token->replacePlain($title, $this->tokenData($entity), $this->tokenOptions($entity), $metadata);
+      $title = $this->tokens($title, $entity, $metadata, TRUE);
     }
     try {
       /** @var \Drupal\Core\Block\BlockPluginInterface $block */

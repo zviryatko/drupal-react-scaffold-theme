@@ -76,7 +76,13 @@ class BuilderLayout extends EntityUsageTrackBase {
     }
     $targets = [];
     try {
-      $plugin = \Drupal::service('plugin.manager.entity_usage.track')->createInstance('entity_reference_revisions');
+      $manager = \Drupal::service('plugin.manager.entity_usage.track');
+      // The plugin was renamed between versions of Entity Usage.
+      $ids = array_intersect(['entity_reference_revision_field', 'entity_reference_revisions'], array_keys($manager->getDefinitions()));
+      if (!$ids) {
+        return [];
+      }
+      $plugin = $manager->createInstance(reset($ids));
       foreach ($entity->get(Paragraphs::FIELD) as $reference) {
         $targets = array_merge($targets, $plugin->getTargetEntities($reference));
       }

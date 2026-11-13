@@ -2,6 +2,7 @@
 
 namespace Drupal\frame_builder;
 
+use Drupal\Core\Cache\Cache;
 use Drupal\Component\Utility\UrlHelper;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
@@ -65,8 +66,8 @@ class MediaItems {
    *
    * @return array
    *   'url' (of the image style when one is chosen), and when known 'alt',
-   *   'srcset' and 'sizes' (responsive image style: every image style it
-   *   uses, by width).
+   *   'width' and 'height' (of the image 'url' is), 'srcset' and 'sizes'
+   *   (responsive image style: every image style it uses, by width).
    */
   public function resolve(mixed $value): array {
     if (!is_array($value)) {
@@ -87,15 +88,24 @@ class MediaItems {
     [$kind, $id] = explode(':', (string) ($value['style'] ?? '') . ':');
     $styles = $this->entityTypeManager->getStorage('image_style');
     $url = fn ($style): string => $this->fileUrlGenerator->transformRelative($style->buildUrl($uri));
+    // The size of the image that 'url' is: of the file, or of the image style.
+    $size = function ($style = NULL) use ($item, $uri): array {
+      $dimensions = ['width' => (int) $item->width, 'height' => (int) $item->height];
+      $style?->transformDimensions($dimensions, $uri);
+      return array_filter(['width' => (int) ($dimensions['width'] ?? 0), 'height' => (int) ($dimensions['height'] ?? 0)]);
+    };
+    $result = array_replace($result, $size());
 
     if ($kind === 'style' && ($style = $styles->load($id))) {
       $result['url'] = $url($style);
+      $result = array_replace($result, $size($style));
     }
     elseif ($kind === 'responsive' && $this->entityTypeManager->hasDefinition('responsive_image_style')
       && ($responsive = $this->entityTypeManager->getStorage('responsive_image_style')->load($id))) {
       $fallback = $styles->load($responsive->getFallbackImageStyle());
       if ($fallback) {
         $result['url'] = $url($fallback);
+        $result = array_replace($result, $size($fallback));
       }
       // One srcset with width descriptors: the browser picks by `sizes`.
       $original = ['width' => (int) $item->width, 'height' => (int) $item->height];
@@ -180,6 +190,8 @@ class MediaItems {
           }
           if (str_starts_with($href, 'entity:')) {
             $url = Url::fromUri($href);
+            // Fails here, not when the image is rendered, for content of a kind that has no page.
+            $url->toString(TRUE);
             return $page ? $url->setOption('language', $page->language()) : $url;
           }
           if (str_starts_with($href, '/') || str_starts_with($href, '#') || str_starts_with($href, '?')) {
@@ -217,12 +229,17 @@ class MediaItems {
       '#url' => $this->linkUrl((string) ($value['link'] ?? ''), (string) ($value['href'] ?? ''), $page, $picked['media'], $picked['uri']),
       '#cache' => ['tags' => $picked['media']->getCacheTags()],
     ];
+    // The image changes with its style, as with the image formatters of core.
     if ($picked['kind'] === 'responsive' && $this->entityTypeManager->hasDefinition('responsive_image_style')
-      && $this->entityTypeManager->getStorage('responsive_image_style')->load($picked['id'])) {
+      && ($responsive = $this->entityTypeManager->getStorage('responsive_image_style')->load($picked['id']))) {
+      $build['#cache']['tags'] = Cache::mergeTags($build['#cache']['tags'], $responsive->getCacheTags());
       return $build + ['#theme' => 'responsive_image_formatter', '#responsive_image_style_id' => $picked['id']];
     }
-    $style = $picked['kind'] === 'style' && $this->entityTypeManager->getStorage('image_style')->load($picked['id']) ? $picked['id'] : '';
-    return $build + ['#theme' => 'image_formatter', '#image_style' => $style];
+    $style = $picked['kind'] === 'style' ? $this->entityTypeManager->getStorage('image_style')->load($picked['id']) : NULL;
+    if ($style) {
+      $build['#cache']['tags'] = Cache::mergeTags($build['#cache']['tags'], $style->getCacheTags());
+    }
+    return $build + ['#theme' => 'image_formatter', '#image_style' => $style ? $picked['id'] : ''];
   }
 
   /**

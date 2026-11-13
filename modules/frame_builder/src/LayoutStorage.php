@@ -195,8 +195,15 @@ class LayoutStorage {
       $type = (string) ($item['type'] ?? '');
       $id = (string) ($item['props']['id'] ?? '');
       foreach ($this->catalog->translatableProps($type) as $name) {
-        if (isset($submitted[$id]) && array_key_exists($name, $submitted[$id]) && $submitted[$id][$name] != ($item['props'][$name] ?? NULL)) {
-          $strings["$id.$name"] = $submitted[$id][$name];
+        if (!isset($submitted[$id]) || !array_key_exists($name, $submitted[$id])) {
+          continue;
+        }
+        $value = $submitted[$id][$name];
+        $original = $item['props'][$name] ?? NULL;
+        // Texts are compared as texts ("10" is not "10.0"); formatted text is
+        // an array, the same whatever the order of its keys.
+        if (is_array($value) && is_array($original) ? $value != $original : $value !== $original) {
+          $strings["$id.$name"] = $value;
         }
       }
       foreach ($this->catalog->slots($type) as $slot) {

@@ -26,6 +26,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
@@ -265,6 +266,12 @@ class BuilderController extends ControllerBase {
       'defaultFormat' => $formats ? filter_default_format($this->currentUser()) : NULL,
       'translation' => $this->translationInfo($node),
       'viewports' => $this->viewports(),
+      // The breakpoints a component can have its own layout and style from.
+      'breakpoints' => array_map(
+        static fn (string $id, array $breakpoint): array => ['id' => $id, 'label' => $breakpoint['label'], 'width' => $breakpoint['width']],
+        array_keys(\Drupal::service('frame_builder.theme_kit')->breakpoints()),
+        \Drupal::service('frame_builder.theme_kit')->breakpoints(),
+      ),
       // Unsaved state this user left behind, restored by the editor.
       'draft' => is_array($draft) ? $draft : NULL,
       'revision' => (int) $node->getRevisionId(),
@@ -343,7 +350,10 @@ class BuilderController extends ControllerBase {
     $mode = $this->layouts->mode($node);
     // `short` is shown in the title bar of the editor, `notice` is its tooltip.
     $info = ['mode' => $mode, 'language' => $language, 'locked' => FALSE, 'notice' => NULL, 'short' => NULL];
-    if (!$node->isTranslatable() || (count($node->getTranslationLanguages()) < 2 && $node->isDefaultTranslation())) {
+    // The revision being edited can be older than a translation made since.
+    $current = $this->entityTypeManager()->getStorage('node')->load($node->id());
+    $languages = max(count($node->getTranslationLanguages()), $current ? count($current->getTranslationLanguages()) : 0);
+    if (!$node->isTranslatable() || ($languages < 2 && $node->isDefaultTranslation())) {
       return $info;
     }
     if ($mode === 'independent') {
@@ -394,6 +404,10 @@ class BuilderController extends ControllerBase {
         '#context' => ['name' => $name],
       ];
     }
+    // The canvas is not as wide as the page: the editor says which breakpoint
+    // of the theme it shows ("" for none), instead of media queries.
+    $at = is_string($input['breakpoint'] ?? NULL) ? $input['breakpoint'] : '';
+    $this->layoutRenderer->showAt($at);
     try {
       $build = $this->layoutRenderer->buildItem(['type' => $id, 'props' => $input['props'] ?? []], $node, $slots);
       $drupal = in_array(ComponentCatalog::parse($id)[0], [ComponentCatalog::FIELD, ComponentCatalog::VIEW, ComponentCatalog::BLOCK, ComponentCatalog::SAVED, ComponentCatalog::PARAGRAPH], TRUE);
@@ -416,7 +430,9 @@ class BuilderController extends ControllerBase {
     // A responsive background is a style sheet in the head of the page; the
     // editor has no page load between changes and gets the rules here.
     $background = \Drupal::service('frame_builder.features')->responsiveBackground($this->catalog->definition($id), $values);
-    return new JsonResponse(['html' => $html, 'wrapper' => $pinned ?: NULL, 'styles' => $background['css'] ?? NULL]);
+    $responsive = \Drupal::service('frame_builder.features')->responsive($this->catalog->definition($id), $values, $at);
+    $styles = implode("\n", array_filter([$background['css'] ?? NULL, $responsive['css'] ?? NULL]));
+    return new JsonResponse(['html' => $html, 'wrapper' => $pinned ?: NULL, 'styles' => $styles ?: NULL]);
   }
 
   /**
@@ -495,6 +511,11 @@ class BuilderController extends ControllerBase {
       if (!isset($formats[$pair[0]]) && !in_array(serialize($pair), $kept, TRUE)) {
         return new JsonResponse(['errors' => [sprintf('You may not use the "%s" text format.', $pair[0])]], 422);
       }
+    }
+
+    // What a component requires must be there: also in its lists and groups.
+    if ($missing = $this->catalog->missing($input['data']['content'] ?? [])) {
+      return new JsonResponse(['errors' => array_slice($missing, 0, 8)], 422);
     }
 
     // A new revision that starts from the latest values of every language:
@@ -875,7 +896,9 @@ class BuilderController extends ControllerBase {
       ->sort('changed', 'DESC')
       ->range(0, 10)
       ->execute();
-    return new JsonResponse(array_values(array_map($describe, $storage->loadMultiple($ids))));
+    // The query checks no access to unpublished content without a node access module: the entity does.
+    $nodes = array_filter($storage->loadMultiple($ids), static fn (NodeInterface $node): bool => $node->access('view'));
+    return new JsonResponse(array_values(array_map($describe, $nodes)));
   }
 
   /**
@@ -895,7 +918,8 @@ class BuilderController extends ControllerBase {
     if ($q = trim((string) $request->query->get('q'))) {
       $query->condition('name', $q, 'CONTAINS');
     }
-    $items = array_map(fn ($media) => $this->mediaItems->describe($media), $storage->loadMultiple($query->execute()));
+    // The query checks no permission for media: the entity does.
+    $items = array_map(fn ($media) => $media->access('view') ? $this->mediaItems->describe($media) : NULL, $storage->loadMultiple($query->execute()));
     return new JsonResponse(array_values(array_filter($items)));
   }
 
@@ -906,12 +930,23 @@ class BuilderController extends ControllerBase {
    * media ends in MediaLibraryOpener::getSelectionResponse().
    */
   public function mediaFrame(Request $request): HtmlResponse {
-    $state = MediaLibraryState::fromRequest($request);
-    if ($state->getOpenerId() !== 'frame_builder.media_library_opener') {
+    if (!$this->moduleHandler()->moduleExists('media_library')) {
+      throw new NotFoundHttpException();
+    }
+    try {
+      $state = MediaLibraryState::fromRequest($request);
+    }
+    catch (\InvalidArgumentException $e) {
+      // No state in the query, or one that is not a state of the library.
+      throw new BadRequestHttpException($e->getMessage(), $e);
+    }
+    // Who may not see media in Drupal's media library may not see it here.
+    $builder = \Drupal::service('media_library.ui_builder');
+    if ($state->getOpenerId() !== 'frame_builder.media_library_opener' || !$builder->checkAccess($this->currentUser(), $state)->isAllowed()) {
       throw new AccessDeniedHttpException();
     }
     return $this->barePage([
-      'library' => \Drupal::service('media_library.ui_builder')->buildUi($state),
+      'library' => $builder->buildUi($state),
       '#attached' => ['library' => ['frame_builder/media_frame']],
     ]);
   }

@@ -44,6 +44,17 @@ frame_builder:
       l: 60rem
       xl: 75rem
       full: 100%
+    # Widths of a border ("Border" in the builder); its colour is one of the palette.
+    border_widths:
+      thin: 1px
+      medium: 2px
+      thick: 4px
+    # Rounded corners ("Border" in the builder).
+    radii:
+      s: 0.25rem
+      m: 0.5rem
+      l: 1rem
+      full: 9999px
 
 # Drupal does not inherit regions from a base theme, so they are declared here. Keep this list equal to frame.info.yml,
 # the base theme's page.html.twig prints exactly these regions (a test checks it).

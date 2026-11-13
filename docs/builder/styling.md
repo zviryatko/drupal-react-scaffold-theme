@@ -45,10 +45,21 @@ frame_builder:
       l: 60rem
       xl: 75rem
       full: 100%
-    # Palette: the only colours an editor can pick.
+    # Palette: the only colours an editor can pick (text, background, border).
     colors:
       green: { label: 'Green', value: '#008068' }
       cream: { label: 'Cream', value: '#fcf4ed' }
+    # Widths of a border: name => CSS length.
+    border_widths:
+      thin: 1px
+      medium: 2px
+      thick: 4px
+    # Rounded corners: name => CSS length.
+    radii:
+      s: 0.25rem
+      m: 0.5rem
+      l: 1rem
+      full: 9999px
     # Image styles offered for images: an image style, or "responsive:<responsive image style>".
     # Leave the key out to offer all of them.
     image_styles:
@@ -61,18 +72,20 @@ frame_builder:
     align: true
     text: true
     background: true
+    border: true
     position: true
 ```
 
-Without the block a theme gets the spacing scale above (XS to XL), a type scale from XS (0.75rem) to 3XL (3rem), no
-colours, all image styles and all features. The starterkit
+Without the block a theme gets the spacing scale above (XS to XL), a type scale from XS (0.75rem) to 3XL (3rem), the border
+widths and radii above, no colours, all image styles and all features. The starterkit
 puts a block with defaults into a new subtheme. After changing it, rebuild caches (`drush cr`).
 
 The names are what is stored in a layout (`"size": "m"`, `"color": "green"`), not the values. Changing `m` from `1rem`
 to `1.25rem` changes every page that uses it; removing a name makes the places that used it fall back to nothing.
 
 The module also prints the tokens on every page of the theme as CSS custom properties: `--frame-space-<name>` for each
-step of the scale, `--frame-font-<name>` for each font size, `--frame-color-<name>` for each colour, and `--frame-accent` (the colour named `accent` or `primary`, else
+step of the scale, `--frame-font-<name>` for each font size, `--frame-color-<name>` for each colour, `--frame-border-<name>` and `--frame-radius-<name>` for each border width and
+radius, and `--frame-accent` (the colour named `accent` or `primary`, else
 the first one), which the [components of the base theme](/builder/base-components#colours-and-tokens) use. Your CSS can
 use them: `padding: var(--frame-space-m)`.
 
@@ -100,9 +113,9 @@ So "padding M" chosen by an editor and `frame.space(m)` in a component are the s
 
 | In the module | Is |
 |---|---|
-| `frame.space($name)`, `frame.color($name)`, `frame.font-size($name)`, `frame.size($name)` | a value of the spacing scale, the palette, the type scale, the sizes |
+| `frame.space($name)`, `frame.color($name)`, `frame.font-size($name)`, `frame.size($name)`, `frame.border-width($name)`, `frame.radius($name)` | a value of the spacing scale, the palette, the type scale, the sizes, the border widths, the radii |
 | `@include frame.breakpoint($name) { … }` | the media query of a breakpoint of `<theme>.breakpoints.yml`; the name is the part after the theme (`my_theme.tablet` is `tablet`). A breakpoint without a media query applies always |
-| `frame.$spacing`, `frame.$colors`, `frame.$font-sizes`, `frame.$sizes`, `frame.$breakpoints`, `frame.$features` | the same as maps, to loop over |
+| `frame.$spacing`, `frame.$colors`, `frame.$font-sizes`, `frame.$sizes`, `frame.$border-widths`, `frame.$radii`, `frame.$breakpoints`, `frame.$features` | the same as maps, to loop over |
 | `@include frame.custom-properties;` | `:root { --frame-space-m: 1rem; … }`: the custom properties the module prints, for pages and tools that load only your CSS |
 | `@include frame.utilities;` | a class for every choice an editor has (below) |
 | `@include frame.rules;` | both of the above |
@@ -123,6 +136,7 @@ can use what editors use in the builder:
 | align | `.frame-align-start`, `-center`, `-end` |
 | text | `.frame-text-<size>`, `.frame-weight-normal`/`-medium`/`-bold`, `.frame-leading-tight`/`-normal`/`-loose`, `.frame-italic`, `.frame-uppercase`/`-lowercase`/`-capitalize`, `.frame-color-<colour>` |
 | background | `.frame-bg-<colour>`, `.frame-bg-cover`/`-contain`/`-stretch`/`-auto` |
+| border | `.frame-border-<width>` (a solid line in the colour of the text), `.frame-border-color-<colour>`, `.frame-rounded-<radius>` |
 | position | `.frame-relative`, `.frame-pin-top-left`/`-top-right`/`-bottom-left`/`-bottom-right` |
 
 Sides are logical (`s` is the start of the line: left in English, right in Arabic). A feature switched off in the
@@ -157,11 +171,14 @@ A section there is folded while nothing is set in it.
 | Feature | The editor chooses | What is printed on the root element |
 |---|---|---|
 | **spacing** | margin and padding: a step of the scale or a custom length; all sides, horizontal or vertical. Margin can also be *Auto* | `margin`, `margin-inline` or `margin-block`; the same for `padding` |
-| **size** | width and height: one of the theme's sizes or a custom length | `max-width` (at most this wide, so it still fits a narrow screen), `min-height` |
+| **size** | width and height, each *at most*, *at least* or *exactly* one of the theme's sizes or a custom length. *Width, at most* and *Height, at least* are shown; **Advanced** shows the other four, **Simple** hides them again and clears them, **Reset** clears every size | `max-width`, `min-width`, `width`, `min-height`, `max-height`, `height` |
 | **align** | start, centre or end | `text-align: start \| center \| end` |
 | **text** | size (a step of the type scale, or a custom length), weight, italic, case, line height, a colour of the palette | `font-size`, `font-weight`, `font-style`, `text-transform`, `line-height`, `color` |
 | **background** | a colour of the palette; an image with fill and visible part | `background-color`; `background-image`, `-size`, `-repeat`, `-position` |
+| **border** | a width of the theme (or a custom length) on all sides, one side, top and bottom, or start and end; solid, dashed, dotted or double; a colour of the palette, else the colour of the text. And rounded corners, with or without a line | `border-width`, `-style`, `-color`, or the same for a side (`border-block-end-…`); `border-radius` with `overflow: clip` |
 | **position** | *placed* or *pinned* | see [Layouts](/builder/layouts#position) |
+
+All but *position* can differ from a breakpoint of the theme on, see [Per breakpoint](#per-breakpoint).
 
 They are inline declarations on the root element of the component, passed through its `attributes`. A component
 therefore needs no code for them, only `{{ attributes }}` on its root element
@@ -182,7 +199,35 @@ thirdPartySettings:
 Switch a feature off where it makes no sense or would fight the component's own CSS: a background on a component that
 draws its own, padding on one whose layout depends on exact spacing.
 
+### Per breakpoint
+
+Above the features are tabs with **All** and the breakpoints of the theme that start at a width (*Tablet*, *Desktop*);
+the same tabs are at the top of the canvas (where *All* is *Full width*), with the width each starts at, and both show the same choice.
+*All* is what the component has at every width. With a breakpoint chosen, the features show and change what the
+component has **from that width on**: what is set there replaces the value of *All*, what is left empty keeps it.
+A feature that has such values says so (*differs from Tablet*).
+
+- Widths go up: a value from *Tablet* on also holds on a desktop, unless *Desktop* sets its own. So set the phone's
+  look under *All* and add what changes on wider screens.
+- **The canvas shows the breakpoint that is chosen**: it becomes as wide as the breakpoint starts (768px for Tablet in
+  the base theme) and shows the values of that breakpoint and of the narrower ones. When the window is narrower, the
+  canvas scrolls sideways; closing a column of the editor gives it room. *All* gives the canvas its whole width back.
+  The **Preview** shows the whole page at real widths, with the theme's own media queries.
+- On the page these are rules with the media query of the breakpoint, in the head of the page, for a
+  `data-frame-builder-at` attribute on the component. They are `!important`, since what a component has at every
+  width is inline.
+- The choice is one for the whole editor: select another component and its features are for the same breakpoint.
+- *Position* is the same at every width.
+
+Stored, a feature's value has the values per breakpoint under `at`, by the name of the breakpoint without its theme:
+`"_spacing": { "padding": { "size": "s" }, "at": { "tablet": { "padding": { "size": "l" } } } }`. The alignment is a
+word, and `{ "value": "start", "at": { "desktop": "center" } }` when it differs.
+
 ### Things to know about each
+
+- **Size: prefer "at most" for widths.** A component with an exact width does not shrink on a narrow screen. *Exactly*
+  is for the cases that need it: an icon, a fixed sidebar from a breakpoint on. A layout saved before there were six
+  choices had *width* (at most) and *height* (at least); it is read as those.
 
 - **Spacing and your CSS.** Inline declarations win over your stylesheet. A margin set by an editor replaces the margin
   your component has on that side.
@@ -196,6 +241,13 @@ draws its own, padding on one whose layout depends on exact spacing.
   parent (`em`) in a component if its heading should follow.
 - **Background colour does not change the text colour.** Choose a text colour with it (the Text feature), or give
   components a variant prop that sets a matching one.
+- **Border and the size of a component.** A border adds to the size of a component unless its CSS has
+  `box-sizing: border-box`. Its sides are logical, as the alignment: *Start* is the left in English, the right in Arabic.
+  With rounded corners what is inside follows them (`overflow: clip`): the image at the top of a card is rounded
+  too, and a pinned badge that sticks out of the component is cut at its edge.
+- **Components that wrap another one.** The features are on the root element. A component that is a wrapper around
+  a box of its own (a UI kit's card in a `<div>`) shows a background or text colour only if its CSS lets the box
+  inside take it: `.my-wrapper[style*="background-color"] > * { background: transparent; }`.
 - **Background image.** *Cover* fills and crops, *Fit* shows the whole image, *Stretch* distorts it to the box,
   *Original size* does not scale. The small picture with a frame chooses which part shows (`background-position`).
 - **Responsive background.** With a responsive image style the image is not inline: it is set by media queries in the
@@ -214,8 +266,9 @@ draws its own, padding on one whose layout depends on exact spacing.
 
 ## Breakpoints
 
-`<theme>.breakpoints.yml` (Drupal's Breakpoint module) does two things here: responsive image styles are built on it, and
-the editor's **Preview** offers one width per breakpoint. A breakpoint with a `min-width` gives that width; one without
+`<theme>.breakpoints.yml` (Drupal's Breakpoint module) does three things here: responsive image styles are built on it,
+the editor's **Preview** offers one width per breakpoint, and the layout and style of a component can differ from each
+breakpoint that has a `min-width` on ([Per breakpoint](#per-breakpoint)). A breakpoint with a `min-width` gives that width; one without
 gives a phone width (375px).
 
 ```yaml
@@ -228,7 +281,8 @@ A subtheme without the file uses the breakpoints of its base theme; Frame has `m
 `desktop` (75em). In SCSS they are `@include frame.breakpoint(tablet)`, see [Tokens in SCSS](#tokens-in-scss).
 
 The preview is a real page in a frame of that width, so your media queries apply. The canvas of the editor does not
-change width.
+change width: your own media queries follow the window there, while the layout and style set per breakpoint in the
+editor follow the breakpoint that is chosen.
 
 ## Rich text
 

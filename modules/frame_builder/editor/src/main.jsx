@@ -2,10 +2,10 @@
 //
 // Components are not React components here: Drupal renders each one (Twig) and the editor shows that HTML. Slots come
 // back as empty markers, and Puck's drop zones are mounted into them with portals, so components can be nested.
-import { createElement, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { createElement, Fragment, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { createRoot } from 'react-dom/client';
-import { createUsePuck, Puck, blocksPlugin, outlinePlugin } from '@puckeditor/core';
+import { createUsePuck, Puck, blocksPlugin } from '@puckeditor/core';
 import '@puckeditor/core/puck.css';
 import { postJson, settings } from './api';
 import { startFormat, toPuckField } from './fields';
@@ -13,6 +13,9 @@ import { ContentFrames, ContentPanel, saveContent, useContentDirty, useContentVe
 import { Modal } from './ui';
 import { BlocksPanel } from './BlocksPanel';
 import { PanelIcon } from './icons';
+import { useBreakpoint } from './breakpoint';
+import { BreakpointTabs } from './featureFields';
+import { DeleteSelected, followMove, parentOf, selectorFor, SelectionOnCanvas, structurePlugin } from './Structure';
 import { HistoryButton, HistoryPanel, markSaved, useHistoryOpen } from './History';
 import { fromDrupal, toDrupalLayout, toDrupalType, toPuckType } from './types';
 import { subscribeLibrary } from './library';
@@ -21,9 +24,9 @@ import { AiPanel } from './AiPanel';
 // Rendered HTML by component + props, so moving or remounting a component does not ask Drupal again.
 const htmlCache = new Map();
 
-function renderOnServer(type, props, key) {
+function renderOnServer(type, props, key, breakpoint) {
   if (!htmlCache.has(key)) {
-    const request = postJson(settings.endpoints.render, { type, props, node: settings.node, langcode: settings.langcode })
+    const request = postJson(settings.endpoints.render, { type, props, node: settings.node, langcode: settings.langcode, breakpoint })
       .then(({ ok, body }) => (ok ? { html: body.html, wrapper: body.wrapper, styles: body.styles } : { error: body?.error || 'The component could not be rendered.' }));
     htmlCache.set(key, request);
     request.then((result) => htmlCache.set(key, result));
@@ -95,7 +98,9 @@ function preloadImages(result) {
 function ServerComponent({ id, definition, values, slots }) {
   // Field blocks and tokens show saved field values: render again after the Content form was saved.
   const version = useContentVersion();
-  const key = JSON.stringify([definition.id, values, version]);
+  // The canvas shows the page as it is from the breakpoint being edited on, whatever the width of the window.
+  const breakpoint = useBreakpoint();
+  const key = JSON.stringify([definition.id, values, version, breakpoint]);
   const cached = htmlCache.get(key);
   const [result, setResult] = useState(cached && !cached.then ? cached : null);
   const first = useRef(true);
@@ -106,7 +111,7 @@ function ServerComponent({ id, definition, values, slots }) {
     let live = true;
     // Wait for typing to pause before asking Drupal, except for the first render.
     const timer = setTimeout(() => {
-      Promise.resolve(renderOnServer(definition.id, values, key)).then(preloadImages).then((value) => live && setResult(value));
+      Promise.resolve(renderOnServer(definition.id, values, key, breakpoint)).then(preloadImages).then((value) => live && setResult(value));
     }, first.current ? 0 : 300);
     first.current = false;
     return () => { live = false; clearTimeout(timer); };
@@ -167,7 +172,9 @@ function puckComponent(definition) {
   });
 
   return {
-    label: definition.label,
+    // With its group, so that it is clear where a selected item comes from: a component of the theme, a field of the
+    // page, a view, a block of Drupal, a paragraph. Shown on the selected item, above its fields and in Structure.
+    label: definition.group ? `${definition.group}: ${definition.label}` : definition.label,
     fields,
     defaultProps,
     render: (props) => {
@@ -241,7 +248,8 @@ const plugins = [
   // Puck's own Blocks tab (its name and icon) with our list in it: groups, icons and a search.
   { ...blocksPlugin(), render: () => <BlocksPanel disabled={locked} /> },
   // Three lines, each one further in: a tree.
-  outlinePlugin({ label: 'Structure', icon: icon(<path d="M3 6h11M7 12h11M11 18h11" />) }),
+  // The tree of the layout, where several components can be selected, moved, deleted or put into a layout together.
+  structurePlugin({ label: 'Structure', icon: icon(<path d="M3 6h11M7 12h11M11 18h11" />) }),
   // With the frame_builder_ai module: the assistant. A four-pointed star, as AI features are marked.
   ...(settings.ai ? [{ name: 'ai', label: 'AI', icon: icon(<path d="M12 3l2.2 6.3L20.5 12l-6.3 2.7L12 21l-2.2-6.3L3.5 12l6.3-2.7z" strokeLinejoin="round" />), render: () => <AiPanel disabled={locked} /> }] : []),
 ];
@@ -258,7 +266,7 @@ function PreviewDialog({ onClose }) {
       <div className="frame-builder-preview">
         <div className="frame-builder-preview__bar" role="group" aria-label="Width of the preview">
           {sizes.map((entry) => (
-            <button type="button" key={entry.label} className={`frame-builder-button frame-builder-button--small${entry === size ? ' is-active' : ''}`} aria-pressed={entry === size}
+            <button type="button" key={entry.label} className={`frame-builder-button frame-builder-button--small${entry.label === size.label ? ' is-active' : ''}`} aria-pressed={entry.label === size.label}
                     title={entry.width ? `${entry.width}px wide` : 'As wide as this window'} onClick={() => setSize(entry)}>
               {entry.label}{entry.width ? ` · ${entry.width}` : ''}
             </button>
@@ -297,9 +305,168 @@ const withSavedParagraphs = (items, saved) => items.map((entry) => {
   return { ...entry, props };
 });
 
+/**
+ * The help of a component, behind a "?" at the end of the line with its name in the right column: a popover that a
+ * click opens and closes, as Escape and a click elsewhere close it.
+ */
+function ComponentHelp({ label, help }) {
+  const [open, setOpen] = useState(false);
+  const box = useRef(null);
+  useEffect(() => {
+    if (!open) return undefined;
+    const close = (event) => { if (!box.current?.contains(event.target)) setOpen(false); };
+    const escape = (event) => { if (event.key === 'Escape') { event.stopPropagation(); setOpen(false); box.current?.querySelector('button')?.focus(); } };
+    document.addEventListener('mousedown', close, true);
+    document.addEventListener('keydown', escape, true);
+    return () => { document.removeEventListener('mousedown', close, true); document.removeEventListener('keydown', escape, true); };
+  }, [open]);
+  return (
+    <span className="frame-builder-help" ref={box}>
+      <button type="button" className="frame-builder-help__button" aria-expanded={open} aria-controls="frame-builder-help" aria-label={`Help: ${label}`}
+              title="Help" onClick={() => setOpen(!open)}>
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+          <circle cx="10" cy="10" r="8.25" fill="none" stroke="currentColor" strokeWidth="1.5" />
+          <path d="M7.75 7.75a2.25 2.25 0 1 1 3.3 2c-.65.35-1.05.9-1.05 1.6v.4" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+          <circle cx="10" cy="14.4" r="1" fill="currentColor" />
+        </svg>
+      </button>
+      {open && (
+        <span id="frame-builder-help" className="frame-builder-help__popover" role="tooltip">
+          {help.split(/\n\s*\n/).map((paragraph) => <span key={paragraph} className="frame-builder-help__paragraph">{paragraph.trim()}</span>)}
+        </span>
+      )}
+    </span>
+  );
+}
+
+const definitionsById = new Map(settings.components.map((definition) => [toPuckType(definition.id), definition]));
+
+/** Puts the help of the selected component at the end of the line with its name, at the top of the right column. */
+function HelpOfSelected() {
+  const type = usePuckApi((state) => state.selectedItem?.type);
+  const definition = type ? definitionsById.get(type) : null;
+  const [target, setTarget] = useState(null);
+  const marker = useRef(null);
+  useLayoutEffect(() => {
+    // Puck draws the fields twice: in the right column, and in a tab of the left one for narrow windows. Only the
+    // right column has a title to put the help next to; the other copy has none and shows none.
+    const column = marker.current?.closest('[class^="_Sidebar_"], [class*=" _Sidebar_"], [class*="PuckPluginTab-body"]');
+    const title = column && !column.matches('[class*="PuckPluginTab-body"]') ? column.querySelector('[class*="SidebarSection-title"]') : null;
+    setTarget(definition?.help ? title : null);
+  }, [type, definition]);
+  return (
+    <>
+      <span ref={marker} hidden />
+      {target && definition?.help && createPortal(<ComponentHelp key={type} label={definition.label} help={definition.help} />, target)}
+    </>
+  );
+}
+
+/**
+ * The breakpoints at the top of the canvas, as above the features of a component. With a breakpoint chosen, the canvas
+ * is as wide as that breakpoint starts (scrolled sideways when the canvas is narrower), and its components show the
+ * layout and style they have from there on.
+ */
+function CanvasBreakpoints() {
+  const current = useBreakpoint();
+  const [canvas, setCanvas] = useState(null);
+  useEffect(() => {
+    // Puck replaces its canvas while it starts (and when the layout of the editor changes): the one shown now.
+    const find = () => document.querySelector('#frame-builder [class*="PuckCanvas_"]');
+    let found = null;
+    const check = () => {
+      const now = find();
+      if (now !== found) { found = now; setCanvas(now); }
+    };
+    check();
+    const observer = new MutationObserver(check);
+    observer.observe(document.getElementById('frame-builder'), { childList: true, subtree: true });
+    return () => observer.disconnect();
+  }, []);
+  useLayoutEffect(() => {
+    if (!canvas) return undefined;
+    const breakpoint = (settings.breakpoints || []).find((entry) => entry.id === current);
+    const apply = () => {
+      if (!breakpoint) {
+        canvas.removeAttribute('data-frame-builder-width');
+        canvas.style.removeProperty('--frame-builder-canvas-width');
+        return;
+      }
+      canvas.setAttribute('data-frame-builder-width', breakpoint.id);
+      canvas.style.setProperty('--frame-builder-canvas-width', `${breakpoint.width}px`);
+    };
+    apply();
+    return undefined;
+  }, [canvas, current]);
+  return canvas && (settings.breakpoints || []).length ? createPortal(<div className="frame-builder-canvas-breakpoints"><BreakpointTabs widths label="Width of the canvas" /></div>, canvas) : null;
+}
+
 /** The right column of the editor: Puck's fields, or the history timeline in their place. */
 function RightColumn({ children }) {
-  return useHistoryOpen() ? <HistoryPanel /> : children;
+  if (useHistoryOpen()) return <HistoryPanel />;
+  return <>{children}<HelpOfSelected /><FullNames /></>;
+}
+
+/**
+ * Above the name of the selected component, in place of Puck's breadcrumbs: a house that goes back to the page, and
+ * the one component it is in, if any. Both small, on a line of their own; a long name is cut, the whole name in its
+ * tooltip.
+ */
+// Mounted once, in the header: it fills every copy of the title itself.
+function Trail() {
+  const selected = usePuckApi((state) => state.selectedItem?.props?.id ?? null);
+  const content = usePuckApi((state) => state.appState.data.content);
+  const config = usePuckApi((state) => state.config);
+  const dispatch = usePuckApi((state) => state.dispatch);
+  const [hosts, setHosts] = useState([]);
+  useEffect(() => {
+    // Puck draws the right column twice (the second for narrow windows) and anew when the selection changes.
+    const place = () => {
+      const found = [...document.querySelectorAll('#frame-builder [class*="SidebarSection-breadcrumbs"]')].map((row) => {
+        let host = row.querySelector(':scope > .frame-builder-trail');
+        if (!host) {
+          host = Object.assign(document.createElement('nav'), { className: 'frame-builder-trail' });
+          host.setAttribute('aria-label', 'Where the component is');
+          row.prepend(host);
+        }
+        return host;
+      });
+      setHosts((before) => (before.length === found.length && before.every((host, at) => host === found[at]) ? before : found));
+    };
+    place();
+    const observer = new MutationObserver(place);
+    observer.observe(document.getElementById('frame-builder'), { childList: true, subtree: true });
+    return () => observer.disconnect();
+  }, []);
+  if (!selected) return null;
+  const parent = parentOf(content, selected);
+  const name = parent ? config.components[parent.type]?.label || parent.type : '';
+  const trail = (
+    <>
+      <button type="button" className="frame-builder-trail__home" title="Page" aria-label="Page" onClick={() => dispatch({ type: 'setUi', ui: { itemSelector: null } })}>
+        <svg width="16" height="16" viewBox="0 0 20 20" aria-hidden="true"><path d="M3 9.5 10 3.5l7 6M5 8.2V16.5h3.8v-4.5h2.4v4.5H15V8.2" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" /></svg>
+      </button>
+      {parent && (
+        <>
+          <svg className="frame-builder-trail__separator" width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><path d="M4.5 2.5 8 6l-3.5 3.5" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg>
+          <button type="button" className="frame-builder-trail__parent" title={name}
+                  onClick={() => dispatch({ type: 'setUi', ui: { itemSelector: selectorFor(content, parent.props.id) } })}>{name}</button>
+        </>
+      )}
+    </>
+  );
+  return <>{hosts.map((host, at) => <Fragment key={at}>{createPortal(trail, host)}</Fragment>)}</>;
+}
+
+/** The name in the title of the right column can be long: the whole name is its tooltip. */
+function FullNames() {
+  const selected = usePuckApi((state) => state.selectedItem?.props?.id);
+  useEffect(() => {
+    document.querySelectorAll('#frame-builder [class*="SidebarSection-heading"] h2').forEach((label) => {
+      label.title = label.textContent;
+    });
+  }, [selected]);
+  return null;
 }
 
 function Editor() {
@@ -425,12 +592,24 @@ function Editor() {
         config={config}
         data={initial}
         onChange={onChange}
+        // Undo and redo bring back a whole earlier state of Puck, with the panel that was open then: the panel open now
+        // stays open, as the user chose it.
+        onAction={(action, state, before) => {
+          // Several selected: the others follow the one dragged.
+          followMove(action, state, before, (next) => puckApi.dispatch?.(next));
+          const was = before?.ui?.plugin?.current;
+          if (action.type === 'set' && was && state?.ui?.plugin?.current !== was) {
+            setTimeout(() => puckApi.dispatch?.({ type: 'setUi', ui: { plugin: { current: was } } }), 0);
+          }
+        }}
         onPublish={(data) => save(data, { as: settings.actions.publish ? 'publish' : null })}
         iframe={{ enabled: false }}
         headerTitle={note || undefined}
         plugins={plugins}
         // Room for Drupal's field widgets in the Content panel; the sidebar can be resized.
-        ui={{ leftSideBarWidth: 380 }}
+        // On a small window the left column leaves the canvas some room.
+        // The right column has room for a row of a multiple value field: a handle, the value and Remove.
+        ui={{ leftSideBarWidth: Math.max(260, Math.min(380, Math.round(window.innerWidth * 0.27))), rightSideBarWidth: Math.max(280, Math.min(360, Math.round(window.innerWidth * 0.24))) }}
         dictionary={{ 'header-publish': 'Save', 'plugin-outline': 'Structure', 'outline-header-title': 'Structure' }}
         permissions={locked ? { drag: false, insert: false, delete: false, duplicate: false } : undefined}
         overrides={{
@@ -440,7 +619,10 @@ function Editor() {
           headerActions: () => (
             <>
               <CapturePuck />
+              <SelectionOnCanvas />
+              <Trail />
               <HistoryButton />
+              <DeleteSelected />
               {dirty && <span className="frame-builder-unsaved" role="status">Unsaved changes</span>}
               {dirty
                 ? <button type="button" className="frame-builder-button frame-builder-button--small" title="See the page with your unsaved changes. Nothing is saved." onClick={preview}>Preview</button>
@@ -460,6 +642,7 @@ function Editor() {
         }}
       />
       <ContentFrames />
+      <CanvasBreakpoints />
       {previewing && <PreviewDialog onClose={() => setPreviewing(false)} />}
       {status && (
         <div className={`frame-builder-messages frame-builder-messages--${status.type} frame-builder-messages--floating`} role={status.type === 'error' ? 'alert' : 'status'}>

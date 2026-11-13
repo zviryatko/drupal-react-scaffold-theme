@@ -109,6 +109,28 @@ the statistics once (`drush entity-usage:recreate`, or the *Batch update* tab of
 `LayoutReferences` finds the references by walking the stored document, without the components' schemas, so it does not
 depend on the active theme.
 
+### Export and import
+
+A layout is a field of its page, so it travels with Drupal's content export (core 11.2 and newer):
+
+```bash
+php core/scripts/drupal content:export node 12 --with-dependencies --dir=../content
+```
+
+and is imported like any exported content: by a recipe that has the files in its `content` folder, or with core's
+`Importer`. Two things are done for it (`EventSubscriber\ContentExport`):
+
+- **In the file the layout is the document itself**, under `frame_layout: - layout:`, not the JSON text the field
+  stores. It reads and compares like the rest of the file.
+- **What the layout refers to is named by UUID**, since ids differ from site to site: the media item of an image
+  (`media_uuid`), a link picked from the site's content (`entity:node/<uuid>`, also inside rich text and lists), the
+  paragraph of a Paragraph block (`paragraph_uuid`). Each is a dependency of the page, so `--with-dependencies` exports
+  it too, and so are the saved blocks the layout links to. On import they get the ids of the importing site; the list
+  of the page's paragraphs is made again from the layout.
+
+Translations are exported with their layout or, in the synced mode, their texts. A link that is typed as a path
+(`/node/12`) is left as typed.
+
 ## Rendering a page
 
 ```
@@ -278,7 +300,7 @@ The layout is data typed by editors, so nothing in it is printed as is:
 | `AiPanel.jsx` | the chat of the AI assistant |
 | `contentFrame.jsx` | the frames of the node form |
 | `History.jsx`, `history.js` | the history timeline |
-| `TokenInput.jsx`, `TokenBrowser.jsx`, `tokens.js`, `ckeditorTokens.js` | tokens: autocomplete and browser |
+| `TokenInput.jsx`, `TokenBrowser.jsx`, `tokens.js`, `ckeditorTokens.js` | tokens: suggestions while typing `[`, the list of tokens of the T button, the clear button of text fields |
 | `types.js` | conversion of component ids |
 | `frameTokens.js` | token autocomplete for rich text fields of the node form (a bundle of its own) |
 

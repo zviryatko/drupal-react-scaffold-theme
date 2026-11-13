@@ -92,14 +92,19 @@ component stays usable there.
 | `x-builder-widget: color` | Swatches of the theme's palette | a CSS colour: `#008068` |
 | `x-builder-widget: hidden` | none | filled by the builder |
 | `x-builder-widget: textarea` | Multi-line text, with tokens | a string |
+| `format: date`, `time`, `date-time`, `email` | The browser's input for it | a string: `2026-11-12`, `09:30`, `2026-11-12T09:30`, an address |
+| `type: array` whose `items` have an `enum` | Checkboxes: several of the choices | a list of the chosen values |
+| `type: array` with `items` | A list: several values, added, dragged into order and removed, each with the field of its kind. See [Lists and groups](#lists-and-groups) | a list |
+| `type: object` with `properties` | A group: the fields of its properties together | an object |
 
 Other keywords:
 
 | Keyword | Meaning |
 |---|---|
+| `help` (top level of the file) | help for editors about the whole component: a **?** at the end of its name in the right column shows it on a click. Plain text; an empty line starts a paragraph. `thirdPartySettings.frame_builder.help` works too |
 | `title`, `description` | label and help text of the field. Write a description for every prop whose effect is not obvious from its label: it is all the guidance an editor gets |
 | `examples: [value]` | the value a newly added component starts with (`default` is used when there are no examples) |
-| `required` | marks the field |
+| `required` | marks the field, and a page is not saved while a required prop has no value: the message names the component and the field, also inside lists and groups (*Links › Links 2: Link is required.*). `minItems` is checked the same way |
 | `x-builder-format: basic_html` | pins the text format of a rich text prop |
 | `x-builder-icon-class: 'bi bi-{name}'` | how an icon of an icon picker is drawn; `{name}` is the enum value |
 | `x-builder-translatable: false` | the prop is not translated in the *synced* translation mode |
@@ -109,13 +114,93 @@ Details worth knowing:
 - **Optional props that are empty are not passed**, so `|default()` in Twig applies. Core does not apply schema defaults
   itself.
 - **A choice left empty gets its declared default** (`default`, else the first example).
-- **Tokens** work in text, link and rich text props: typing `[` suggests them step by step, *Browse available tokens*
-  lists them. They are replaced when the page is rendered, in the language of the page.
+- **Tokens** work in text, link and rich text props: typing `[` suggests them step by step
+  (the type, then the token, then what it leads to). In a text or link field the **T** button (shown on hover and
+  focus) lists every token, filtered by the words typed, and inserts the one picked where the caret was; the **×**
+  button next to it clears the field. They are replaced when the page is rendered, in the language of the page.
+- **Link suggestions** are chosen with the mouse or with the keyboard: up and down move through them, Enter or Tab
+  takes the one chosen, Escape closes them.
 - **Links** picked from the suggestions are stored as `entity:node/N` and printed as the URL of that page in the language
   of the page being viewed, so they need no translating.
 - **Rich text** is stored with its text format and filtered by it on output. A user can only use formats they have
   access to.
-- Props of the types `object` and `array` have no field yet and are not offered.
+- An `object` without `properties` and an `array` without `items` have no field: the builder cannot tell what is
+  in them.
+- **How a schema is read.** `oneOf` and `anyOf`: the first part that names a type is the one offered. `allOf`: its
+  parts together. `type: [integer, string]`: a text field, and the component gets a number when the text is one. A
+  prop with `const` has no field and always gets that value. A prop that only points elsewhere (`$ref`) has no field.
+  A prop named `id` is not passed: `id` is the id of the item in the layout.
+- **Limits are checked when the page is saved**, with a message that names the component and the field: `required`,
+  `minItems`, `maxItems`, `uniqueItems`, `minimum`, `maximum`, `multipleOf`, `minLength`, `maxLength`, `pattern`, the
+  formats above, and a choice that is not one of the `enum`. Text with a token in it is not measured.
+- **Text in square brackets** stays as typed. A token of a kind Drupal knows that has no value on this page
+  (`[node:summary]` without a summary) leaves nothing.
+
+### Lists and groups
+
+A prop that takes several values is a field with several values, drawn as Drupal draws a multiple value field: a table
+with the label in its header and a row for each value, with the field of its kind and a **Remove** button. **Add
+another item** adds one. Values are put in order by dragging the handle of their row (or with the arrow keys while the
+handle has the focus), or with the **Order** column that **Show row weights** shows. A row that was moved is marked
+with an asterisk.
+
+```yaml
+links:
+  type: array
+  title: Links
+  maxItems: 30            # no more can be added; minItems: no fewer can be left
+  items:
+    type: object
+    properties:
+      label: { type: string, title: Text }
+      url: { type: string, title: Link, format: uri-reference }
+      new_tab: { type: boolean, title: 'Open in a new tab' }
+    required: [label, url]
+```
+
+```twig
+{% for link in links %}
+  <a href="{{ link.url }}"{% if link.new_tab %} target="_blank" rel="noopener"{% endif %}>{{ link.label }}</a>
+{% endfor %}
+```
+
+- **What a value is** is the schema under `items`: any of the kinds of the table above. A plain kind
+  (`items: { type: string }`) gives one field per value; an `object` gives its fields, folded under a line that shows
+  the first text of the value.
+- **A group** (`type: object` with `properties`) is the same without the list: fields that belong together, such as a
+  picture with its caption. Lists and groups can be inside each other.
+- Values are handled one by one, as props are: tokens are replaced, a link picked from the site's content follows
+  the language of the page, rich text is filtered by its text format, an image is the URL of the picked media item
+  in its image style. A value that ends up empty is left out, so the template gets only what has content.
+- **Translations**, in the *synced* mode: a list with text or links in it is translated as a whole. On the
+  translation its values are edited in place; adding, removing and moving are for the original.
+  `x-builder-translatable: false` on the list keeps it the same in every language.
+- An item of a list cannot have both a `type` and a `props` property: that is what an item of a slot looks like.
+- **A list of lists** (the rows of a table: `items: { type: array, items: { type: string } }`) keeps empty values in
+  the inner lists, so a cell without text stays a cell. Elsewhere a value that is empty is left out.
+- **A group with nothing set** is not passed, whatever a choice in it defaults to.
+- Lists and groups go four levels deep. Deeper, a prop has no field and is not passed.
+- **A new value** starts with the `examples` (or `default`) of its properties, or, as a whole, with the first of the
+  `examples` of `items`: `items: { type: object, properties: {…}, examples: [{ label: 'New link', url: '/' }] }`.
+- **A value that is an object** has the fields of the object in its row, as Drupal's link widget has the URL and the
+  link text. With more than four fields they fold under a line that names the value.
+- **The line of a folded value** shows its first text. `x-builder-summary: label` on the list names the property to
+  show instead.
+- **An image with more than its URL.** `contentMediaType: image/*` in a list or a group gives the URL. A property of
+  `type: object` with `x-builder-widget: image` gives an object: `url`, `alt`, `width`, `height`, and with a responsive
+  image style `srcset` and `sizes`; when the schema names `properties`, only those. A property `sources` gets the
+  images of the responsive image style with their media queries, `[{ media, url }]`, for components that choose the
+  image themselves.
+
+```yaml
+picture:
+  type: object
+  title: Picture
+  x-builder-widget: image
+  properties: { url: { type: string }, alt: { type: string }, width: { type: integer }, height: { type: integer } }
+```
+
+The base theme's [Links](/builder/base-components) component is an example.
 
 ## Slots
 
@@ -194,6 +279,27 @@ thirdPartySettings:
 ```
 
 See [Tokens, features and global styling](/builder/styling) for what each feature does.
+
+## Components that are no blocks
+
+A theme has components that are parts of pages or of other components: a pagination, a loading indicator, an icon, a
+tooltip. The builder does not need to offer them. There are two ways to leave one out of the list of blocks:
+
+- **The theme**, in the component's file:
+
+  ```yaml
+  thirdPartySettings:
+    frame_builder:
+      offer: false
+  ```
+
+- **The site**, on *Configuration → Content authoring → Components of the page builder*
+  (`/admin/config/content/frame-builder/components`): every component of the default theme and its base themes, by
+  group, checked when it is offered. Needs the permission *Administer site configuration*.
+
+A component left out is not in the list of blocks and is not offered to the AI assistant. A page that already has one
+still shows it, and its fields can still be edited there. `noUi: true` (core) hides a component entirely: it is not on
+the settings page either.
 
 ## An example
 

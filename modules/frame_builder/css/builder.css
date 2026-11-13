@@ -13,7 +13,9 @@
 
 /* The preview is the page: no gutter of its own, a thin one from the editor around it. */
 .frame-builder-root { min-height: 100%; }
-#frame-builder [class*="PuckCanvas_"] { padding: 8px; }
+/* Room above the first component for the bar of the selected one (its name, duplicate, delete): Puck puts that bar
+   above the component, where the header would cover it. */
+#frame-builder [class*="PuckCanvas_"] { padding: 54px 8px 8px; }
 /* The rail of panels. Labels of field groups are words of the site: a little smaller and with the whole width of the
    rail, so a long word fits; a longer one wraps instead of leaving it. */
 #frame-builder [class*="NavItem-link"] > span:last-child { max-width: calc(100% + 16px); margin-inline: -8px; font-size: 11px; overflow-wrap: anywhere; }
@@ -56,7 +58,8 @@
   outline: 0; box-shadow: 0 0 0 2px #fff, 0 0 0 5px #26a769;
 }
 .frame-builder-input[readonly], .frame-builder-select:disabled, .frame-builder-checkbox:disabled { background-color: #f2f2f3; border-color: #bababf; color: #828388; cursor: not-allowed; box-shadow: none; }
-.frame-builder-checkbox { width: 18px; height: 18px; margin: 2px 0 0; accent-color: #003ecc; cursor: pointer; }
+/* The browser's own checkbox, whatever a reset of the theme does to form controls. */
+.frame-builder-checkbox { appearance: auto; width: 18px; height: 18px; margin: 2px 0 0; accent-color: #003ecc; cursor: pointer; }
 .frame-builder-datetime { display: grid; grid-template-columns: minmax(0, 11fr) minmax(0, 9fr); gap: 6px; }
 .frame-builder-datetime .frame-builder-input { min-width: 0; padding-left: 8px; padding-right: 4px; font-size: 13px; }
 
@@ -66,7 +69,9 @@
   background: #d3d4d9; color: #232429; font: 700 14px/1.2 system-ui, sans-serif; text-decoration: none; cursor: pointer;
 }
 .frame-builder-button:hover { background: #c2c3ca; color: #232429; }
-.frame-builder-button--small { padding: 6px 12px; font-size: 13px; }
+/* Claro's small button (button--small). */
+.frame-builder-button--small { padding: 7px 15px; font-size: 0.79rem; line-height: 1.2; }
+.frame-builder-button:disabled { background: #eaebef; color: #8e929c; cursor: default; }
 .frame-builder-link { padding: 0; border: 0; background: none; color: #003ecc; font: inherit; text-decoration: underline; cursor: pointer; text-align: left; }
 .frame-builder-link:hover { color: #0036b1; }
 .frame-builder-token-link { align-self: flex-start; font-size: 12.5px; }
@@ -130,7 +135,13 @@
 .frame-builder-messages { position: relative; padding: 12px 40px 12px 16px; border-left: 6px solid #26a769; border-radius: 2px; background: #353641; color: #fff; }
 .frame-builder-messages--error { border-left-color: #e34f4f; }
 .frame-builder-messages--busy { border-left-color: #8e929c; }
-.frame-builder-messages--floating { position: fixed; z-index: 2040; top: 76px; left: 50%; transform: translateX(-50%); width: min(560px, calc(100% - 32px)); box-shadow: 0 8px 24px rgb(0 0 0 / 30%); }
+/* Messages of the editor: notifications at the bottom right, over the edge of the right column, not over the canvas. */
+.frame-builder-messages--floating {
+  position: fixed; z-index: 2040; inset-block-end: 16px; inset-inline-end: 16px; width: min(400px, calc(100% - 32px)); box-sizing: border-box;
+  box-shadow: 0 8px 24px rgb(0 0 0 / 30%); animation: frame-builder-notify .18s ease-out;
+}
+@keyframes frame-builder-notify { from { opacity: 0; transform: translateY(12px); } }
+@media (prefers-reduced-motion: reduce) { .frame-builder-messages--floating { animation: none; } }
 .frame-builder-messages__title { font-weight: 700; }
 .frame-builder-messages ul { margin: 4px 0 0; padding-left: 18px; }
 .frame-builder-messages__close { position: absolute; top: 6px; right: 8px; border: 0; background: none; color: #fff; font-size: 20px; cursor: pointer; }
@@ -279,7 +290,7 @@
 .frame-builder-form-item:has(> .frame-builder-feature) { gap: 0; }
 .frame-builder-form-item:has(> .frame-builder-feature) > .frame-builder-form-heading { margin-bottom: 12px; }
 .frame-builder-feature { display: block; margin: -1px 0 0; color: #232429; border: 1px solid #dedfe4; border-radius: 0; background: #fff; box-shadow: 0 2px 4px rgb(0 0 0 / 10%); font-family: BlinkMacSystemFont, -apple-system, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif; }
-.frame-builder-form-heading + .frame-builder-feature { margin-top: 0; border-top-left-radius: 2px; border-top-right-radius: 2px; }
+.frame-builder-form-heading + .frame-builder-feature, .frame-builder-tabs + .frame-builder-feature { margin-top: 0; border-top-left-radius: 2px; border-top-right-radius: 2px; }
 [class*="PuckFields-field"]:not(:has(+ [class*="PuckFields-field"] .frame-builder-feature)) .frame-builder-feature { border-bottom-right-radius: 2px; border-bottom-left-radius: 2px; }
 .frame-builder-feature__title {
   position: relative; display: block; box-sizing: border-box; margin: 0; padding: 20px 24px 20px 36px;
@@ -307,7 +318,8 @@
 .frame-builder-feature__body { display: flex; flex-direction: column; gap: 12px; padding: 16px 16px 24px; border-top: 1px solid #dedfe4; background: rgb(243 244 249 / 40%); }
 .frame-builder-feature__field { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
 .frame-builder-feature .frame-builder-label, .frame-builder-label--sub { font-size: 13px; font-weight: 600; }
-.frame-builder-pair { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 6px; align-items: start; }
+/* Two controls side by side where the column has room for both, one under the other where it has not. */
+.frame-builder-pair { display: grid; grid-template-columns: repeat(auto-fit, minmax(104px, 1fr)); gap: 6px; align-items: start; }
 .frame-builder-pair .frame-builder-length .frame-builder-select, .frame-builder-pair > .frame-builder-select { width: 100%; }
 .frame-builder-description--error { color: #dc2323; }
 /* Inline formatter settings apply by themselves: no button. */
@@ -354,7 +366,8 @@
 .frame-builder-block:hover .frame-builder-block-icon { color: #003ecc; }
 /* Icon font on the button of a panel made of a field group (Field Group module), in the rail of the editor. */
 .frame-builder-panel-icon { display: block; width: 24px; height: 24px; font-size: 22px; line-height: 24px; text-align: center; }
-.frame-builder-block__label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 14px; }
+/* Long names (views, blocks of Drupal) take two lines, then end in an ellipsis; the whole name is the tooltip. */
+.frame-builder-block__label { display: -webkit-box; overflow: hidden; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow-wrap: anywhere; font-size: 14px; line-height: 1.3; }
 .frame-builder-block__label small { margin-left: 8px; font-size: 11px; color: #75767b; }
 .frame-builder-block__grip { color: #a8a9ae; }
 
@@ -438,3 +451,259 @@
 /* Two selects next to each other inside a section, each with its label. */
 .frame-builder-feature__body .frame-builder-pair > .frame-builder-feature__field { flex: 1; min-width: 0; }
 .frame-builder-checkbox { display: flex; align-items: center; gap: 6px; font-size: 14px; cursor: pointer; }
+
+/*
+ * Several values of a prop (a list of links, of rows): a multiple value field of Drupal as Claro draws it
+ * (tables.css, tabledrag.css, form--field-multiple.css, messages.css, action-link.css, at its sizes and colours).
+ */
+.frame-builder-multiple { gap: 0; }
+.frame-builder-multiple.is-sorting, .frame-builder-multiple.is-sorting * { cursor: row-resize !important; user-select: none; }
+/* "Show row weights": an action link, at the end of the line above the table. */
+.frame-builder-multiple__toggle-weight { text-align: end; }
+.frame-builder-action-link {
+  display: inline-flex; align-items: center; gap: 4px; padding: 4px 0; border: 0; border-radius: 2px; background: none;
+  font: 700 12.6px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; color: #55565b; cursor: pointer;
+}
+.frame-builder-action-link:hover { color: #0036b1; }
+.frame-builder-action-link:focus-visible { outline: none; box-shadow: 0 0 0 2px #fff, 0 0 0 5px #26a769; }
+.frame-builder-action-link::before { content: ""; width: 16px; height: 16px; background: no-repeat center; }
+.frame-builder-action-link--icon-show::before { background-image: url("data:image/svg+xml,%3csvg fill-rule='evenodd' height='16' fill='%23545560' width='16' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='M8 3C4.364 3 1.258 5.073 0 8c1.258 2.927 4.364 5 8 5s6.742-2.073 8-5c-1.258-2.927-4.364-5-8-5zm0 8a3 3 0 100-6 3 3 0 000 6z'/%3e%3c/svg%3e"); }
+.frame-builder-action-link--icon-hide::before { background-image: url("data:image/svg+xml,%3csvg fill-rule='evenodd' height='16' fill='%23545560' width='16' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='M2.01 1.696L2 1.707 14.072 13.78l-.696.697-2.078-2.078A9.232 9.232 0 018 13c-3.636 0-6.742-2.073-8-5 .647-1.505 1.783-2.784 3.228-3.672L1 2.1l.707-.707zM5 8c0-.546.146-1.058.4-1.5l4.1 4.1A3 3 0 015 8zM5.151 3.444l1.76 1.76a3 3 0 013.885 3.885l2.344 2.344C14.41 10.561 15.41 9.375 16 8c-1.258-2.927-4.364-5-8-5-.999 0-1.958.156-2.849.444z'/%3e%3c/svg%3e"); }
+/* After a move: the warning of tabledrag.js above the table, and the mark of the moved rows. */
+.frame-builder-multiple__changed {
+  margin: 8px 0 4px; padding: 10px 12px 10px 14px; border-left: 5px solid #e0ac00; border-radius: 2px;
+  background: #353641; color: #fff; font-size: 13px; line-height: 1.4;
+}
+.frame-builder-multiple__marker { text-decoration: none; border: 0; font-weight: 700; cursor: help; }
+.frame-builder-multiple__changed .frame-builder-multiple__marker { color: #e0ac00; }
+.frame-builder-multiple__table { width: 100%; margin: 8px 0 0; border-collapse: collapse; table-layout: auto; }
+.frame-builder-multiple__table th {
+  box-sizing: border-box; height: 48px; padding: 8px 12px; background: #f3f4f9; color: #232429; text-align: start; line-height: 1.25rem;
+}
+#frame-builder .frame-builder-multiple__table th { vertical-align: middle; }
+#frame-builder .frame-builder-multiple__label h4 { margin: 0; font-size: 14px; line-height: 1.25rem; }
+.frame-builder-multiple__order-head { width: 1px; white-space: nowrap; font-size: 13px; }
+.frame-builder-multiple__row { border-bottom: 1px solid #d3d4d9; background: #fff; color: #232429; }
+.frame-builder-multiple__row:hover, .frame-builder-multiple__row:focus-within { background: #f5f8ff; }
+/* While dragging, and the row dragged last (tabledrag.css). */
+.frame-builder-multiple__row.drag, .frame-builder-multiple__row.drag:focus-within { background: #fe7; }
+.frame-builder-multiple__row.drag-previous { background: #ffb; }
+.frame-builder-multiple__table td { box-sizing: border-box; height: 64px; padding: 8px 8px; text-align: start; vertical-align: middle; }
+/* The cells after the handle start without padding, as in a draggable table. */
+.frame-builder-multiple__table td:first-child ~ td { padding-inline-start: 0; }
+.frame-builder-multiple__drag { width: 1px; padding-inline-end: 0 !important; white-space: nowrap; }
+.frame-builder-multiple__value { min-width: 0; }
+.frame-builder-multiple__value > .frame-builder-form-item > .frame-builder-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.frame-builder-multiple__value > .frame-builder-form-item--inline { display: block; }
+.frame-builder-multiple__value .frame-builder-input, .frame-builder-multiple__value .frame-builder-select { width: 100%; }
+.frame-builder-multiple__remove, .frame-builder-multiple__order { width: 1px; white-space: nowrap; }
+/* Claro's extra small button (button--extrasmall): the column is narrower than a node form. */
+.frame-builder-multiple__remove .frame-builder-button { margin: 0; padding: 3px 11px; font-size: 0.79rem; }
+/* The handle that only moves up and down (tabledrag-handle-y), larger on hover, on focus and while dragging. */
+.frame-builder-multiple__handle {
+  position: relative; display: inline-block; width: 33px; height: 32px; margin-inline-start: -8px; padding: 0; border: 0; background: none;
+  vertical-align: middle; cursor: row-resize; touch-action: none;
+}
+.frame-builder-multiple__handle::after {
+  content: ""; position: absolute; inset: 0; transition: transform .1s ease-in-out 0s;
+  background: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%23232429' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3e%3cpath d='M2 8h12'/%3e%3cpath d='M8 2l2 2 -4 0 2 -2'/%3e%3cpath d='M8 14l2 -2 -4 0 2 2'/%3e%3c/svg%3e") no-repeat center / 16px 16px;
+}
+.frame-builder-multiple__handle:is(:hover, :focus)::after, .frame-builder-multiple__row.drag .frame-builder-multiple__handle::after { transform: scale(1.25); }
+.frame-builder-multiple__handle:focus { outline: none; }
+.frame-builder-multiple__handle:focus-visible::before { content: ""; position: absolute; inset: 0 0.5px; border-radius: 2px; box-shadow: 0 0 0 3px #26a769; }
+.frame-builder-multiple__drag .frame-builder-multiple__marker { position: relative; inset-inline-start: -6px; vertical-align: middle; }
+/* The fields of a value that is an object, in its row; folded when there are many. */
+.frame-builder-multiple__fields { display: flex; flex-direction: column; gap: 12px; padding: 4px 0; }
+.frame-builder-multiple__toggle { display: flex; align-items: center; gap: 8px; width: 100%; min-width: 0; padding: 6px 0; border: 0; background: none; font: inherit; color: inherit; text-align: start; cursor: pointer; }
+.frame-builder-multiple__toggle::after { content: ""; flex: none; width: 6px; height: 6px; margin-inline: auto 4px; border: solid #55565b; border-width: 0 2px 2px 0; transform: rotate(45deg) translate(-2px, -2px); transition: transform .1s; }
+.frame-builder-multiple__toggle[aria-expanded="true"]::after { transform: rotate(-135deg) translate(-2px, -2px); }
+.frame-builder-multiple__toggle:focus-visible { outline: 2px solid #26a769; outline-offset: 2px; }
+.frame-builder-multiple__toggle + .frame-builder-multiple__fields { margin-top: 6px; }
+.frame-builder-multiple__summary { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 14px; }
+.frame-builder-multiple__summary em { color: #75767b; }
+/* "Add another item": a small button under the table (form--field-multiple.css). */
+.frame-builder-multiple__actions { margin: 12px 0 0; }
+.frame-builder-multiple__actions .frame-builder-button { margin: 0; }
+.frame-builder-multiple > .frame-builder-description { margin-top: 6px; }
+/* A list inside a value of a list: the same table, without the room around it. */
+.frame-builder-multiple__value .frame-builder-multiple__table { margin-top: 4px; }
+.frame-builder-multiple__value .frame-builder-multiple__table th { height: 36px; padding: 4px 8px; }
+.frame-builder-multiple__value .frame-builder-multiple__table td { height: 48px; padding: 4px 8px; }
+/* Values that belong together (a prop of the type object). */
+.frame-builder-group { display: flex; flex-direction: column; gap: 14px; min-width: 0; margin: 0; padding: 10px 10px 14px; border: 1px solid #d3d4d9; border-radius: 2px; font: 14px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; color: #232429; }
+.frame-builder-group > legend { padding: 0 4px; }
+
+/*
+ * The breakpoints as tabs, as Claro's secondary tabs (tabs.css): 40px high, bold, a line under them all, the chosen
+ * one in blue with a 3px line under it, a light blue background on hover.
+ */
+.frame-builder-tabs { position: relative; display: flex; margin: 0 0 12px; overflow-x: auto; scrollbar-width: none; font: 700 14px/1.2 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+.frame-builder-tabs::after { content: ""; position: absolute; inset: auto 0 0; border-bottom: 1px solid #d3d4d9; pointer-events: none; }
+.frame-builder-tabs__tab {
+  position: relative; display: flex; flex: 1 0 auto; flex-direction: column; align-items: center; justify-content: center; gap: 1px;
+  min-height: 40px; padding: 8px 14px; border: 0; border-radius: 2px 2px 0 0; background: none; color: #55565b; font: inherit; cursor: pointer; white-space: nowrap;
+}
+.frame-builder-tabs__tab:hover { background: #e5edff; color: #0036b1; }
+.frame-builder-tabs__tab.is-active { z-index: 1; color: #003ecc; }
+.frame-builder-tabs__tab.is-active::before { content: ""; position: absolute; inset: auto 0 0; border-bottom: 3px solid #003ecc; }
+.frame-builder-tabs__tab:focus-visible { z-index: 2; outline: 2px dotted transparent; box-shadow: 0 0 0 2px #fff, 0 0 0 5px #26a769; }
+.frame-builder-tabs__width { font-size: 11.5px; font-weight: 400; color: #75767b; }
+.frame-builder-tabs__tab.is-active .frame-builder-tabs__width { color: #003ecc; }
+/* At the top of the canvas: on the canvas background, as wide as its content. */
+/* With the tabs, they take the top; the room for the bar of a selected component is under them. */
+/*
+ * The canvas starts right under the tabs. Around the tabs the strip is transparent and lets clicks through, and the bar
+ * of a selected component (its name, duplicate, delete) comes over it.
+ */
+/*
+ * The canvas as wide as the chosen breakpoint starts: centred when there is room, scrolled sideways when there is not.
+ * It is not scaled down: Puck places the outline and the bar of the selected component without such a scale.
+ */
+#frame-builder [class*="PuckCanvas_"][data-frame-builder-width] [class*="PuckCanvas-inner"] { min-width: calc(var(--frame-builder-canvas-width) + 2px); }
+#frame-builder [class*="PuckCanvas_"][data-frame-builder-width] #puck-canvas-root {
+  width: var(--frame-builder-canvas-width) !important; inset-inline: 0; margin-inline: auto; transition: width .15s ease-out;
+}
+.frame-builder-feature__at { margin-left: 6px; padding: 1px 6px; border-radius: 2px; background: #e6edfb; font-size: 11px; font-weight: 600; color: #003ecc; }
+
+/* Several of a set of choices: checkboxes, as Drupal's "checkboxes" element. */
+.frame-builder-choices { min-width: 0; margin: 0; padding: 0; border: 0; }
+.frame-builder-choices > legend { padding: 0; margin-bottom: 4px; }
+.frame-builder-choices__item { display: flex; align-items: flex-start; gap: 8px; cursor: pointer; }
+
+/* A select is as wide as its column; a choice longer than that ends in an ellipsis instead of under the arrow. */
+.frame-builder-select { max-width: 100%; text-overflow: ellipsis; }
+
+/* Buttons at the end of a feature: Advanced or Simple, Reset. */
+.frame-builder-feature__buttons { display: flex; flex-wrap: wrap; gap: 8px; }
+
+/*
+ * Buttons inside a text field, at its end: insert a token (T in a circle) and clear (a cross in a circle). Shown while
+ * the pointer is over the field or the field has the focus; the field leaves room for them.
+ */
+.frame-builder-input-wrap { position: relative; }
+.frame-builder-input-wrap > .frame-builder-input { width: 100%; }
+.frame-builder-input-wrap.has-actions > .frame-builder-input { padding-inline-end: 36px; }
+.frame-builder-input-wrap.has-actions.has-token > .frame-builder-input { padding-inline-end: 62px; }
+.frame-builder-field-actions {
+  position: absolute; inset-block-start: 50%; inset-inline-end: 6px; display: flex; gap: 2px; transform: translateY(-50%);
+  opacity: 0; pointer-events: none; transition: opacity .1s;
+}
+.frame-builder-input-wrap--textarea > .frame-builder-field-actions { inset-block-start: 6px; transform: none; }
+.frame-builder-input-wrap:hover > .frame-builder-field-actions, .frame-builder-input-wrap:focus-within > .frame-builder-field-actions { opacity: 1; pointer-events: auto; }
+.frame-builder-field-action {
+  display: grid; place-items: center; width: 26px; height: 26px; padding: 0; border: 0; border-radius: 50%; background: #fff;
+  color: #75767b; cursor: pointer;
+}
+.frame-builder-field-action:hover { background: #f3f4f9; color: #003ecc; }
+.frame-builder-field-action--clear:hover { color: #d72222; }
+.frame-builder-field-action:focus-visible { outline: none; box-shadow: 0 0 0 2px #fff, 0 0 0 4px #26a769; }
+/* A read-only field has neither. */
+.frame-builder-input[readonly] ~ .frame-builder-field-actions { display: none; }
+
+/* The help of a component: "?" at the end of the line with its name; the text in a popover under it. */
+#frame-builder [class*="Sidebar--right"] [class*="SidebarSection-title"]:has(.frame-builder-help) { position: relative; display: flex; align-items: center; gap: 8px; }
+#frame-builder [class*="Sidebar--right"] [class*="SidebarSection-title"]:has(.frame-builder-help) > :first-child { flex: 1; min-width: 0; }
+.frame-builder-help { position: static; flex: none; display: flex; }
+.frame-builder-help__button { display: grid; place-items: center; width: 28px; height: 28px; padding: 0; border: 0; border-radius: 50%; background: none; color: #55565b; cursor: pointer; }
+.frame-builder-help__button:hover, .frame-builder-help__button[aria-expanded="true"] { background: #f3f4f9; color: #003ecc; }
+.frame-builder-help__button:focus-visible { outline: none; box-shadow: 0 0 0 2px #fff, 0 0 0 4px #26a769; }
+.frame-builder-help__popover {
+  position: absolute; z-index: 30; inset-inline: 12px; inset-block-start: calc(100% - 6px); display: flex; flex-direction: column; gap: 8px;
+  padding: 12px 14px; border-radius: 4px; background: #232429; color: #fff; box-shadow: 0 6px 18px rgb(0 0 0 / 22%);
+  font: 400 13px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; white-space: normal;
+}
+.frame-builder-help__popover::before { content: ""; position: absolute; inset-block-start: -6px; inset-inline-end: 22px; border: 6px solid transparent; border-top: 0; border-bottom-color: #232429; }
+
+/* The tabs draw the line under the heading of Layout and style. */
+.frame-builder-form-heading:has(+ .frame-builder-tabs) { margin-bottom: 0; border-bottom: 0; }
+
+/*
+ * The Structure panel: the tree of the layout. A bar with what is selected and what can be done with it, then a row
+ * per component, indented by depth; the chosen ones in Claro's light blue with a blue line at the start.
+ */
+.frame-builder-structure { display: flex; flex-direction: column; min-height: 100%; }
+.frame-builder-structure__tools { padding: 12px 12px 8px; }
+.frame-builder-structure__search { display: flex; align-items: center; gap: 8px; }
+.frame-builder-structure__search .frame-builder-input { flex: 1; min-width: 0; }
+.frame-builder-structure__found { flex: none; font: 12.5px/1.4 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; color: #55565b; }
+.frame-builder-structure__actions { display: flex; align-items: center; gap: 2px; margin-inline: auto 4px; }
+/* No height of their own: the title row stays as tall as it is without them. */
+.frame-builder-structure__actions { height: 0; }
+.frame-builder-structure__action { width: 28px !important; height: 28px !important; }
+/* The menu of "+": as the list of Claro's dropbutton. */
+.frame-builder-structure__popover {
+  position: absolute; z-index: 20; inset-block-start: calc(100% + 4px); inset-inline-end: 0; display: flex; flex-direction: column; width: max-content; min-width: 10rem; max-width: 12.5rem;
+  box-shadow: 0 2px 10px rgb(0 0 0 / 15%);
+}
+.frame-builder-structure__option {
+  position: relative; display: block; width: 100%; margin: 0; padding: calc(1rem - 1px); box-sizing: border-box;
+  border: 1px solid #d3d4d9; border-top-width: 0; border-radius: 0; background: #fff; color: #232429; text-align: start;
+  font: normal 1rem/1rem -apple-system, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif; -webkit-font-smoothing: antialiased; cursor: pointer;
+}
+.frame-builder-structure__option:first-child { border-top-width: 1px; border-radius: 2px 2px 0 0; }
+.frame-builder-structure__option:last-child { border-radius: 0 0 2px 2px; }
+.frame-builder-structure__option:hover { background: #f3f4f9; color: #232429; }
+.frame-builder-structure__option:focus { z-index: 3; outline: none; border-color: #26a769; box-shadow: inset 0 0 0 1px #26a769, 0 0 0 1px #26a769; }
+.frame-builder-structure__actions:empty { display: none; }
+.frame-builder-structure__count { margin-inline-end: 6px; font: 12.5px/1.4 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; color: #55565b; white-space: nowrap; }
+.frame-builder-structure__action { display: grid; place-items: center; width: 32px; height: 32px; padding: 0; border: 1px solid transparent; border-radius: 2px; background: none; color: #232429; cursor: pointer; }
+.frame-builder-structure__action:hover, .frame-builder-structure__action[aria-expanded="true"] { border-color: #d3d4d9; background: #f3f4f9; color: #003ecc; }
+.frame-builder-structure__action--danger:hover { color: #d72222; }
+.frame-builder-structure__action:focus-visible { outline: none; box-shadow: 0 0 0 2px #fff, 0 0 0 4px #26a769; }
+.frame-builder-structure__menu { position: relative; }
+/* Rows as tall as Claro's controls and table rows (2.5rem), with Claro's type size. */
+.frame-builder-structure [class*="Layer-inner"] { min-height: 2.5rem; padding-inline-end: 4px; }
+.frame-builder-structure [class*="Layer-title"] { margin-block: 0; font-size: 14px; }
+.frame-builder-structure [class*="LayerTree_"] > li + li { margin-top: 4px; }
+.frame-builder-structure [class*="Layer-zones"] { margin-top: 4px; }
+/* Rows of the selection: as Puck draws its selected row. */
+.frame-builder-structure [data-frame-chosen] > [class*="Layer-inner"] {
+  border-color: var(--puck-outline-color-border-selected, var(--puck-color-selection-border));
+  background: var(--_puck-outline-color-bg-selected);
+}
+/* Full width: the canvas fills the column between the panels, however narrow, without scrolling sideways. */
+#frame-builder [class*="PuckCanvas_"]:not([data-frame-builder-width]) [class*="PuckCanvas-inner"] { min-width: 0; }
+#frame-builder [class*="PuckCanvas_"]:not([data-frame-builder-width]) #puck-canvas-root { min-width: 0; width: 100% !important; }
+#frame-builder [class*="PuckCanvas_"]:not([data-frame-builder-width]) { overflow-x: hidden; }
+/* In a narrow canvas the tabs of the widths keep inside it, and scroll by themselves. */
+/* What Puck draws on the canvas (outlines, the bar of the selected component) stays inside it when it is scrolled. */
+#frame-builder [class*="PuckCanvas_"] { clip-path: inset(0); }
+
+/*
+ * The widths of the canvas: a bar across the top of the canvas, as wide as the column, with the tabs in its middle. It
+ * stays there while the canvas scrolls, down and sideways.
+ */
+#frame-builder [class*="PuckCanvas_"]:has(> .frame-builder-canvas-breakpoints) { padding-top: 0; }
+.frame-builder-canvas-breakpoints {
+  position: sticky; z-index: 0; top: 0; inset-inline-start: -8px; order: -1; display: flex; justify-content: center; flex: none;
+  box-sizing: border-box; width: calc(100% + 16px); max-width: none; margin: 0 -8px 12px; border-bottom: 1px solid #d3d4d9; background: #fff;
+}
+.frame-builder-canvas-breakpoints .frame-builder-tabs { flex: 0 1 auto; min-width: 0; max-width: 100%; margin: 0; overflow-x: auto; border: 0; background: none; scrollbar-width: none; }
+.frame-builder-canvas-breakpoints .frame-builder-tabs::after { content: none; }
+.frame-builder-canvas-breakpoints .frame-builder-tabs__tab { flex: none; min-height: 44px; padding: 6px 18px; }
+/*
+ * The title of the right column: the components the selected one is in ("Page › Card Group ›") on a line of their own,
+ * long names cut with an ellipsis (the whole name in their tooltip), then the name of the selected one, wrapping.
+ */
+#frame-builder [class*="SidebarSection-breadcrumbs"] { flex-wrap: wrap; row-gap: 4px; min-width: 0; }
+#frame-builder [class*="SidebarSection-breadcrumbs"] > [class*="Breadcrumbs_"] { flex: 1 1 100%; flex-wrap: wrap; min-width: 0; font-size: 13px; }
+#frame-builder [class*="Breadcrumbs-breadcrumb_"] { min-width: 0; max-width: 100%; }
+#frame-builder [class*="Breadcrumbs-breadcrumb_"] > svg { flex: none; }
+#frame-builder [class*="Breadcrumbs-breadcrumbLabel"] { flex-shrink: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#frame-builder [class*="SidebarSection-heading"] { flex: 1 1 100%; min-width: 0; padding-inline-end: 0; }
+#frame-builder [class*="SidebarSection-heading"] h2 { overflow-wrap: anywhere; }
+
+/* "The colour of the text": a swatch of the current colour, with a line through it as a hint that it follows the text. */
+.frame-builder-swatch--current { background: linear-gradient(135deg, #fff 45%, #232429 45%, #232429 55%, #fff 55%); }
+
+/* The trail above the name of the selected component: Puck's breadcrumbs give way to it. */
+#frame-builder [class*="SidebarSection-breadcrumbs"] > [class*="Breadcrumbs_"] { display: none; }
+.frame-builder-trail { display: flex; flex: 1 1 100%; align-items: center; gap: 4px; min-width: 0; font-size: 13px; line-height: 1.3; }
+.frame-builder-trail__home, .frame-builder-trail__parent {
+  min-width: 0; padding: 2px; border: 0; border-radius: 2px; background: none; font: inherit; color: #003ecc; cursor: pointer;
+}
+.frame-builder-trail__home { display: grid; flex: none; place-items: center; margin-inline-start: -2px; }
+.frame-builder-trail__parent { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-align: start; }
+.frame-builder-trail__home:hover, .frame-builder-trail__parent:hover { color: #0036b1; text-decoration: underline; }
+.frame-builder-trail__home:focus-visible, .frame-builder-trail__parent:focus-visible { outline: 2px solid #26a769; outline-offset: 1px; }
+.frame-builder-trail__separator { flex: none; color: #75767b; }

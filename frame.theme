@@ -19,3 +19,67 @@ function frame_js_settings_alter(array &$settings, AttachedAssetsInterface $asse
   $tokenGenerator = \Drupal::service('csrf_token');
   $settings['csrfToken'] = $tokenGenerator->get(CsrfRequestHeaderAccessCheck::TOKEN_KEY);
 }
+
+/**
+ * Implements hook_theme_registry_alter().
+ *
+ * Drupal looks for templates in the whole folder of a theme and leaves out
+ * the folders of its subthemes only when they are installed. Themes kept
+ * inside this one (examples/, a subtheme under development) that are not
+ * part of the active theme would otherwise give their templates to every
+ * theme based on Frame: an article of one site rendered with the node
+ * template of an example. Such templates are taken out again.
+ */
+function frame_theme_registry_alter(array &$registry) {
+  $themes = \Drupal::service('extension.list.theme');
+  $own = $themes->getPath('frame') . '/';
+  $active = \Drupal::theme()->getActiveTheme();
+  $used = array_merge([$active->getName()], array_keys($active->getBaseThemeExtensions()));
+  $foreign = [];
+  foreach ($themes->getList() as $name => $theme) {
+    $path = $theme->getPath() . '/';
+    if ($path !== $own && str_starts_with($path, $own) && !in_array($name, $used, TRUE)) {
+      $foreign[] = $path;
+    }
+  }
+  if (!$foreign) {
+    return;
+  }
+  $inside = static function (array $info) use ($foreign): bool {
+    foreach ($foreign as $path) {
+      if (isset($info['path']) && str_starts_with($info['path'] . '/', $path)) {
+        return TRUE;
+      }
+    }
+    return FALSE;
+  };
+  // What modules define, to put back a template that was replaced.
+  $defined = NULL;
+  foreach ($registry as $hook => $info) {
+    if (!is_array($info) || !$inside($info)) {
+      continue;
+    }
+    // A template of a suggestion (node--teaser) is simply not there.
+    if (isset($info['base hook']) && $info['base hook'] !== $hook) {
+      unset($registry[$hook]);
+      continue;
+    }
+    if ($defined === NULL) {
+      $defined = [];
+      \Drupal::moduleHandler()->invokeAllWith('theme', static function (callable $implementation, string $module) use (&$defined): void {
+        $path = \Drupal::service('extension.list.module')->getPath($module);
+        foreach ((array) $implementation([], 'module', $module, $path) as $name => $definition) {
+          $defined[$name] = [
+            'type' => 'module',
+            'theme path' => $path,
+            'path' => $definition['path'] ?? $path . '/templates',
+            'template' => $definition['template'] ?? strtr($name, '_', '-'),
+          ];
+        }
+      });
+    }
+    if (isset($defined[$hook])) {
+      $registry[$hook] = $defined[$hook] + $info;
+    }
+  }
+}

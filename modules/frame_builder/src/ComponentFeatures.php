@@ -38,7 +38,23 @@ use Drupal\Component\Utility\UrlHelper;
  */
 class ComponentFeatures {
 
-  public const FEATURES = ['spacing', 'size', 'align', 'text', 'background', 'position'];
+  public const FEATURES = ['spacing', 'size', 'align', 'text', 'background', 'border', 'position'];
+
+  /**
+   * Sides a border can be on: the suffix of the CSS properties. Logical: the
+   * start is the left in English and the right in Arabic.
+   */
+  protected const BORDER_SIDES = [
+    'all' => '',
+    'top' => '-block-start',
+    'bottom' => '-block-end',
+    'start' => '-inline-start',
+    'end' => '-inline-end',
+    'vertical' => '-block',
+    'horizontal' => '-inline',
+  ];
+
+  protected const BORDER_STYLES = ['solid', 'dashed', 'dotted', 'double'];
 
   protected const CORNERS = [
     'top-left' => ['top', 'left', '-50%', '-50%'],
@@ -48,6 +64,25 @@ class ComponentFeatures {
   ];
 
   protected const SIZES = ['cover' => 'cover', 'contain' => 'contain', 'stretch' => '100% 100%', 'auto' => 'auto'];
+
+  /**
+   * What the Size feature can set: the key in the stored value and the CSS
+   * property.
+   */
+  public const DIMENSIONS = [
+    'exact_width' => 'width',
+    'min_width' => 'min-width',
+    'max_width' => 'max-width',
+    'exact_height' => 'height',
+    'min_height' => 'min-height',
+    'max_height' => 'max-height',
+  ];
+
+  /**
+   * Features whose value can differ from a breakpoint of the theme on: the
+   * value then has an 'at' key with a value per breakpoint.
+   */
+  public const RESPONSIVE = ['spacing' => '_spacing', 'size' => '_size', 'align' => '_align', 'text' => '_text', 'background' => '_background', 'border' => '_border'];
 
   public function __construct(
     protected ThemeKit $kit,
@@ -83,7 +118,7 @@ class ComponentFeatures {
             array_keys($this->kit->sizes()),
             $this->kit->sizes(),
           ),
-          'description' => 'Width: the component is at most this wide. Height: it is at least this tall.',
+          'description' => 'Each of width and height: exactly, at least or at most. "At most" suits most widths: on a narrow screen the component is then as wide as its place.',
         ],
         'align' => ['name' => '_align', 'label' => 'Alignment', 'widget' => 'align'],
         'text' => ['name' => '_text', 'label' => 'Text'] + $this->textStyleField()
@@ -98,6 +133,16 @@ class ComponentFeatures {
             $this->kit->colors(),
           ),
           'imageStyles' => $this->imageStyleOptions(),
+        ],
+        'border' => ['name' => '_border', 'label' => 'Border', 'widget' => 'border',
+          'colors' => array_map(
+            static fn (string $name, array $color): array => ['value' => $name, 'label' => $color['label'], 'color' => $color['value']],
+            array_keys($this->kit->colors()),
+            $this->kit->colors(),
+          ),
+          'widths' => self::options($this->kit->borderWidths()),
+          'radii' => self::options($this->kit->radii()),
+          'description' => 'A line around the component, or on some of its sides, in a colour of the theme; and rounded corners, with or without a line.',
         ],
       } + ['default' => NULL, 'required' => FALSE, 'translatable' => FALSE];
     }
@@ -161,6 +206,13 @@ class ComponentFeatures {
   }
 
   /**
+   * A scale of the kit as options of a length field: "THIN (1px)".
+   */
+  protected static function options(array $scale): array {
+    return array_map(static fn (string $name, string $value): array => ['value' => $name, 'label' => strtoupper($name) . " ($value)"], array_keys($scale), $scale);
+  }
+
+  /**
    * The steps of the theme's spacing scale, as options of a length field.
    */
   public function sizeOptions(): array {
@@ -209,18 +261,20 @@ class ComponentFeatures {
       }
     }
     if (in_array('size', $enabled, TRUE) && is_array($values['_size'] ?? NULL)) {
-      // A limit, not a fixed width: on a narrow screen the component is as
+      // Each of width and height: exactly, at least, at most. "At most" is
+      // the one for most cases: on a narrow screen the component is then as
       // wide as its place.
-      if ($width = $this->kit->size($values['_size']['width'] ?? NULL)) {
-        $style['max-width'] = $width;
-      }
-      if ($height = $this->kit->size($values['_size']['height'] ?? NULL)) {
-        $style['min-height'] = $height;
+      foreach (self::DIMENSIONS as $key => $property) {
+        if ($length = $this->kit->size($values['_size'][$key] ?? NULL)) {
+          $style[$property] = $length;
+        }
       }
     }
-    if (in_array('align', $enabled, TRUE) && in_array($values['_align'] ?? '', ['start', 'center', 'end'], TRUE)) {
+    // With a value per breakpoint the alignment is ['value' => ..., 'at' => ...].
+    $align = is_array($values['_align'] ?? NULL) ? ($values['_align']['value'] ?? '') : ($values['_align'] ?? '');
+    if (in_array('align', $enabled, TRUE) && in_array($align, ['start', 'center', 'end'], TRUE)) {
       // Logical values: "start" is the left in English and the right in Arabic.
-      $style['text-align'] = $values['_align'];
+      $style['text-align'] = $align;
     }
     if (in_array('text', $enabled, TRUE) && is_array($values['_text'] ?? NULL)) {
       $style += $this->textStyle($values['_text']);
@@ -245,7 +299,91 @@ class ComponentFeatures {
         $style['background-position'] = round($x, 1) . '% ' . round($y, 1) . '%';
       }
     }
+    if (in_array('border', $enabled, TRUE) && is_array($values['_border'] ?? NULL)) {
+      $style += $this->borderStyle($values['_border']);
+    }
     return $style;
+  }
+
+  /**
+   * CSS declarations of a border: a width of the theme on the sides chosen,
+   * a line style, a colour of the palette (the colour of the text without
+   * one), and rounded corners, which what is inside follows.
+   */
+  public function borderStyle(array $border): array {
+    $style = [];
+    $width = $this->kit->borderWidth($border['width'] ?? NULL);
+    if ($width !== NULL) {
+      $side = self::BORDER_SIDES[$border['sides'] ?? 'all'] ?? '';
+      $style["border$side-width"] = $width;
+      $style["border$side-style"] = in_array($border['style'] ?? '', self::BORDER_STYLES, TRUE) ? $border['style'] : 'solid';
+      $style["border$side-color"] = $this->kit->color($border['color'] ?? NULL) ?? 'currentColor';
+    }
+    if ($radius = $this->kit->radius($border['radius'] ?? NULL)) {
+      $style['border-radius'] = $radius;
+      // What is inside follows the corners: an image at the top of a card is
+      // rounded too. ("clip" makes no scroll container, so sticky content and
+      // the layout of the component stay as they are.)
+      $style['overflow'] = 'clip';
+    }
+    return $style;
+  }
+
+  /**
+   * Layout and style that differ from a breakpoint of the theme on, as CSS
+   * rules with media queries.
+   *
+   * A feature's value can have, under 'at', a value of the same shape per
+   * breakpoint (ThemeKit::breakpoints()): from the width that breakpoint
+   * starts at, what is set there replaces what the component has. The rules
+   * are !important: what a component has at every width is an inline style.
+   *
+   * @param array $definition
+   *   The SDC definition.
+   * @param array $values
+   *   The props of the item.
+   * @param string|null $as
+   *   For the editor, whose canvas is not as wide as the page: the breakpoint
+   *   to show. The rules of that breakpoint and of the narrower ones are then
+   *   given without their media queries, the others are left out. An empty
+   *   string shows none.
+   *
+   * @return array|null
+   *   'key', to put on the component as data-frame-builder-at="<key>", and
+   *   'css', the rules for that selector. NULL when nothing differs.
+   */
+  public function responsive(array $definition, array $values, ?string $as = NULL): ?array {
+    $enabled = $this->enabled($definition);
+    $rules = [];
+    foreach ($this->kit->breakpoints() as $name => $breakpoint) {
+      $at = [];
+      foreach (self::RESPONSIVE as $feature => $prop) {
+        $value = in_array($feature, $enabled, TRUE) && is_array($values[$prop] ?? NULL) ? ($values[$prop]['at'][$name] ?? NULL) : NULL;
+        if ($value !== NULL && $value !== '' && $value !== []) {
+          $at[$prop] = $value;
+        }
+      }
+      $style = $at ? $this->style($definition, $at) : [];
+      if ($style) {
+        $rules[$name] = [$breakpoint['query'], implode(' ', array_map(static fn (string $property, string $value): string => "$property: $value !important;", array_keys($style), $style))];
+      }
+      if ($as !== NULL && $name === $as) {
+        break;
+      }
+    }
+    if ($as === '') {
+      $rules = [];
+    }
+    if (!$rules) {
+      return NULL;
+    }
+    $key = substr(hash('sha256', serialize([$rules, $as])), 0, 12);
+    $css = [];
+    foreach ($rules as [$query, $declarations]) {
+      $rule = '[data-frame-builder-at="' . $key . '"] { ' . $declarations . ' }';
+      $css[] = $as === NULL ? "@media $query { $rule }" : $rule;
+    }
+    return ['key' => $key, 'css' => implode("\n", $css)];
   }
 
   /**

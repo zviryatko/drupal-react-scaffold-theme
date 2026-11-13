@@ -1,4 +1,5 @@
-// "Browse available tokens": the tree of the Token module (name, token, description) in a dialog.
+// The tokens that can be inserted into a field: the tree of the Token module (name, token, description) in a dialog,
+// opened from the T button of a text field.
 import { useEffect, useState } from 'react';
 import { Modal } from './ui';
 import { loadTokens } from './tokens';
@@ -41,11 +42,15 @@ export function TokenBrowser({ onPick, onClose }) {
     return next;
   });
 
-  const query = search.trim().toLowerCase();
+  // Every word typed must be in the token, its name or its description: "site name" finds [site:name].
+  const words = search.trim().toLowerCase().split(/[\s:[\]]+/).filter(Boolean);
   // Searching lists matching tokens of the first level of every type, flat.
-  const found = tree && query
+  const found = tree && words.length
     ? tree.roots.flatMap((root) => tree.types[root].tokens
-      .filter((token) => `${root}:${token.name} ${token.label} ${token.description}`.toLowerCase().includes(query))
+      .filter((token) => {
+        const text = `${root}:${token.name} ${tree.types[root].label} ${token.label} ${token.description || ''}`.toLowerCase();
+        return words.every((word) => text.includes(word));
+      })
       .map((token) => ({ root, token })))
     : null;
 

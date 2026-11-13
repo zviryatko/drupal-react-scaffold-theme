@@ -119,7 +119,9 @@ class ReactComponent extends StylePluginBase {
     }
     // The component draws the exposed form itself.
     $this->view->exposed_widgets = NULL;
-    $props = Json::decode((string) $this->options['props']) ?: [];
+    // Props are an object: anything else that is valid JSON is no props.
+    $props = Json::decode((string) $this->options['props']);
+    $props = is_array($props) ? $props : [];
     $props['endpoint'] = Url::fromRoute('view.' . $this->view->storage->id() . '.' . $display)->toString();
     return [
       '#type' => 'component',

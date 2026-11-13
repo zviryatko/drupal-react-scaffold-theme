@@ -4,10 +4,9 @@ import { createPortal } from 'react-dom';
 import { createUsePuck } from '@puckeditor/core';
 import { getJson, settings } from './api';
 import { FormItem, Modal } from './ui';
-import { TokenInput } from './TokenInput';
-import { TokenBrowser } from './TokenBrowser';
+import { FieldActions, TokenInput } from './TokenInput';
 import { attachTokenAutocomplete } from './ckeditorTokens';
-import { AlignWidget, BackgroundWidget, LengthPicker, PositionWidget, SpacingWidget, SizeWidget, LibraryWidget, ColorWidget, TextStyleWidget } from './featureFields';
+import { AlignWidget, BackgroundWidget, BorderWidget, LengthPicker, PositionWidget, SpacingWidget, SizeWidget, LibraryWidget, ColorWidget, TextStyleWidget } from './featureFields';
 
 /** Calls `callback(value)` after `delay` ms without a new value. */
 function useDebounced(value, delay, callback) {
@@ -25,7 +24,7 @@ function TextWidget({ id, value, onChange, readOnly, field }) {
   return (
     <FormItem {...item({ id, field })}>
       <TokenInput id={id} value={value} onChange={onChange} readOnly={readOnly} tokens={field.tokens !== false}
-                  multiline={field.widget === 'textarea'} />
+                  multiline={field.widget === 'textarea'} label={field.label} />
     </FormItem>
   );
 }
@@ -58,7 +57,29 @@ function UrlWidget({ id, value, onChange, readOnly, field }) {
   const [items, setItems] = useState([]);
   const [typed, setTyped] = useState(null);
   const [busy, setBusy] = useState(false);
+  // The suggestion chosen with the arrow keys; -1 is none, as long as the pointer has not moved over one.
+  const [active, setActive] = useState(-1);
   const link = useEntityLink(value);
+  const choose = (entry) => { linkCache.set(entry.value, entry); onChange(entry.value); setItems([]); setTyped(null); setActive(-1); };
+  // As Drupal's autocomplete: up and down move through the suggestions, Enter and Tab take the one chosen, Escape
+  // closes them.
+  const onKeys = (event) => {
+    if (!items.length) return;
+    if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+      event.preventDefault();
+      const step = event.key === 'ArrowDown' ? 1 : -1;
+      setActive((current) => (current + step + items.length + (current < 0 && step < 0 ? 1 : 0)) % items.length);
+    }
+    else if ((event.key === 'Enter' || event.key === 'Tab') && active >= 0) {
+      event.preventDefault();
+      choose(items[active]);
+    }
+    else if (event.key === 'Escape') {
+      event.stopPropagation();
+      setItems([]);
+      setActive(-1);
+    }
+  };
   useDebounced(typed, 250, (query) => {
     // Search for words (by title) and for paths ("/rec…", by URL alias), not for what already is a URL or a token.
     if (!query || (query.length < 2 && query !== '/') || /^([#[]|\/\/|[a-z][a-z0-9+.-]*:)/i.test(query)) {
@@ -66,7 +87,7 @@ function UrlWidget({ id, value, onChange, readOnly, field }) {
       return;
     }
     setBusy(true);
-    getJson(settings.endpoints.urls, { q: query, langcode: settings.langcode }).then(setItems).catch(() => setItems([])).finally(() => setBusy(false));
+    getJson(settings.endpoints.urls, { q: query, langcode: settings.langcode }).then((found) => { setItems(found); setActive(-1); }).catch(() => setItems([])).finally(() => setBusy(false));
   });
   const description = field.description || 'Start typing the title of a piece of content, or its path starting with /, to select it. You can also enter any path or an external URL.';
   if (link) {
@@ -82,13 +103,17 @@ function UrlWidget({ id, value, onChange, readOnly, field }) {
   }
   return (
     <FormItem {...item({ id, field })} description={description}>
-      <TokenInput id={id} value={value} onChange={onChange} readOnly={readOnly} onInput={setTyped}>
+      <TokenInput id={id} value={value} onChange={onChange} readOnly={readOnly} onInput={setTyped} label={field.label} onKeys={onKeys}
+                  listbox={{ id: `${id}-suggestions`, open: items.length > 0, active: active >= 0 ? `${id}-suggestion-${active}` : null }}>
         {busy && <span className="frame-builder-throbber" aria-hidden="true" />}
         {items.length > 0 && (
-          <ul className="frame-builder-autocomplete" role="listbox">
-            {items.map((entry) => (
-              <li key={entry.value} role="option" aria-selected="false"
-                  onMouseDown={(event) => { event.preventDefault(); linkCache.set(entry.value, entry); onChange(entry.value); setItems([]); setTyped(null); }}>
+          <ul id={`${id}-suggestions`} className="frame-builder-autocomplete" role="listbox" aria-label={`Content for ${field.label}`}>
+            {items.map((entry, index) => (
+              <li key={entry.value} id={`${id}-suggestion-${index}`} role="option" aria-selected={index === active}
+                  className={index === active ? 'is-active' : undefined}
+                  ref={(element) => { if (element && index === active) element.scrollIntoView({ block: 'nearest' }); }}
+                  onMouseEnter={() => setActive(index)}
+                  onMouseDown={(event) => { event.preventDefault(); choose(entry); }}>
                 <span className="frame-builder-autocomplete__label">{entry.label}</span>
                 <code>{entry.meta} · {entry.url}</code>
               </li>
@@ -243,7 +268,6 @@ function HtmlWidget({ id, value, onChange, readOnly, field }) {
   const area = useRef(null);
   const latest = useRef({ text, onChange });
   latest.current = { text, onChange };
-  const [browsing, setBrowsing] = useState(false);
   const [suggestions, setSuggestions] = useState(null);
   const autocomplete = useRef(null);
 
@@ -280,7 +304,7 @@ function HtmlWidget({ id, value, onChange, readOnly, field }) {
     <FormItem {...item({ id, field })}>
       {hasEditor && !readOnly
         ? <div className="frame-builder-editor"><textarea id={id} ref={area} defaultValue={text} /></div>
-        : <TokenInput id={id} value={text} readOnly={readOnly} multiline onChange={(next) => onChange({ value: next, format })} />}
+        : <TokenInput id={id} value={text} readOnly={readOnly} multiline label={field.label} onChange={(next) => onChange({ value: next, format })} />}
       {suggestions && createPortal(
         <ul className="frame-builder-autocomplete frame-builder-autocomplete--caret" role="listbox" style={{ left: Math.min(suggestions.left, window.innerWidth - 300), top: suggestions.top }}>
           {suggestions.items.map((entry, index) => (
@@ -294,19 +318,6 @@ function HtmlWidget({ id, value, onChange, readOnly, field }) {
           ))}
         </ul>,
         document.body,
-      )}
-      {hasEditor && !readOnly && (
-        <button type="button" className="frame-builder-link frame-builder-token-link" onClick={() => setBrowsing(true)}>Browse available tokens</button>
-      )}
-      {browsing && (
-        <TokenBrowser
-          onClose={() => setBrowsing(false)}
-          onPick={(token) => {
-            const editor = ckeditorOf(area.current);
-            editor?.model.change((writer) => editor.model.insertContent(writer.createText(token)));
-            setBrowsing(false);
-          }}
-        />
       )}
       <div className="frame-builder-format">
         <label className="frame-builder-label" htmlFor={`${id}-format`}>Text format</label>
@@ -400,7 +411,9 @@ function SelectWidget({ id, value, onChange, readOnly, field }) {
   const options = field.dependsOn ? field.optionsMap[other] || [] : field.options;
   return (
     <FormItem {...item({ id, field })}>
-      <select id={id} className="frame-builder-select" value={value ?? ''} disabled={readOnly} onChange={(event) => onChange(event.target.value)}>
+      {/* A long choice does not fit the narrow column: the whole of it is the tooltip. */}
+      <select id={id} className="frame-builder-select" value={value ?? ''} disabled={readOnly} onChange={(event) => onChange(event.target.value)}
+              title={options.find((option) => String(option.value) === String(value ?? ''))?.label}>
         {!field.required && field.required !== undefined && <option value="">- None -</option>}
         {options.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
       </select>
@@ -522,8 +535,47 @@ function NumberWidget({ id, value, onChange, readOnly, field }) {
   return (
     <FormItem {...item({ id, field })}>
       <input id={id} className="frame-builder-input frame-builder-input--number" type="number" value={value ?? ''} readOnly={readOnly}
+             min={field.min} max={field.max} step={field.step}
              onChange={(event) => onChange(event.target.value === '' ? '' : Number(event.target.value))} />
     </FormItem>
+  );
+}
+
+/** A date, a time or an email address: the input the browser has for it. */
+function InputWidget({ id, value, onChange, readOnly, field }) {
+  const input = useRef(null);
+  // An email address is text: it can be cleared from the field, as text fields can. Date and time have their own.
+  const clearable = field.widget === 'email' && !readOnly;
+  return (
+    <FormItem {...item({ id, field })}>
+      <div className={`frame-builder-input-wrap${clearable ? ' has-actions' : ''}`}>
+        <input id={id} ref={input} className="frame-builder-input" type={field.widget} value={value ?? ''} readOnly={readOnly} maxLength={field.maxLength}
+               onChange={(event) => onChange(event.target.value)} />
+        {clearable && <FieldActions label={field.label} empty={!value} onClear={() => { onChange(''); input.current?.focus(); }} />}
+      </div>
+    </FormItem>
+  );
+}
+
+/** Several of a set of choices (a list whose values are of an enum): a checkbox for each. Value: the chosen ones, in the order of the choices. */
+function ChoicesWidget({ id, value, onChange, readOnly, field }) {
+  const chosen = Array.isArray(value) ? value.map(String) : [];
+  const toggle = (option, on) => {
+    const next = field.options.filter((entry) => (String(entry.value) === String(option.value) ? on : chosen.includes(String(entry.value)))).map((entry) => entry.value);
+    onChange(next.length ? next : null);
+  };
+  return (
+    <fieldset className="frame-builder-form-item frame-builder-choices">
+      <legend className={`frame-builder-label${field.required ? ' frame-builder-label--required' : ''}`}>{field.label}</legend>
+      {field.options.map((option, index) => (
+        <label key={String(option.value)} className="frame-builder-choices__item">
+          <input id={index === 0 ? id : undefined} className="frame-builder-checkbox" type="checkbox" checked={chosen.includes(String(option.value))} disabled={readOnly}
+                 onChange={(event) => toggle(option, event.target.checked)} />
+          <span>{option.label}</span>
+        </label>
+      ))}
+      {field.description && <div className="frame-builder-description">{field.description}</div>}
+    </fieldset>
   );
 }
 
@@ -543,7 +595,272 @@ function DateWidget({ id, value, onChange, readOnly, field }) {
   );
 }
 
+// On a translation that shares the structure of the original a list keeps its values in their places: texts and
+// links in it are translated, nothing is added, removed or moved.
+const lockedStructure = Boolean(settings.translation?.locked);
+
+/** What a field starts with, in a new value of a list. */
+const startValue = (field) => {
+  // A list in a new value starts as the component says, or without values.
+  if (field.widget === 'list') return Array.isArray(field.default) ? structuredClone(field.default) : undefined;
+  if (field.fields) return Object.fromEntries(field.fields.map((sub) => [sub.name, startValue(sub)]).filter(([, value]) => value !== undefined));
+  if (field.default === null || field.default === undefined) return field.widget === 'boolean' ? false : undefined;
+  return field.widget === 'html' ? { value: field.default, format: startFormat(field) } : field.default;
+};
+
+/** A few words that tell one value of a list from the others: its first text, also when that is in a list or a group inside it. */
+const firstText = (value, depth = 0) => {
+  if (typeof value === 'string') return value.trim() && !value.startsWith('entity:') ? value : '';
+  if (!value || typeof value !== 'object' || depth > 4) return '';
+  // Rich text: { value, format }.
+  if (typeof value.value === 'string' && typeof value.format === 'string') return value.value.replace(/<[^>]*>/g, ' ').trim();
+  // A picked image says nothing in words.
+  if ('media' in value || 'media_uuid' in value) return '';
+  for (const child of Object.values(value)) {
+    const text = firstText(child, depth + 1);
+    if (text) return text;
+  }
+  return '';
+};
+const summaryOf = (entry, property) => {
+  // The property the component names for it, else the first text of the value.
+  const text = ((property && firstText(entry?.[property])) || firstText(entry)).replace(/\s+/g, ' ').trim();
+  return text.length > 44 ? `${text.slice(0, 43)}…` : text;
+};
+
+/** The fields of the properties of an object: of a group, or of one value of a list. */
+function SubFields({ id, fields, value, onChange, readOnly }) {
+  const current = value && typeof value === 'object' && !Array.isArray(value) ? value : {};
+  return fields.map((sub) => {
+    const Widget = widgets[sub.widget] || TextWidget;
+    return (
+      <Widget key={sub.name} id={`${id}-${sub.name}`} value={current[sub.name]} field={sub}
+              readOnly={readOnly || (lockedStructure && !sub.translatable)}
+              onChange={(next) => onChange({ ...current, [sub.name]: next })} />
+    );
+  });
+}
+
+/** A prop of the type object: values that belong together, as a fieldset. */
+function GroupWidget({ id, value, onChange, readOnly, field }) {
+  return (
+    <fieldset className="frame-builder-group">
+      <legend className={`frame-builder-label${field.required ? ' frame-builder-label--required' : ''}`}>{field.label}</legend>
+      {field.description && <div className="frame-builder-description">{field.description}</div>}
+      <SubFields id={id} fields={field.fields} value={value} onChange={onChange} readOnly={readOnly} />
+    </fieldset>
+  );
+}
+
+/** At most this many fields in a value of a list are shown open in its row; a value with more folds under a line. */
+const OPEN_FIELDS = 4;
+
+/**
+ * A prop of the type array: several values, as a multiple value field of Drupal and with its look (Claro's table of a
+ * multiple value widget, tabledrag.js): a table with the label in its header, a row for each value with a handle to
+ * drag it, the widget of the value and a Remove button; "Add another item" under it; "Show row weights" puts an Order
+ * column in place of the handles. A row that was moved is marked, and the table says that there are unsaved changes.
+ * A value that is an object has the fields of the object in its row, as Drupal's link widget has URL and link text;
+ * with more than a few fields they fold under a line that names the value.
+ */
+function ListWidget({ id, value, onChange, readOnly, field }) {
+  // The list as of the last change made here: a drag makes several before the new value comes back.
+  const latest = useRef([]);
+  latest.current = Array.isArray(value) ? value : [];
+  const list = latest.current;
+  // Values have no ids of their own: these keep a widget (a rich text editor) with its value when values move.
+  const keys = useRef([]);
+  const counter = useRef(0);
+  while (keys.current.length < list.length) keys.current.push(counter.current += 1);
+  keys.current.length = list.length;
+  const rows = useRef(new Map());
+  const folds = Boolean(field.fields && field.fields.length > OPEN_FIELDS);
+  const [open, setOpen] = useState(null);
+  // The value being dragged, the one dragged last, and those moved since the field was shown: as tabledrag.js marks them.
+  const [dragging, setDragging] = useState(null);
+  const [dragged, setDragged] = useState(null);
+  const [moved, setMoved] = useState(() => new Set());
+  const [weights, setWeights] = useState(false);
+  const fixed = readOnly || lockedStructure;
+  const full = field.max > 0 && list.length >= field.max;
+  const least = field.min > 0 && list.length <= field.min;
+
+  const change = (next, nextKeys) => { keys.current = nextKeys; latest.current = next; onChange(next); };
+  const set = (index, entry) => change(latest.current.map((existing, at) => (at === index ? entry : existing)), keys.current);
+  const remove = (index) => change(latest.current.filter((_, at) => at !== index), keys.current.filter((_, at) => at !== index));
+  const move = (index, to) => {
+    if (to < 0 || to >= latest.current.length || to === index) return;
+    const next = [...latest.current];
+    const nextKeys = [...keys.current];
+    next.splice(to, 0, next.splice(index, 1)[0]);
+    nextKeys.splice(to, 0, nextKeys.splice(index, 1)[0]);
+    setMoved((before) => new Set(before).add(nextKeys[to]));
+    change(next, nextKeys);
+  };
+  const add = () => {
+    const key = counter.current += 1;
+    // The example of a value that the component gives for its list, else what the fields of a value start with.
+    const entry = field.start !== undefined && field.start !== null ? structuredClone(field.start) : startValue(field.fields ? { fields: field.fields } : field.item);
+    change([...latest.current, entry === undefined ? '' : entry], [...keys.current, key]);
+    setOpen(key);
+  };
+
+  // Dragging: the value goes where the pointer is, past the middle of the value above or below it. The pointer is
+  // followed on the window: a row that moves takes its handle out of and back into the document.
+  const over = (clientY) => {
+    const from = keys.current.indexOf(dragging);
+    let to = from;
+    keys.current.forEach((other, index) => {
+      const box = other === dragging ? null : rows.current.get(other)?.getBoundingClientRect();
+      if (!box) return;
+      const middle = box.top + box.height / 2;
+      if (index < from && clientY < middle) to = Math.min(to, index);
+      if (index > from && clientY > middle) to = Math.max(to, index);
+    });
+    if (from >= 0) move(from, to);
+  };
+  const follow = useRef(over);
+  follow.current = over;
+  const table = useRef(null);
+  useEffect(() => {
+    if (dragging === null) return undefined;
+    // Near the top or the bottom of the column the column scrolls, as tabledrag.js scrolls the page.
+    let scroller = table.current?.parentElement;
+    while (scroller && !(/(auto|scroll)/.test(getComputedStyle(scroller).overflowY) && scroller.scrollHeight > scroller.clientHeight)) scroller = scroller.parentElement;
+    let pointer = null;
+    const timer = setInterval(() => {
+      if (pointer === null || !scroller) return;
+      const box = scroller.getBoundingClientRect();
+      const step = pointer < box.top + 48 ? -12 : pointer > box.bottom - 48 ? 12 : 0;
+      if (step) {
+        scroller.scrollTop += step;
+        follow.current(pointer);
+      }
+    }, 16);
+    const onMove = (event) => { pointer = event.clientY; follow.current(event.clientY); };
+    const onEnd = () => { setDragged(dragging); setDragging(null); };
+    // Before anything in the editor can stop them on their way up.
+    window.addEventListener('pointermove', onMove, true);
+    window.addEventListener('pointerup', onEnd, true);
+    window.addEventListener('pointercancel', onEnd, true);
+    return () => {
+      clearInterval(timer);
+      window.removeEventListener('pointermove', onMove, true);
+      window.removeEventListener('pointerup', onEnd, true);
+      window.removeEventListener('pointercancel', onEnd, true);
+    };
+  }, [dragging]);
+  const drag = {
+    start: (event, key) => {
+      if (event.button !== 0) return;
+      event.preventDefault();
+      event.currentTarget.focus();
+      setDragging(key);
+      setDragged(null);
+    },
+    key: (event, key) => {
+      const step = { ArrowUp: -1, ArrowDown: 1 }[event.key];
+      if (!step) return;
+      event.preventDefault();
+      const from = keys.current.indexOf(key);
+      move(from, from + step);
+      setDragged(key);
+    },
+  };
+
+  const widgetOf = (entry, index, key) => {
+    if (!field.fields) {
+      const Widget = widgets[field.item.widget] || TextWidget;
+      return <Widget id={`${id}-${key}`} value={entry} field={{ ...field.item, label: `${field.item.label} (value ${index + 1})`, description: '' }}
+                     readOnly={readOnly || (lockedStructure && !field.item.translatable)} onChange={(next) => set(index, next)} />;
+    }
+    const fields = <SubFields id={`${id}-${key}`} fields={field.fields} value={entry} onChange={(next) => set(index, next)} readOnly={readOnly} />;
+    if (!folds) return <div className="frame-builder-multiple__fields">{fields}</div>;
+    const isOpen = open === key;
+    return (
+      <>
+        <button type="button" className="frame-builder-multiple__toggle" aria-expanded={isOpen} aria-controls={`${id}-${key}`} onClick={() => setOpen(isOpen ? null : key)}>
+          <span className="frame-builder-multiple__summary">{summaryOf(entry, field.summary) || <em>Empty</em>}</span>
+        </button>
+        {isOpen && <div id={`${id}-${key}`} className="frame-builder-multiple__fields">{fields}</div>}
+      </>
+    );
+  };
+
+  return (
+    <div className={`frame-builder-form-item frame-builder-multiple${dragging !== null ? ' is-sorting' : ''}`}>
+      {!fixed && list.length > 1 && (
+        <div className="frame-builder-multiple__toggle-weight">
+          <button type="button" className={`frame-builder-action-link frame-builder-action-link--icon-${weights ? 'hide' : 'show'}`} onClick={() => setWeights(!weights)}>
+            {weights ? 'Hide row weights' : 'Show row weights'}
+          </button>
+        </div>
+      )}
+      {moved.size > 0 && (
+        <div className="frame-builder-multiple__changed" role="alert"><abbr className="frame-builder-multiple__marker" title="Changed">*</abbr> You have unsaved changes.</div>
+      )}
+      <table className="frame-builder-multiple__table" ref={table}>
+        <thead>
+          <tr>
+            <th colSpan={fixed ? 1 : 3} className="frame-builder-multiple__label">
+              <h4 className={`frame-builder-label${field.required ? ' frame-builder-label--required' : ''}`} id={`${id}-label`}>{field.label}</h4>
+            </th>
+            {weights && !fixed && <th className="frame-builder-multiple__order-head">Order</th>}
+          </tr>
+        </thead>
+        <tbody>
+          {list.map((entry, index) => {
+            const key = keys.current[index];
+            const row = (element) => { if (element) rows.current.set(key, element); else rows.current.delete(key); };
+            const state = `${dragging === key ? ' drag' : ''}${dragged === key && dragging === null ? ' drag-previous' : ''}`;
+            return (
+              <tr key={key} ref={row} className={`frame-builder-multiple__row draggable${state}`}>
+                {!fixed && (
+                  <td className="frame-builder-multiple__drag">
+                    {!weights && (
+                      <button type="button" className="frame-builder-multiple__handle" title="Change order"
+                              aria-label={`Change order of value ${index + 1} of ${list.length}: drag, or press the up and down arrow keys`}
+                              onPointerDown={(event) => drag.start(event, key)} onKeyDown={(event) => drag.key(event, key)} />
+                    )}
+                    {moved.has(key) && <abbr className="frame-builder-multiple__marker" title="Changed">*</abbr>}
+                  </td>
+                )}
+                <td className="frame-builder-multiple__value">{widgetOf(entry, index, key)}</td>
+                {!fixed && (
+                  <td className="frame-builder-multiple__remove">
+                    <button type="button" className="frame-builder-button frame-builder-button--small" disabled={least}
+                            aria-label={`Remove value ${index + 1}`} onClick={() => remove(index)}>Remove</button>
+                  </td>
+                )}
+                {weights && !fixed && (
+                  <td className="frame-builder-multiple__order">
+                    <select className="frame-builder-select" aria-label={`Weight for row ${index + 1}`} value={index} onChange={(event) => move(index, Number(event.target.value))}>
+                      {list.map((_, at) => <option key={at} value={at}>{at}</option>)}
+                    </select>
+                  </td>
+                )}
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+      {!fixed && (
+        <div className="frame-builder-multiple__actions">
+          <button type="button" className="frame-builder-button frame-builder-button--small" disabled={full} onClick={add}>Add another item</button>
+        </div>
+      )}
+      {field.description && <div className="frame-builder-description">{field.description}</div>}
+    </div>
+  );
+}
+
 const widgets = {
+  list: ListWidget,
+  group: GroupWidget,
+  choices: ChoicesWidget,
+  date: InputWidget,
+  time: InputWidget,
+  email: InputWidget,
   text: TextWidget,
   textarea: TextWidget,
   url: UrlWidget,
@@ -558,6 +875,7 @@ const widgets = {
   align: AlignWidget,
   position: PositionWidget,
   background: BackgroundWidget,
+  border: BorderWidget,
   library: LibraryWidget,
   color: ColorWidget,
   textstyle: TextStyleWidget,

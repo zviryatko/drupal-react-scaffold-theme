@@ -1,0 +1,64 @@
+$schema: https://git.drupalcode.org/project/drupal/-/raw/HEAD/core/assets/schemas/v1/metadata.schema.json
+name: Links
+status: experimental
+description: 'A list of links: related pages, downloads, the links of a footer column. Add, remove and order them in the list.'
+group: Content
+help: |
+  A list of links. Drag the rows to order them; a link picked from the site's content follows the page if it is moved or translated.
+props:
+  type: object
+  properties:
+    heading:
+      type: string
+      title: Heading
+      description: 'A few words above the links. Leave empty for none.'
+    links:
+      type: array
+      title: Links
+      description: 'Each link has a text and a place it goes to.'
+      maxItems: 30
+      items:
+        type: object
+        properties:
+          label:
+            type: string
+            title: Text
+            description: 'What the link says.'
+          url:
+            type: string
+            title: Link
+            format: uri-reference
+            description: 'Where it goes: content of the site, a path or an address.'
+          new_tab:
+            type: boolean
+            title: 'Open in a new tab'
+        required: [label, url]
+      examples:
+        - - { label: 'About us', url: '/' }
+          - { label: 'Contact', url: '/' }
+    layout:
+      type: string
+      title: Layout
+      description: 'One under the other, or next to each other in a row that wraps.'
+      enum: [stacked, inline]
+      meta:enum: { stacked: 'One per line', inline: 'In a row' }
+      examples: [stacked]
+    marker:
+      type: string
+      title: Marker
+      description: 'What stands before each link.'
+      enum: [none, arrow, dot]
+      meta:enum: { none: Nothing, arrow: Arrow, dot: Dot }
+      examples: [arrow]
+thirdPartySettings:
+  frame_builder:
+    icon: link
+    example:
+      type: 'frame:link-list'
+      props:
+        heading: 'Find out more'
+        links:
+          - { label: 'How we work', url: '/about' }
+          - { label: 'Get in touch', url: '/contact' }
+        layout: stacked
+        marker: arrow

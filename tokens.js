@@ -25,7 +25,9 @@ export const DEFAULTS = {
   colors: {},
   font_sizes: { xs: '0.75rem', s: '0.875rem', m: '1rem', l: '1.25rem', xl: '1.5rem', '2xl': '2rem', '3xl': '3rem' },
   sizes: { xs: '20rem', s: '30rem', m: '45rem', l: '60rem', xl: '75rem', full: '100%' },
-  features: { spacing: true, size: true, align: true, text: true, background: true, position: true },
+  border_widths: { thin: '1px', medium: '2px', thick: '4px' },
+  radii: { s: '0.25rem', m: '0.5rem', l: '1rem', full: '9999px' },
+  features: { spacing: true, size: true, align: true, text: true, background: true, border: true, position: true },
 };
 
 const LENGTH = /^-?\d+(\.\d+)?(px|rem|em|%|vw|vh|ch)$/;
@@ -81,7 +83,7 @@ export function readTokens(root) {
   for (const { name, dir, info } of [...chain].reverse()) {
     files.push(join(dir, `${name}.info.yml`));
     const own = isMap(info.frame_builder) ? info.frame_builder : {};
-    for (const key of ['spacing', 'colors', 'font_sizes', 'sizes']) {
+    for (const key of ['spacing', 'colors', 'font_sizes', 'sizes', 'border_widths', 'radii']) {
       if (isMap(own.uikit) && isMap(own.uikit[key])) settings[key] = own.uikit[key];
     }
     if (isMap(own.features)) Object.assign(settings.features, own.features);
@@ -120,6 +122,8 @@ export function readTokens(root) {
     colors,
     fontSizes: lengths(settings.font_sizes),
     sizes: lengths(settings.sizes),
+    borderWidths: lengths(settings.border_widths),
+    radii: lengths(settings.radii),
     features: Object.fromEntries(Object.keys(DEFAULTS.features).map((feature) => [feature, Boolean(settings.features[feature])])),
     breakpoints,
     files,
@@ -145,6 +149,9 @@ $colors: ${map(tokens.colors)};
 $font-sizes: ${map(tokens.fontSizes)};
 // Sizes: how wide and how tall a component can be.
 $sizes: ${map(tokens.sizes)};
+// Widths of a border and rounding of corners.
+$border-widths: ${map(tokens.borderWidths ?? {})};
+$radii: ${map(tokens.radii ?? {})};
 // Breakpoints: name => media query ('' for the smallest screens), smallest first.
 $breakpoints: ${map(tokens.breakpoints, quoted)};
 // Builder features offered on components by default.
@@ -181,6 +188,16 @@ $line-heights: ('tight': 1.2, 'normal': 1.5, 'loose': 1.8);
   @return -token($sizes, $name, 'size');
 }
 
+/// A width of a border: \`border: frame.border-width(thin) solid frame.color(green)\`.
+@function border-width($name) {
+  @return -token($border-widths, $name, 'border width');
+}
+
+/// A rounding of corners: \`border-radius: frame.radius(m)\`.
+@function radius($name) {
+  @return -token($radii, $name, 'corner radius');
+}
+
 /// Styles from a breakpoint of the theme up: \`@include frame.breakpoint(tablet) { ... }\`.
 @mixin breakpoint($name) {
   $query: -token($breakpoints, $name, 'breakpoint');
@@ -208,6 +225,12 @@ $line-heights: ('tight': 1.2, 'normal': 1.5, 'loose': 1.8);
     }
     @each $name, $value in $sizes {
       --frame-size-#{$name}: #{$value};
+    }
+    @each $name, $value in $border-widths {
+      --frame-border-#{$name}: #{$value};
+    }
+    @each $name, $value in $radii {
+      --frame-radius-#{$name}: #{$value};
     }
     @if map.has-key($colors, 'accent') {
       --frame-accent: #{map.get($colors, 'accent')};
@@ -279,6 +302,18 @@ $line-heights: ('tight': 1.2, 'normal': 1.5, 'loose': 1.8);
     }
   }
 
+  @if map.get($features, 'border') {
+    @each $name, $value in $border-widths {
+      .#{$prefix}-border-#{$name}#{$at} { border: $value solid currentColor; }
+    }
+    @each $name, $value in $colors {
+      .#{$prefix}-border-color-#{$name}#{$at} { border-color: $value; }
+    }
+    @each $name, $value in $radii {
+      .#{$prefix}-rounded-#{$name}#{$at} { border-radius: $value; }
+    }
+  }
+
   @if map.get($features, 'position') {
     .#{$prefix}-relative#{$at} { position: relative; }
     @each $name, $corner in ('top-left': (top, left), 'top-right': (top, right), 'bottom-left': (bottom, left), 'bottom-right': (bottom, right)) {
@@ -289,7 +324,8 @@ $line-heights: ('tight': 1.2, 'normal': 1.5, 'loose': 1.8);
 
 /// A utility class for every choice an editor has in the builder, for the features the theme offers:
 /// .frame-m-l, .frame-px-m, .frame-my-auto, .frame-gap-s, .frame-align-center, .frame-text-xl, .frame-weight-bold, .frame-leading-tight,
-/// .frame-uppercase, .frame-color-green, .frame-bg-cream, .frame-bg-cover, .frame-pin-top-right...
+/// .frame-uppercase, .frame-color-green, .frame-bg-cream, .frame-bg-cover, .frame-border-thin, .frame-border-color-green,
+/// .frame-rounded-m, .frame-pin-top-right...
 /// With $responsive, each class also exists per breakpoint that has a media query: .frame-p-l\\@tablet.
 @mixin utilities($prefix: 'frame', $responsive: false) {
   @include -utilities($prefix, '');

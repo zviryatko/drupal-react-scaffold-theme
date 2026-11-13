@@ -3,6 +3,8 @@ name: Button
 status: experimental
 description: 'A link that looks like a button: the call to action of a section. Put one or two next to each other in a Flex.'
 group: Content
+help: |
+  A link that looks like a button. Use one filled button for the main action of a section, outline or text for the others. Put two next to each other in a Flex.
 props:
   type: object
   properties:

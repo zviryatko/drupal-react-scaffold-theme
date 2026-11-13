@@ -54,6 +54,10 @@ class PageAssistant {
     'html' => 'string of simple HTML (p, h2, h3, h4, ul, ol, li, a, strong, em, blockquote)',
     'url' => 'string: a path of this site starting with "/", or an absolute URL',
     'select' => 'one of the options',
+    'choices' => 'a list (JSON array) of some of the options, each at most once',
+    'email' => 'string: an email address',
+    'date' => 'string: a date as YYYY-MM-DD',
+    'time' => 'string: a time as HH:MM',
     'icon' => 'one of the options',
     'boolean' => 'boolean',
     'color' => 'the name of a colour of the palette',
@@ -239,7 +243,8 @@ class PageAssistant {
    */
   public function listTokens(?string $type = NULL): array {
     $info = $this->token->getInfo();
-    $types = $type !== NULL && isset($info['types'][$type]) ? [$type] : ['node', 'site', 'current-date'];
+    // The Token module names the date of the request "current-date", core "date".
+    $types = $type !== NULL && isset($info['types'][$type]) ? [$type] : ['node', 'site', isset($info['types']['current-date']) ? 'current-date' : 'date'];
     $tokens = [];
     foreach ($types as $name) {
       // A type can be an alias: "current-date" has the tokens of "date".
@@ -291,7 +296,8 @@ class PageAssistant {
     }
     $found = [];
     foreach ($storage->loadMultiple($ids->execute()) as $media) {
-      if ($described = $this->mediaItems->describe($media)) {
+      // The query checks no permission for media: the entity does.
+      if ($media->access('view') && ($described = $this->mediaItems->describe($media))) {
         $item = $media->get($types[$media->bundle()])->first();
         $found[] = [
           'id' => $described['id'],
@@ -537,6 +543,10 @@ NOTE;
   public function instructions(NodeInterface $node, array $components, array $current, array $look = []): string {
     $catalog = [];
     foreach ($components as $component) {
+      // A component the theme replaced stays on pages that have it, and is not one to build with.
+      if (!empty($component['hidden']) && ComponentCatalog::parse($component['id'])[0] !== ComponentCatalog::PARAGRAPH) {
+        continue;
+      }
       $entry = ['type' => $component['id'], 'name' => $component['label'], 'group' => $component['group']];
       // Fields of the page and blocks of Drupal are many and alike: their
       // name says what they show, and their two props are described once.
@@ -548,24 +558,9 @@ NOTE;
         $entry['description'] = mb_substr((string) $component['description'], 0, 300);
       }
       foreach ($component['fields'] as $field) {
-        $type = self::TYPES[$field['widget'] ?? 'text'] ?? NULL;
         // Features are described once, below; other widgets are not offered.
-        if (!$type || str_starts_with($field['name'], '_')) {
+        if (str_starts_with($field['name'], '_') || !($prop = $this->describeField($field))) {
           continue;
-        }
-        $prop = ['type' => $type, 'label' => $field['label'] ?? $field['name']];
-        if (!empty($field['description'])) {
-          $prop['description'] = mb_substr((string) $field['description'], 0, 300);
-        }
-        if (!empty($field['options'])) {
-          $prop['options'] = array_column($field['options'], 'label', 'value');
-        }
-        if (!empty($field['required'])) {
-          $prop['required'] = TRUE;
-        }
-        // What the component starts with: tells what a value looks like.
-        if (is_scalar($field['default'] ?? NULL) && $field['default'] !== '') {
-          $prop['example'] = $field['default'];
         }
         $entry['props'][$field['name']] = $prop;
       }
@@ -588,6 +583,8 @@ NOTE;
       'spacing_sizes' => $this->themeKit->spacing(),
       'font_sizes' => $this->themeKit->fontSizes(),
       'sizes' => $this->themeKit->sizes(),
+      'border_widths' => $this->themeKit->borderWidths(),
+      'corner_radii' => $this->themeKit->radii(),
       'colors' => array_map(static fn (array $color): string => $color['label'] . ' ' . $color['value'], $this->themeKit->colors()),
       'image_styles' => array_values($this->themeKit->imageStyles()),
       'features_on_every_item' => array_keys(array_filter(array_combine(ComponentFeatures::FEATURES, array_map(fn (string $feature): bool => $this->themeKit->featureDefault($feature), ComponentFeatures::FEATURES)))),
@@ -620,10 +617,14 @@ A layout is a list of items. An item is {"type": "<component type>", "props": {.
   of it (its images, settings) stays; give a new item a new short id of your own.
 - Every item may also have these optional props:
   "_spacing": {"margin": {"size": "<size or auto>", "sides": "all|horizontal|vertical"}, "padding": {...}}
-  "_size": {"width": {"size": "<a size name>"}, "height": {"size": "<a size name>"}}: the item is at most that wide
-    and at least that tall; either can be left out
+  "_size": {"max_width": {"size": "<a size name>"}, "min_height": {"size": "<a size name>"}}: the item is at most
+    that wide and at least that tall; either can be left out. Also "min_width", "exact_width", "max_height",
+    "exact_height"; prefer "max_width" for widths, an exact width does not shrink on a narrow screen
   "_align": "start" | "center" | "end"
   "_background": {"color": "<a background colour name>"}
+  "_border": {"width": {"size": "<a border width name>"}, "sides": "all|top|bottom|start|end|vertical|horizontal",
+    "style": "solid|dashed|dotted|double", "color": "<a colour name>", "radius": {"size": "<a corner radius name>"}}: a
+    line around the item or on some sides, and rounded corners; "radius" alone rounds the corners without a line
   "_text": {"size": "<a font size name>", "weight": "normal|medium|bold", "italic": true, "transform":
     "uppercase|lowercase|capitalize", "leading": "tight|normal|loose", "color": "<a colour name>"}: the look of the text
     in the item; any part can be left out. Use it sparingly, for emphasis; components have their own sizes.
@@ -699,6 +700,55 @@ PROMPT;
     // Sites can add their own guidance: tone of voice, which components to prefer.
     $this->moduleHandler->alter('frame_builder_ai_instructions', $instructions, $node);
     return $instructions;
+  }
+
+  /**
+   * A field as the model is told about it: what a value is, its label and
+   * description, options, an example. For a list, what each value is; for a
+   * list of groups and for a group, their fields. NULL for a widget that is
+   * not offered to the model.
+   */
+  protected function describeField(array $field, int $depth = 0): ?array {
+    $widget = $field['widget'] ?? 'text';
+    if (in_array($widget, ['list', 'group'], TRUE)) {
+      $prop = ['type' => $widget === 'list' ? 'a list (JSON array)' . (!empty($field['max']) ? ' of at most ' . $field['max'] : '') : 'an object'];
+      if (isset($field['fields'])) {
+        $parts = [];
+        foreach ($field['fields'] as $sub) {
+          if ($depth < 3 && ($described = $this->describeField($sub, $depth + 1))) {
+            $parts[$sub['name']] = $described;
+          }
+        }
+        if (!$parts) {
+          return NULL;
+        }
+        $prop[$widget === 'list' ? 'each_item_is_an_object_with' : 'properties'] = $parts;
+      }
+      elseif (!($prop['each_item'] = $this->describeField($field['item'] ?? [], $depth + 1))) {
+        return NULL;
+      }
+    }
+    elseif ($type = self::TYPES[$widget] ?? NULL) {
+      $prop = ['type' => $type];
+    }
+    else {
+      return NULL;
+    }
+    $prop['label'] = $field['label'] ?? $field['name'] ?? '';
+    if (!empty($field['description'])) {
+      $prop['description'] = mb_substr((string) $field['description'], 0, 300);
+    }
+    if (!empty($field['options'])) {
+      $prop['options'] = array_column($field['options'], 'label', 'value');
+    }
+    if (!empty($field['required'])) {
+      $prop['required'] = TRUE;
+    }
+    // What the component starts with: tells what a value looks like.
+    if ((is_scalar($field['default'] ?? NULL) && $field['default'] !== '') || (is_array($field['default'] ?? NULL) && $field['default'] && $depth === 0)) {
+      $prop['example'] = $field['default'];
+    }
+    return $prop;
   }
 
   /**
